@@ -1,0 +1,41 @@
+{
+  "name": "PowerAutomate actions handler",
+  "description": "The tool to handle PowerAutomate actions",
+  "version": "1.0.1",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Open the popup"
+  },
+  "icons": {
+    "16": "logo192.png",
+    "48": "logo192.png",
+    "128": "logo192.png"
+  },
+  "permissions": [
+    "activeTab",
+    "webRequest",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback",
+    "background",
+    "storage",
+    "clipboardRead",
+    "clipboardWrite",
+    "tabs",
+    "declarativeContent"
+  ],
+  "background": {
+    "service_worker":
+      "./static/js/Background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "./static/js/Content.js"
+      ]
+    }
+  ]
+}
