@@ -5,7 +5,6 @@ export interface IActionModel {
     title: string;
     actionJson: string;
     method: string;
-    isSPAction: boolean;
     isSelected?: boolean;
     body?: any;
 }

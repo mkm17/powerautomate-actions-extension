@@ -2,7 +2,6 @@ import { AppElement, ICommunicationChromeMessage, IDataChromeMessage } from "../
 
 export class ExtensionCommunicationService {
 
-
     public sendRequest(requestObject: IDataChromeMessage, sender: AppElement, receiver: AppElement, callback?: (response: any) => void) {
         const callbackCheck = callback ? callback : () => { };
         switch (receiver) {

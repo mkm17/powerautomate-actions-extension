@@ -30,36 +30,43 @@ export class BackgroundService {
     }
 
     private handleRequest = async (req: chrome.webRequest.WebRequestHeadersDetails) => {
-        const isRecording = await this.chromeService.getIsRecordingValue();
-        if (isRecording) {
-            const findedAction = this.actionsWithBody.find((action) => action.requestId === req.requestId);
-            const rawData: any = findedAction?.requestBody?.raw ? findedAction.requestBody.raw[0] : null;
-            const requestBody = rawData && rawData['bytes'] ? JSON.parse(new TextDecoder("utf-8").decode(rawData['bytes'])) : null;
-            const isSharePointPage = req.url.indexOf(req.initiator ? req.initiator : '') > -1;
-            const headers = req.requestHeaders ? req.requestHeaders : [];
-            const title = this.contentService.getTitleFromUrl(req.url);
+        try {
+            const isRecording = await this.chromeService.getIsRecordingValue();
+            if (isRecording) {
+                const findedAction = this.actionsWithBody.find((action) => action.requestId === req.requestId);
+                const rawData: any = findedAction?.requestBody?.raw ? findedAction.requestBody.raw[0] : null;
+                const requestBody = rawData && rawData['bytes'] ? JSON.parse(new TextDecoder("utf-8").decode(rawData['bytes'])) : null;
+                const isSharePointRequest = req.url.indexOf(req.initiator ? req.initiator : '') > -1;
+                const isGraphRequest = req.url.indexOf('https://graph.microsoft.com/') > -1;
+                const headers = req.requestHeaders ? req.requestHeaders : [];
+                const title = this.contentService.getTitleFromUrl(req.url);
 
-            const actionJson = isSharePointPage ? this.contentService.getHttpSharePointActionTemplate(req.method, req.url, headers, title, requestBody) :
-                this.contentService.getHttpRequestActionTemplate(req.method, req.url, headers, title, requestBody);
-            console.log(actionJson);
-            const newAction: IActionModel = {
-                icon: 'https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png',
-                actionJson: actionJson,
-                id: req.requestId,
-                method: req.method,
-                url: req.url,
-                title: title,
-                isSPAction: isSharePointPage,
-                body: requestBody
+                if ((!isSharePointRequest && !isGraphRequest) || req.frameType== "sub_frame") { return; }
+                console.log(chrome)
+                console.log(req)
+                const actionJson = isSharePointRequest ? this.contentService.getHttpSharePointActionTemplate(req.method, req.url, headers, title, requestBody) :
+                    this.contentService.getHttpRequestActionTemplate(req.method, req.url, headers, title, requestBody);
+                const newAction: IActionModel = {
+                    icon: isSharePointRequest ? 'https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png' :
+                        'https://content.powerapps.com/resource/makerx/static/pauto/images/designeroperations/http.a0aaded8.png',
+                    actionJson: actionJson,
+                    id: req.requestId,
+                    method: req.method,
+                    url: req.url,
+                    title: title,
+                    body: requestBody
+                }
+
+                this.chromeService.setNewAction(newAction);
+                const actions = await this.chromeService.getActions();
+                this.communicationService.sendRequest(
+                    { actionType: ActionType.ActionUpdated, message: actions },
+                    AppElement.Background,
+                    AppElement.ReactApp);
+
             }
-
-            this.chromeService.setNewAction(newAction);
-            const actions = await this.chromeService.getActions();
-            this.communicationService.sendRequest(
-                { actionType: ActionType.ActionUpdated, message: actions },
-                AppElement.Background,
-                AppElement.ReactApp);
-
+        } catch (e) {
+            console.log('Incorrect request');
         }
     }
 

@@ -1,6 +1,6 @@
 {
-  "name": "PowerAutomate actions handler",
-  "description": "The tool to handle PowerAutomate actions",
+  "name": "Power Automate actions handler",
+  "description": "The tool to handle Power Automate actions",
   "version": "1.0.1",
   "manifest_version": 3,
   "action": {
@@ -15,23 +15,21 @@
   "permissions": [
     "activeTab",
     "webRequest",
-    "declarativeNetRequest",
-    "declarativeNetRequestFeedback",
     "background",
     "storage",
-    "clipboardRead",
-    "clipboardWrite",
-    "tabs",
-    "declarativeContent"
+    "clipboardRead"
   ],
   "background": {
     "service_worker":
       "./static/js/Background.js"
   },
+  "host_permissions": [
+    "https://*/*"
+  ],
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "https://*/*"
       ],
       "js": [
         "./static/js/Content.js"

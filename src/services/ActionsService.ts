@@ -6,10 +6,10 @@ export class ActionsService {
     name: string,
     requestBody: any) {
 
-    let headersJson: any = {};
+    const headersJson: any = {};
     headers.forEach(header => { headersJson[header.name] = header.value });
     const bodyParameter = `,"parameters/body": ${JSON.stringify(requestBody)}`;
-    const urlSplitted = requestUrl.toString().split('/_api');
+    const urlSplitted = requestUrl.split('/_api');
     const request = `{
       "id": "7a3955e0-f505-4f9f-ae7f-d805943ff04d", 
       "brandColor": "#036C70",
@@ -41,7 +41,7 @@ export class ActionsService {
     headers: chrome.webRequest.HttpHeader[],
     name: string,
     requestBody: any) {
-    let headersJson: any = {};
+    const headersJson: any = {};
     headers.forEach(header => { headersJson[header.name] = header.value });
     return `{
       "id": "faf87a3f-9c4d-4ae2-97c8-7f916bc6fa62",

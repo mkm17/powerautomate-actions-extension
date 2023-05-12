@@ -20,6 +20,12 @@ export class ContentService {
             case ActionType.CheckPowerAutomatePage:
                 sendResponse(this.isPowerAutomatePage());
                 break;
+            case ActionType.CheckIfPageHasActionsToCopy:
+                sendResponse(this.hasActionsToCopy());
+                break;
+            case ActionType.CopyAllActionsFromPage:
+                sendResponse(this.copyAllActionsFromPage());
+                break;
             default:
                 console.log('Incorrect Action Type');
         }
@@ -27,7 +33,7 @@ export class ContentService {
 
     private copyListener = (message: ICommunicationChromeMessage) => {
         const messageContent: IActionModel[] = message.message;
-        if (!messageContent || messageContent.length === 0 /*|| typeof message.message !== IActionModel[] */) {
+        if (!messageContent || messageContent.length === 0) {
             console.log('Incorrect message');
         }
 
@@ -61,6 +67,38 @@ export class ContentService {
         return message.to === AppElement.Content;
     }
 
+    private hasActionsToCopy = (): boolean => {
+        const elements = document.getElementsByClassName('powerAutomateCode');
+        return elements && elements.length > 0;
+    }
+
+    private copyAllActionsFromPage = async () => {
+        try {
+            const elements = document.getElementsByClassName('powerAutomateCode');
+
+            const newActions = Array.from(elements).map((element: any) => {
+                const actionJsonText = element.innerText;
+                const actionJson = JSON.parse(actionJsonText);
+                const newAction: IActionModel = {
+                    actionJson: actionJsonText ? actionJsonText : '',
+                    id: this.generateUniqueId(),
+                    method: '',
+                    url: '',
+                    icon: actionJson.icon,
+                    title: actionJson.operationName
+                }
+                return newAction;
+            });
+            const actions = await this.chromeService.setNewMyClipboardActions(newActions);
+            this.communicationService.sendRequest(
+                { actionType: ActionType.MyClipboardActionsUpdated, message: actions },
+                AppElement.Content,
+                AppElement.ReactApp);
+        } catch (e) {
+            console.log('Cannot Copy the actions from the page');
+        }
+    }
+
     public getElementsFromMyClipboard = async (message: ICommunicationChromeMessage) => {
         const elements = document.getElementsByClassName('fl-MyClipboardRecommendationItem');
         const clipBoardActions: IActionModel[] = [];
@@ -83,8 +121,7 @@ export class ContentService {
                 method: '',
                 url: '',
                 title: name,
-                icon: icon,
-                isSPAction: false,
+                icon: icon
             }
             clipBoardActions.push(newAction);
 
@@ -100,20 +137,23 @@ export class ContentService {
 
     public addCopyListener = () => {
         document.addEventListener('copy', (event) => {
-            const copiedText = (event?.srcElement as any)['value'];
-            const jsonData = JSON.parse(copiedText);
+            try {
+                const copiedText = (event?.srcElement as any)['value'];
+                const jsonData = JSON.parse(copiedText);
 
-            const newAction: IActionModel = {
-                actionJson: copiedText ? copiedText : '',
-                id: this.generateUniqueId(),
-                method: '',
-                url: '',
-                icon: jsonData.icon,
-                title: jsonData.operationName,
-                isSPAction: false,
+                const newAction: IActionModel = {
+                    actionJson: copiedText ? copiedText : '',
+                    id: this.generateUniqueId(),
+                    method: '',
+                    url: '',
+                    icon: jsonData.icon,
+                    title: jsonData.operationName
+                }
+
+                this.chromeService.setNewMyClipboardAction(newAction);
+            } catch (e) {
+                console.log('Cannot Copy the action');
             }
-
-            this.chromeService.setNewMyClipboardAction(newAction);
         });
     }
 

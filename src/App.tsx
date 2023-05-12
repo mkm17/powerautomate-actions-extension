@@ -17,6 +17,7 @@ function App() {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isPowerAutomatePage, setIsPowerAutomatePage] = useState<boolean>(false);
   const [isSharePointPage, setIsSharePointPage] = useState<boolean>(false);
+  const [hasActionsOnPageToCopy, setHasActionsOnPageToCopy] = useState<boolean>(false);
   const [actions, setActions] = useState<IActionModel[]>([]);
   const [myClipboardActions, setMyClipboardActions] = useState<IActionModel[]>([]);
   const [currentMode, setCurrentMode] = useState<Mode>(Mode.Requests);
@@ -41,6 +42,9 @@ function App() {
     communicationService.sendRequest({ actionType: ActionType.CheckPowerAutomatePage, message: "Check PowerAutomate Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
       setIsPowerAutomatePage(response)
     });
+    communicationService.sendRequest({ actionType: ActionType.CheckIfPageHasActionsToCopy, message: "Check If Page has actions to copy" }, AppElement.ReactApp, AppElement.Content, (response) => {
+      setHasActionsOnPageToCopy(response)
+    });
     storageService.getActions().then((actions) => {
       setActions(actions);
     });
@@ -57,23 +61,19 @@ function App() {
   useEffect(initData, []);
 
   const sendRecordingStatus = () => {
-    let message: IDataChromeMessage | null = null;
-    if (isRecording) {
-      message = {
-        actionType: ActionType.StopRecording,
-        message: "Stop recording",
-      }
-    }
-    else {
-      message = {
-        actionType: ActionType.StartRecording,
-        message: "Start recording",
-      }
-    }
-    communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, (response) => {
-      setIsRecording(response)
-    });
+    const message: IDataChromeMessage = isRecording
+      ? { actionType: ActionType.StopRecording, message: "Stop recording" }
+      : { actionType: ActionType.StartRecording, message: "Start recording" };
+    communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, setIsRecording);
   };
+
+  const copyAllActionsFromPage = () => {
+    const message = {
+      actionType: ActionType.CopyAllActionsFromPage,
+      message: "Copy All Actions From Page",
+    }
+    communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Content);
+  }
 
   const clearRecordings = () => {
     if (currentMode === Mode.Requests) {
@@ -94,30 +94,25 @@ function App() {
     communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Content);
   }
 
-  const deleteAction = (action: IActionModel) => {
+  const deleteAction = (action: IActionModel, oldActions: IActionModel[], setActionsFunc: (value: React.SetStateAction<IActionModel[]>) => void, actionType: ActionType) => {
     const message: IDataChromeMessage = {
-      actionType: ActionType.DeleteAction,
+      actionType: actionType,
       message: action,
     }
     communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, (response) => {
-      const myArray = [...(actions || [])];
+      const myArray = [...(oldActions || [])];
       const index = myArray.findIndex((a) => a.id === action.id);
       myArray.splice(index, 1);
-      setActions(myArray);
+      setActionsFunc(myArray);
     });
   }
 
+  const deleteRecordedAction = (action: IActionModel) => {
+    deleteAction(action, actions, setActions, ActionType.DeleteAction);
+  }
+
   const deleteMyClipboardAction = (action: IActionModel) => {
-    const message: IDataChromeMessage = {
-      actionType: ActionType.DeleteMyClipboardAction,
-      message: action,
-    }
-    communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, (response) => {
-      const myArray = [...(myClipboardActions || [])];
-      const index = myArray.findIndex((a) => a.id === action.id);
-      myArray.splice(index, 1);
-      setMyClipboardActions(myArray);
-    });
+    deleteAction(action, myClipboardActions, setMyClipboardActions, ActionType.DeleteMyClipboardAction);
   }
 
   const getMyClipboardActions = () => {
@@ -139,6 +134,10 @@ function App() {
     return <Icon className="App-icon" iconName='Clear' title="Clear Items" onClick={clearRecordings}></Icon>;
   }
 
+  const renderCopyAllActionsFromPage = () => {
+    return hasActionsOnPageToCopy && <Icon className="App-icon" iconName='SetAction' title="Copy All Actions From Page" onClick={copyAllActionsFromPage}></Icon>;
+  }
+
   const renderCopyButton = () => {
     return isPowerAutomatePage && <Icon className="App-icon" iconName='Copy' title="Copy Items" onClick={copyItems}></Icon>;
   }
@@ -147,44 +146,42 @@ function App() {
     return isPowerAutomatePage && <Icon className="App-icon" iconName='DoubleChevronDown12' title="Get 'My Clipboard Actions'" onClick={getMyClipboardActions}></Icon>;
   }
 
-  const changeSelection = (action: IActionModel) => {
-    const allActions = [...(actions || [])];
+  const changeSelection = (action: IActionModel, oldActions: IActionModel[], setActionsFunc: (value: React.SetStateAction<IActionModel[]>) => void) => {
+    const allActions = [...(oldActions || [])];
     const index = allActions.findIndex(a => a.id === action.id);
     allActions[index].isSelected = !action.isSelected;
 
-    setActions(allActions);
+    setActionsFunc(allActions);
   }
 
-  const renderRequest = (action: IActionModel) => {
+  const renderRequestAction = (action: IActionModel, changeSelectionFunc: (action: IActionModel) => void, deleteActionFunc: (action: IActionModel) => void) => {
     return <div className='App-Action-Row' title={action.url}>
-      <Checkbox className='App-Action-Checkbox' checked={action.isSelected} onChange={() => { changeSelection(action) }}></Checkbox>
+      <Checkbox className='App-Action-Checkbox' checked={action.isSelected} onChange={() => { changeSelectionFunc(action) }}></Checkbox>
       <img src={action.icon} className='App-Action-Icon' alt={action.title}></img>
       <span className='App-Action-Element'>{action.title}</span>
       <span className='App-Action-Element'>{action.method}</span>
-      <Icon className='App-Action-Delete' iconName='Delete' onClick={() => { deleteAction(action) }}></Icon>
+      <Icon className='App-Action-Delete' iconName='Delete' onClick={() => { deleteActionFunc(action) }}></Icon>
     </div>;
   }
 
-  const renderRequests = () => {
-    return actions && actions.map(renderRequest)
+  const changeSelectionRecordedAction = (action: IActionModel) => {
+    changeSelection(action, actions, setActions);
+  }
+
+  const renderRecordedAction = (action: IActionModel) => {
+    return renderRequestAction(action, changeSelectionRecordedAction, deleteRecordedAction);
+  }
+
+  const renderRecordedActions = () => {
+    return actions && actions.map(renderRecordedAction)
   }
 
   const changeCopiedActionSelection = (action: IActionModel) => {
-    const allActions = [...(myClipboardActions || [])];
-    const index = allActions.findIndex(a => a.id === action.id);
-    allActions[index].isSelected = !action.isSelected;
-
-    setMyClipboardActions(allActions);
+    changeSelection(action, myClipboardActions, setMyClipboardActions);
   }
 
   const renderCopiedAction = (action: IActionModel) => {
-    return <div className='App-Action-Row' title={action.url}>
-      <Checkbox className='App-Action-Checkbox' checked={action.isSelected} onChange={() => { changeCopiedActionSelection(action) }}></Checkbox>
-      <img src={action.icon} className='App-Action-Icon' alt={action.title}></img>
-      <span className='App-Action-Element'>{action.title}</span>
-      <span className='App-Action-Element'>{action.method}</span>
-      <Icon className='App-Action-Delete' iconName='Delete' onClick={() => { deleteMyClipboardAction(action) }}></Icon>
-    </div>;
+    return renderRequestAction(action, changeCopiedActionSelection, deleteMyClipboardAction);
   }
 
   const renderCopiedActions = () => {
@@ -201,7 +198,6 @@ function App() {
     </div>;
   }
 
-
   return (
     <div className="App">
       <header className="App-header">
@@ -209,6 +205,7 @@ function App() {
         {renderClearButton()}
         {renderCopyButton()}
         {renderGetClipboardActions()}
+        {renderCopyAllActionsFromPage()}
       </header>
       <Pivot onLinkClick={(item: PivotItem | undefined) => {
         if (item?.props.headerText === "Recorded Requests") {
@@ -222,7 +219,7 @@ function App() {
           headerText="Recorded Requests"
         >
           <div>{renderHeader()}</div>
-          <div>{renderRequests()}</div>
+          <div>{renderRecordedActions()}</div>
         </PivotItem>
         <PivotItem
           headerText="Copied Actions"

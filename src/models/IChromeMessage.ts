@@ -14,7 +14,9 @@ export enum ActionType {
     DeleteAction,
     GetElementsFromMyClipboard,
     MyClipboardActionsUpdated,
-    DeleteMyClipboardAction
+    DeleteMyClipboardAction,
+    CheckIfPageHasActionsToCopy,
+    CopyAllActionsFromPage
 }
 
 export interface IDataChromeMessage {
