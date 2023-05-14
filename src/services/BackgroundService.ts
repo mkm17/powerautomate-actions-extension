@@ -6,6 +6,8 @@ export class BackgroundService {
     private chromeService = new StorageService();
     private contentService = new ActionsService();
     private communicationService = new ExtensionCommunicationService();
+    private previousUrl = '';
+    private isSharePointPageVar = false;
 
     public handleBackgroundAction = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
         if (!this.isCorrectReceiver(message)) { console.log('Incorrect Background Action'); }
@@ -33,6 +35,9 @@ export class BackgroundService {
         try {
             const isRecording = await this.chromeService.getIsRecordingValue();
             if (isRecording) {
+                const isSharePointPage = await this.checkIfPageIsSharePoint();
+                if (!isSharePointPage) { return; }
+
                 const findedAction = this.actionsWithBody.find((action) => action.requestId === req.requestId);
                 const rawData: any = findedAction?.requestBody?.raw ? findedAction.requestBody.raw[0] : null;
                 const requestBody = rawData && rawData['bytes'] ? JSON.parse(new TextDecoder("utf-8").decode(rawData['bytes'])) : null;
@@ -41,9 +46,7 @@ export class BackgroundService {
                 const headers = req.requestHeaders ? req.requestHeaders : [];
                 const title = this.contentService.getTitleFromUrl(req.url);
 
-                if ((!isSharePointRequest && !isGraphRequest) || req.frameType== "sub_frame") { return; }
-                console.log(chrome)
-                console.log(req)
+                if ((!isSharePointRequest && !isGraphRequest) || req.frameType == "sub_frame") { return; }
                 const actionJson = isSharePointRequest ? this.contentService.getHttpSharePointActionTemplate(req.method, req.url, headers, title, requestBody) :
                     this.contentService.getHttpRequestActionTemplate(req.method, req.url, headers, title, requestBody);
                 const newAction: IActionModel = {
@@ -91,6 +94,42 @@ export class BackgroundService {
 
     private isCorrectReceiver = (message: ICommunicationChromeMessage) => {
         return message.to === AppElement.Background;
+    }
+
+    public getCurrentTabUrl(): Promise<string> {
+        return new Promise((resolve, reject) => {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs.length > 0) {
+                    const tab = tabs[0];
+                    resolve(tab.url ? tab.url : '');
+                } else {
+                    reject(new Error('No active tab found'));
+                }
+            });
+        });
+    }
+
+    public isSharePointPage(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            this.communicationService.sendRequest({ actionType: ActionType.CheckSharePointPage, message: "Check SharePoint Page" }, AppElement.Background, AppElement.Content,
+                (response) => {
+                    resolve(response)
+                });
+        });
+    }
+
+    private checkUrlChange = async () => {
+        const url = await this.getCurrentTabUrl();
+        return (this.previousUrl !== url);
+    }
+
+    private checkIfPageIsSharePoint = async () => {
+        const urlHasChanged = await this.checkUrlChange();
+        if (urlHasChanged) {
+            this.isSharePointPageVar = await this.isSharePointPage();
+        }
+
+        return this.isSharePointPageVar
     }
 
 }
