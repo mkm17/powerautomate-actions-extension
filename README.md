@@ -7,17 +7,17 @@ With the tool you can record the following actions:
 
  **Default Requests invoked from SharePoint Page**
 
-![Recorded Actions](/images/powerAutomateExtention/RecordDefaultSPActions.gif)
+![Recorded Actions](/images/RecordDefaultSPActions.gif)
 
 
  **Requests invoked from browser console**
 
-![Recorded Actions](/images/powerAutomateExtention/RecordConsoleAction.gif)
+![Recorded Actions](/images/RecordConsoleAction.gif)
 
 
  **Requests invoked from SP Editor**
 
-![Recorded Actions](/images/powerAutomateExtention/RecordActionsFromSPEditor.gif)
+![Recorded Actions](/images/RecordActionsFromSPEditor.gif)
 
 <br />
 <br />
@@ -26,7 +26,7 @@ With the tool you can record the following actions:
 With the tool, we can copy all actions from “My Clipboard” section and then past selected actions to the next environment.
 
 
-![Copy Actions Between Environments](/images/powerAutomateExtention/CopyBetweenEnvs.gif)
+![Copy Actions Between Environments](/images/CopyBetweenEnvs.gif)
 
 <br />
 <br />
@@ -34,7 +34,7 @@ With the tool, we can copy all actions from “My Clipboard” section and then 
 ## **3.	Copy entire action from community blogs.**
 It is possible to copy all actions stored on the page as well as a single action using copy button. Please check [our article about bulb presence](https://michalkornet.com/2023/04/25/Bulb_Presence.html) as the reference. 
 
-![Copy Actions from blog](/images/powerAutomateExtention/CopyItemsFromBlogAndSaveOnFlow.gif)
+![Copy Actions from blog](/images/CopyItemsFromBlogAndSaveOnFlow.gif)
 
 <br />
 <br />
@@ -42,14 +42,14 @@ It is possible to copy all actions stored on the page as well as a single action
 ## **4.	Store actions in a more persistent way.**
 Copy actions from My *Clipboard Section*.
 
-[Copy Actions from My Clipboard](/images/powerAutomateExtention/CopyMyClipboardActions.gif)
+[Copy Actions from My Clipboard](/images/CopyMyClipboardActions.gif)
 
 <br />
 <br />
 
 All actions can be copied to My Clipboard section of Power Automate.
 
-![Paste Actions to my clipboard](/images/powerAutomateExtention/CopyItemsToMyClipboard.gif)
+![Paste Actions to my clipboard](/images/CopyItemsToMyClipboard.gif)
 
 <br />
 <br />
