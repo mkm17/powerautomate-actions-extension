@@ -1,18 +1,69 @@
-# Getting Started with Create React App
+#Power Automate Actions Chrome Extension
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The tool can be used for the following purposes:
+
+## **1. Making SharePoint HTTP Requests and MS Graph HTTP Requests actions.**
+With the tool you can record the following actions:
+
+ **Default Requests invoked from SharePoint Page**
+
+![Recorded Actions](/images/powerAutomateExtention/RecordDefaultSPActions.gif)
+
+
+ **Requests invoked from browser console**
+
+![Recorded Actions](/images/powerAutomateExtention/RecordConsoleAction.gif)
+
+
+ **Requests invoked from SP Editor**
+
+![Recorded Actions](/images/powerAutomateExtention/RecordActionsFromSPEditor.gif)
+
+<br />
+<br />
+
+## **2.	Copy actions between two different environments**
+With the tool, we can copy all actions from “My Clipboard” section and then past selected actions to the next environment.
+
+
+![Copy Actions Between Environments](/images/powerAutomateExtention/CopyBetweenEnvs.gif)
+
+<br />
+<br />
+
+## **3.	Copy entire action from community blogs.**
+It is possible to copy all actions stored on the page as well as a single action using copy button. Please check [our article about bulb presence](https://michalkornet.com/2023/04/25/Bulb_Presence.html) as the reference. 
+
+![Copy Actions from blog](/images/powerAutomateExtention/CopyItemsFromBlogAndSaveOnFlow.gif)
+
+<br />
+<br />
+
+## **4.	Store actions in a more persistent way.**
+Copy actions from My *Clipboard Section*.
+
+[Copy Actions from My Clipboard](/images/powerAutomateExtention/CopyMyClipboardActions.gif)
+
+<br />
+<br />
+
+All actions can be copied to My Clipboard section of Power Automate.
+
+![Paste Actions to my clipboard](/images/powerAutomateExtention/CopyItemsToMyClipboard.gif)
+
+<br />
+<br />
+
+ **How to install the tool?**
+
+Currently, the tool is not available from Chrome Store. So, you need to install it manually.
+To do so please unpack *[ApplicationBuild](https://github.com/mkm17/powerautomate-actions-extension/blob/main/ApplicationBuild.zip)* zip file and follow the steps described [here](https://support.google.com/chrome/a/answer/2714278?hl=en) to install the package locally. 
+
+In the future, I will update this article with the link to Chrome Store.
+
+
 
 ## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
 ### `npm test`
 
@@ -21,26 +72,5 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+The solution uses [craco](https://www.npmjs.com/package/@craco/craco) package to override webpack configuration. To build the solution use `npm run build` command. The build artifacts will be stored in the `build/` directory.
+The build can be directly uploaded to Chrome Store or to local Chrome browser.
