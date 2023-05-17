@@ -1,0 +1,18 @@
+export class Constants {
+    public static readonly MSGraphUrl = 'https://graph.microsoft.com/';
+    public static readonly PowerAutomateUrl = 'make.powerautomate.com';
+
+    public static readonly SharePointIcon = 'https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png';
+    public static readonly HttpRequestIcon = 'https://content.powerapps.com/resource/makerx/static/pauto/images/designeroperations/http.a0aaded8.png';
+
+    public static readonly MyClipboardItemClass = 'fl-MyClipboardRecommendationItem';
+    public static readonly MyClipboardItemNameClass = 'fl-MyClipboardRecommendationItem-copy';
+    public static readonly MyClipboardItemIconClass = 'fl-MyClipboardRecommendationItem-icon';
+    public static readonly MyClipboardItemDetailsId = 'fl-IconButton-tooltip';
+
+    public static readonly CopyTextareaClassName = 'copyTextareaPowerAutomateCode';
+    public static readonly BlogActionClass = 'powerAutomateCode';
+
+    public static readonly SharePointPageClass = 'SPPageChrome';
+    public static readonly SharePointPageClass2 = 'spoAppComponent';
+}

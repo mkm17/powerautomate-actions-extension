@@ -1,30 +1,31 @@
-import { ActionsService, ExtensionCommunicationService, StorageService } from ".";
+import { Constants } from "../constants/Constants";
 import { ActionType, AppElement, IActionModel, ICommunicationChromeMessage } from "../models";
+import { IBackgroundService, IStorageService, IExtensionCommunicationService, IActionService } from "./interfaces";
 
-export class BackgroundService {
+export class BackgroundService implements IBackgroundService {
     private actionsWithBody: chrome.webRequest.WebRequestBodyDetails[] = [];
-    private chromeService = new StorageService();
-    private contentService = new ActionsService();
-    private communicationService = new ExtensionCommunicationService();
     private previousUrl = '';
     private isSharePointPageVar = false;
 
-    public handleBackgroundAction = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+    constructor(private storageService: IStorageService, private communicationService: IExtensionCommunicationService, private actionsService: IActionService) {
+    }
+
+    public handleBackgroundAction = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender|null, sendResponse: (response?: any) => void) => {
         if (!this.isCorrectReceiver(message)) { console.log('Incorrect Background Action'); }
         switch (message.actionType) {
             case ActionType.StartRecording:
-                this.chromeService.setIsRecordingValue(true);
+                this.storageService.setIsRecordingValue(true);
                 sendResponse(true);
                 break;
             case ActionType.StopRecording:
-                this.chromeService.setIsRecordingValue(false);
+                this.storageService.setIsRecordingValue(false);
                 sendResponse(false);
                 break;
             case ActionType.DeleteAction:
-                this.chromeService.deleteAction(message.message);
+                this.storageService.deleteAction(message.message);
                 break;
             case ActionType.DeleteMyClipboardAction:
-                this.chromeService.deleteMyClipboardAction(message.message);
+                this.storageService.deleteMyClipboardAction(message.message);
                 break;
             default:
                 console.log('Incorrect Action Type')
@@ -33,7 +34,7 @@ export class BackgroundService {
 
     private handleRequest = async (req: chrome.webRequest.WebRequestHeadersDetails) => {
         try {
-            const isRecording = await this.chromeService.getIsRecordingValue();
+            const isRecording = await this.storageService.getIsRecordingValue();
             if (isRecording) {
                 const isSharePointPage = await this.checkIfPageIsSharePoint();
                 if (!isSharePointPage) { return; }
@@ -42,16 +43,15 @@ export class BackgroundService {
                 const rawData: any = findedAction?.requestBody?.raw ? findedAction.requestBody.raw[0] : null;
                 const requestBody = rawData && rawData['bytes'] ? JSON.parse(new TextDecoder("utf-8").decode(rawData['bytes'])) : null;
                 const isSharePointRequest = req.url.indexOf(req.initiator ? req.initiator : '') > -1;
-                const isGraphRequest = req.url.indexOf('https://graph.microsoft.com/') > -1;
+                const isGraphRequest = req.url.indexOf(Constants.MSGraphUrl) > -1;
                 const headers = req.requestHeaders ? req.requestHeaders : [];
-                const title = this.contentService.getTitleFromUrl(req.url);
+                const title = this.actionsService.getTitleFromUrl(req.url);
 
-                if ((!isSharePointRequest && !isGraphRequest) || req.frameType == "sub_frame") { return; }
-                const actionJson = isSharePointRequest ? this.contentService.getHttpSharePointActionTemplate(req.method, req.url, headers, title, requestBody) :
-                    this.contentService.getHttpRequestActionTemplate(req.method, req.url, headers, title, requestBody);
+                if ((!isSharePointRequest && !isGraphRequest) || req.frameType === "sub_frame") { return; }
+                const actionJson = isSharePointRequest ? this.actionsService.getHttpSharePointActionTemplate(req.method, req.url, headers, title, requestBody) :
+                    this.actionsService.getHttpRequestActionTemplate(req.method, req.url, headers, title, requestBody);
                 const newAction: IActionModel = {
-                    icon: isSharePointRequest ? 'https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png' :
-                        'https://content.powerapps.com/resource/makerx/static/pauto/images/designeroperations/http.a0aaded8.png',
+                    icon: isSharePointRequest ? Constants.SharePointIcon : Constants.HttpRequestIcon,
                     actionJson: actionJson,
                     id: req.requestId,
                     method: req.method,
@@ -60,8 +60,8 @@ export class BackgroundService {
                     body: requestBody
                 }
 
-                this.chromeService.setNewAction(newAction);
-                const actions = await this.chromeService.getActions();
+                this.storageService.setNewAction(newAction);
+                const actions = await this.storageService.getActions();
                 this.communicationService.sendRequest(
                     { actionType: ActionType.ActionUpdated, message: actions },
                     AppElement.Background,
@@ -69,7 +69,7 @@ export class BackgroundService {
 
             }
         } catch (e) {
-            console.log('Incorrect request');
+            console.log(e);
         }
     }
 

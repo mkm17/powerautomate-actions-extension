@@ -1,33 +1,23 @@
 import { IActionModel } from "../models";
+import { IStorageService } from "./interfaces";
 
-export class StorageService {
+export class StorageService implements IStorageService {
     private ACTIONS_KEY = "recordedActions";
     private MY_CLIPBOARD_ACTIONS_KEY = "myClipboardActions";
     private IS_RECORDING_KEY = "isRecordingActions";
 
     public async getActions(): Promise<IActionModel[]> {
-        return new Promise((resolve) => {
-            chrome.storage.local.get(this.ACTIONS_KEY, (result) => {
-                resolve(result[this.ACTIONS_KEY])
-            });
-        });
+        return await this.getActionsByKey(this.ACTIONS_KEY);
     }
 
     public setNewAction = async (action: IActionModel): Promise<IActionModel[]> => {
         const result = await this.getActions();
-        const myArray = result || [];
-        myArray.push(action);
-        await chrome.storage.local.set({ [this.ACTIONS_KEY]: myArray });
-        return myArray;
+        return await this.setNewActionByKey(action, this.ACTIONS_KEY, result);
     }
 
     public deleteAction = async (action: IActionModel): Promise<IActionModel[]> => {
         const result = await this.getActions();
-        const myArray = result || [];
-        const index = myArray.findIndex((a) => a.id === action.id);
-        myArray.splice(index, 1);
-        await chrome.storage.local.set({ [this.ACTIONS_KEY]: myArray });
-        return myArray;
+        return await this.deleteActionByKey(action, this.ACTIONS_KEY, result);
     }
 
     public clearActions = async () => {
@@ -35,38 +25,22 @@ export class StorageService {
     }
 
     public async getMyClipboardActions(): Promise<IActionModel[]> {
-        return new Promise((resolve) => {
-            chrome.storage.local.get(this.MY_CLIPBOARD_ACTIONS_KEY, async (result) => {
-                resolve(result[this.MY_CLIPBOARD_ACTIONS_KEY]);
-            });
-        });
+        return await this.getActionsByKey(this.MY_CLIPBOARD_ACTIONS_KEY);
     }
 
     public async setNewMyClipboardAction(action: IActionModel): Promise<IActionModel[]> {
         const result = await this.getMyClipboardActions();
-        const myArray = result || [];
-        myArray.push(action);
-        await chrome.storage.local.set({ [this.MY_CLIPBOARD_ACTIONS_KEY]: myArray });
-        return myArray;
+        return await this.setNewActionByKey(action, this.MY_CLIPBOARD_ACTIONS_KEY, result);
     }
-    
+
     public async setNewMyClipboardActions(actions: IActionModel[]): Promise<IActionModel[]> {
         const result = await this.getMyClipboardActions();
-        const myArray = result || [];
-        actions.forEach(action => {
-            myArray.push(action);
-        });
-        await chrome.storage.local.set({ [this.MY_CLIPBOARD_ACTIONS_KEY]: myArray });
-        return myArray;
+        return await this.setNewActionsByKey(actions, this.MY_CLIPBOARD_ACTIONS_KEY, result)
     }
 
     public deleteMyClipboardAction = async (action: IActionModel): Promise<IActionModel[]> => {
         const result = await this.getMyClipboardActions();
-        const myArray = result || [];
-        const index = myArray.findIndex((a) => a.id === action.id);
-        myArray.splice(index, 1);
-        await chrome.storage.local.set({ [this.MY_CLIPBOARD_ACTIONS_KEY]: myArray });
-        return myArray;
+        return await this.deleteActionByKey(action, this.MY_CLIPBOARD_ACTIONS_KEY, result);
     }
 
     public clearMyClipboardActions = async () => {
@@ -74,15 +48,58 @@ export class StorageService {
     }
 
     public async getIsRecordingValue(): Promise<boolean> {
-        return new Promise((resolve) => {
-            chrome.storage.local.get(this.IS_RECORDING_KEY, (result) => {
-                resolve(result[this.IS_RECORDING_KEY]);
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                chrome.storage.local.get(this.IS_RECORDING_KEY, (result) => {
+                    resolve(result[this.IS_RECORDING_KEY]);
+                });
+            }
+            catch {
+                reject(new Promise(() => { return false; }));
+            }
         });
     }
 
     public setIsRecordingValue = async (isRecording: boolean) => {
         await chrome.storage.local.set({ [this.IS_RECORDING_KEY]: isRecording });
         return isRecording;
+    }
+
+    private async getActionsByKey(key: string): Promise<IActionModel[]> {
+        return new Promise((resolve, reject) => {
+            try {
+                chrome.storage.local.get(key, (result) => {
+                    resolve(result[key])
+                });
+
+            }
+            catch {
+                reject(new Promise(() => { return []; }));
+            }
+        });
+    }
+
+    private async setNewActionByKey(action: IActionModel, key: string, oldActions: IActionModel[]): Promise<IActionModel[]> {
+        const myArray = oldActions || [];
+        myArray.push(action);
+        await chrome.storage.local.set({ [key]: myArray });
+        return myArray;
+    }
+
+    private async setNewActionsByKey(actions: IActionModel[], key: string, oldActions: IActionModel[]): Promise<IActionModel[]> {
+        const myArray = oldActions || [];
+        actions.forEach(action => {
+            myArray.push(action);
+        });
+        await chrome.storage.local.set({ [key]: myArray });
+        return myArray;
+    }
+
+    private deleteActionByKey = async (action: IActionModel, key: string, oldActions: IActionModel[]): Promise<IActionModel[]> => {
+        const myArray = oldActions || [];
+        const index = myArray.findIndex((a) => a.id === action.id);
+        myArray.splice(index, 1);
+        await chrome.storage.local.set({ [key]: myArray });
+        return myArray;
     }
 }

@@ -1,6 +1,7 @@
 import { AppElement, ICommunicationChromeMessage, IDataChromeMessage } from "../models";
+import { IExtensionCommunicationService } from "./interfaces";
 
-export class ExtensionCommunicationService {
+export class ExtensionCommunicationService implements IExtensionCommunicationService {
 
     public sendRequest(requestObject: IDataChromeMessage, sender: AppElement, receiver: AppElement, callback?: (response: any) => void) {
         const callbackCheck = callback ? callback : () => { };

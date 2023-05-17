@@ -1,18 +1,19 @@
-import { ExtensionCommunicationService, StorageService } from ".";
+import { Constants } from "../constants/Constants";
 import { ActionType, AppElement, IActionModel, ICommunicationChromeMessage } from "../models";
+import { IStorageService, IExtensionCommunicationService, IContentService } from "./interfaces";
 
-export class ContentService {
-    private chromeService = new StorageService();
-    private communicationService = new ExtensionCommunicationService();
+export class ContentService implements IContentService {
+    constructor(private storageService: IStorageService, private communicationService: IExtensionCommunicationService) {
+    }
 
-    public handleContentAction = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+    public handleContentAction = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender | null, sendResponse: (response?: any) => void) => {
         if (!this.isCorrectReceiver(message)) { console.log('Incorrect Content Action'); }
         switch (message.actionType) {
             case ActionType.CopyAction:
                 this.copyListener(message);
                 break;
             case ActionType.GetElementsFromMyClipboard:
-                this.getElementsFromMyClipboard(message);
+                this.getElementsFromMyClipboard();
                 break;
             case ActionType.CheckSharePointPage:
                 sendResponse(this.isSharePointPage());
@@ -35,6 +36,7 @@ export class ContentService {
         const messageContent: IActionModel[] = message.message;
         if (!messageContent || messageContent.length === 0) {
             console.log('Incorrect message');
+            return;
         }
 
         for (let action of messageContent) {
@@ -54,13 +56,13 @@ export class ContentService {
     }
 
     public isSharePointPage = (): boolean => {
-        const element = document.getElementById('SPPageChrome');
-        const element2 = document.getElementById('spoAppComponent');
+        const element = document.getElementById(Constants.SharePointPageClass);
+        const element2 = document.getElementById(Constants.SharePointPageClass2);
         return !!element || !!element2;
     }
 
     public isPowerAutomatePage = (): boolean => {
-        return window && window.location.href.indexOf('make.powerautomate.com') > -1;
+        return window && window.location.href.indexOf(Constants.PowerAutomateUrl) > -1;
     }
 
     private isCorrectReceiver = (message: ICommunicationChromeMessage) => {
@@ -68,13 +70,13 @@ export class ContentService {
     }
 
     private hasActionsToCopy = (): boolean => {
-        const elements = document.getElementsByClassName('powerAutomateCode');
+        const elements = document.getElementsByClassName(Constants.BlogActionClass);
         return elements && elements.length > 0;
     }
 
     private copyAllActionsFromPage = async () => {
         try {
-            const elements = document.getElementsByClassName('powerAutomateCode');
+            const elements = document.getElementsByClassName(Constants.BlogActionClass);
 
             const newActions = Array.from(elements).map((element: any) => {
                 const actionJsonText = element.innerText;
@@ -89,7 +91,7 @@ export class ContentService {
                 }
                 return newAction;
             });
-            const actions = await this.chromeService.setNewMyClipboardActions(newActions);
+            const actions = await this.storageService.setNewMyClipboardActions(newActions);
             this.communicationService.sendRequest(
                 { actionType: ActionType.MyClipboardActionsUpdated, message: actions },
                 AppElement.Content,
@@ -99,21 +101,26 @@ export class ContentService {
         }
     }
 
-    public getElementsFromMyClipboard = async (message: ICommunicationChromeMessage) => {
-        const elements = document.getElementsByClassName('fl-MyClipboardRecommendationItem');
+    public getElementsFromMyClipboard = async () => {
+        const elements = document.getElementsByClassName(Constants.MyClipboardItemClass);
         const clipBoardActions: IActionModel[] = [];
+
         for (let i = 0; i < elements.length; i++) {
             const element = elements[i]
             if (!element) { continue; }
-            const name = element.getElementsByClassName('fl-MyClipboardRecommendationItem-copy')[0].getElementsByTagName('h3')[0].innerText;
-            const icon = element.getElementsByClassName('fl-MyClipboardRecommendationItem-icon')[0].getElementsByTagName('img')[0].src;
+            const name = element.getElementsByClassName(Constants.MyClipboardItemNameClass)[0].getElementsByTagName('h3')[0].innerText;
+            const icon = element.getElementsByClassName(Constants.MyClipboardItemIconClass)[0].getElementsByTagName('img')[0].src;
+            const operationDefinition = element?.querySelector(`[id^='${Constants.MyClipboardItemDetailsId}']`)?.innerHTML;
+
+            if (!this.isCorrectJSON(operationDefinition)) { continue; }
+
             const actionJson = `{
                 "id": "a9abf920-e736-4b15-ae5e-463c366da02b",
                 "brandColor": "#007ee5",
                 "icon": "${icon}",
                 "isTrigger": false,
                 "operationName": "${name}",
-                "operationDefinition": ${element?.querySelector("[id^='fl-IconButton-tooltip']")?.innerHTML} 
+                "operationDefinition": ${element?.querySelector(`[id^='${Constants.MyClipboardItemDetailsId}']`)?.innerHTML} 
             }`;
             const newAction: IActionModel = {
                 actionJson: actionJson ? actionJson : '',
@@ -127,7 +134,9 @@ export class ContentService {
 
         }
 
-        const actions = await this.chromeService.setNewMyClipboardActions(clipBoardActions);
+        if (clipBoardActions.length === 0) { return; }
+
+        const actions = await this.storageService.setNewMyClipboardActions(clipBoardActions);
         this.communicationService.sendRequest(
             { actionType: ActionType.MyClipboardActionsUpdated, message: actions },
             AppElement.Content,
@@ -138,7 +147,13 @@ export class ContentService {
     public addCopyListener = () => {
         document.addEventListener('copy', (event) => {
             try {
+                const copiedTextElementClassName = (event?.srcElement as any)['className'];
+                if(copiedTextElementClassName !== Constants.CopyTextareaClassName) { return; }
+
                 const copiedText = (event?.srcElement as any)['value'];
+                
+                if (!this.isCorrectJSON(copiedText)) { return; }
+
                 const jsonData = JSON.parse(copiedText);
 
                 const newAction: IActionModel = {
@@ -150,7 +165,7 @@ export class ContentService {
                     title: jsonData.operationName
                 }
 
-                this.chromeService.setNewMyClipboardAction(newAction);
+                this.storageService.setNewMyClipboardAction(newAction);
             } catch (e) {
                 console.log('Cannot Copy the action');
             }
@@ -162,5 +177,15 @@ export class ContentService {
         const timestamp = Date.now().toString(16);
         const randomNum = Math.floor(Math.random() * 1000000).toString(16);
         return `${timestamp}-${randomNum}`;
+    }
+
+    private isCorrectJSON = (json: string | undefined) => {
+        if (!json) { return false; }
+        try {
+            JSON.parse(json);
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 } 

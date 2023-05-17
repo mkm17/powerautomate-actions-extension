@@ -1,15 +1,15 @@
-import { ContentService, StorageService } from "../services";
+import { ContentService, ExtensionCommunicationService, StorageService } from "../services";
 
-const contentService = new ContentService();
-const chromeService = new StorageService();
+const storageService = new StorageService();
+const communicationService = new ExtensionCommunicationService();
+
+const contentService = new ContentService(storageService, communicationService);
 
 const main = () => {
     chrome.runtime.onMessage.addListener(contentService.handleContentAction);
-    if (window.location.href.indexOf('michalkornet.com') > -1) {
-        contentService.addCopyListener();
-    }
-    if(!contentService.isSharePointPage) {
-        chromeService.setIsRecordingValue(false);
+    contentService.addCopyListener();
+    if (!contentService.isSharePointPage) {
+        storageService.setIsRecordingValue(false);
     }
 }
 main();
