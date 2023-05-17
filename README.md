@@ -59,7 +59,7 @@ All actions can be copied to My Clipboard section of Power Automate.
 Currently, the tool is not available from Chrome Store. So, you need to install it manually.
 To do so please unpack *[ApplicationBuild](https://github.com/mkm17/powerautomate-actions-extension/blob/main/ApplicationBuild.zip)* zip file and follow the steps described [here](https://support.google.com/chrome/a/answer/2714278?hl=en) to install the package locally. 
 
-In the future, I will update this article with the link to Chrome Store.
+In the future, I will update this page with the link to Chrome Store.
 
 
 
@@ -73,4 +73,4 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 ### `npm run build`
 
 The solution uses [craco](https://www.npmjs.com/package/@craco/craco) package to override webpack configuration. To build the solution use `npm run build` command. The build artifacts will be stored in the `build/` directory.
-The build can be directly uploaded to Chrome Store or to local Chrome browser.
+The build can be directly uploaded to local Chrome browser [guideline](https://support.google.com/chrome/a/answer/2714278?hl=en).
