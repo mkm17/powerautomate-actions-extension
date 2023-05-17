@@ -1,4 +1,4 @@
-#Power Automate Actions Chrome Extension
+# Power Automate Actions Chrome Extension
 
 The tool can be used for the following purposes:
 
