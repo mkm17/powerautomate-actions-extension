@@ -1,29 +1,29 @@
 # Power Automate Actions Chrome Extension
 
-The tool can be used for the following purposes:
+The Power Automate Actions tool serves as a versatile solution for managing Power Automate actions. It offers the following functionalities::
 
-## **1. Making SharePoint HTTP Requests and MS Graph HTTP Requests actions.**
-With the tool you can record the following actions:
+## **1. Recording SharePoint HTTP Requests and MS Graph HTTP Requests actions.**
 
- **Default Requests invoked from SharePoint Page**
+ **Record default requests invoked from SharePoint Page**
 
 ![Recorded Actions](/images/RecordDefaultSPActions.gif)
 
 
- **Requests invoked from browser console**
+ **Capture requests invoked from the browser console**
 
 ![Recorded Actions](/images/RecordConsoleAction.gif)
 
 
- **Requests invoked from SP Editor**
+ **Capture requests invoked from SP Editor**
 
 ![Recorded Actions](/images/RecordActionsFromSPEditor.gif)
 
 <br />
 <br />
 
-## **2.	Copy actions between two different environments**
-With the tool, we can copy all actions from “My Clipboard” section and then past selected actions to the next environment.
+## **2.	Copying actions between different environments.**
+
+Easily copy all actions from the "My Clipboard" section and paste them into the desired environment.
 
 
 ![Copy Actions Between Environments](/images/CopyBetweenEnvs.gif)
@@ -31,15 +31,18 @@ With the tool, we can copy all actions from “My Clipboard” section and then 
 <br />
 <br />
 
-## **3.	Copy entire action from community blogs.**
-It is possible to copy all actions stored on the page as well as a single action using copy button. Please check [our article about bulb presence](https://michalkornet.com/2023/04/25/Bulb_Presence.html) as the reference. 
+## **3.	Copying actions from community blogs.**
+
+- Copy all actions stored on a page
+- Copy individual actions using the provided copy button
+- Check out [our article on bulb presence,]("https://michalkornet.com/2023/04/25/Bulb_Presence.html)," for a reference.
 
 ![Copy Actions from blog](/images/CopyItemsFromBlogAndSaveOnFlow.gif)
 
 <br />
 <br />
 
-## **4.	Store actions in a more persistent way.**
+## **4.	Storing actions in a more persistent manner.**
 Copy actions from My *Clipboard Section*.
 
 [Copy Actions from My Clipboard](/images/CopyMyClipboardActions.gif)
