@@ -149,7 +149,7 @@ describe("BackgroundService", () => {
                 parentFrameId: 123,
                 tabId: 123,
                 timeStamp: 123,
-                type: "object"
+                type: "xmlhttprequest"
             } as chrome.webRequest.WebRequestHeadersDetails;
 
             await backgroundService['handleRequest'](req);
@@ -176,7 +176,7 @@ describe("BackgroundService", () => {
                 parentFrameId: 123,
                 tabId: 123,
                 timeStamp: 123,
-                type: "object"
+                type: "xmlhttprequest"
             } as chrome.webRequest.WebRequestHeadersDetails;
 
             await backgroundService['handleRequest'](req);
@@ -200,6 +200,37 @@ describe("BackgroundService", () => {
             );
         });
 
+
+        it('should omit creating a new SharePoint action when isRecording is true and isSharePointRequest is true by type is incorrect', async () => {
+            storageServiceMock.getIsRecordingValue.mockResolvedValue(true);
+            backgroundService['checkIfPageIsSharePoint'] = jest.fn().mockResolvedValue(true);
+            actionsServiceMock.getTitleFromUrl.mockReturnValue('lists');
+
+            const req = {
+                requestId: '123',
+                url: 'https://example.com/_api/web/lists',
+                method: 'GET',
+                initiator: 'https://example.com',
+                requestHeaders: [{ name: 'Header1', value: 'Value1' }],
+                documentId: 'documentID',
+                documentLifecycle: "prerender",
+                frameType: "outermost_frame",
+                frameId: 123,
+                parentFrameId: 123,
+                tabId: 123,
+                timeStamp: 123,
+                type: "object"
+            } as chrome.webRequest.WebRequestHeadersDetails;
+
+            await backgroundService['handleRequest'](req);
+
+            expect(storageServiceMock.setNewAction).not.toHaveBeenCalled();
+
+            expect(storageServiceMock.getActions).not.toHaveBeenCalled();
+
+            expect(communicationServiceMock.sendRequest).not.toHaveBeenCalled();
+        });
+
         it('should create a new Http action for MS Graph when isRecording is true and isSharePointRequest is true', async () => {
             storageServiceMock.getIsRecordingValue.mockResolvedValue(true);
             backgroundService['checkIfPageIsSharePoint'] = jest.fn().mockResolvedValue(true);
@@ -218,7 +249,7 @@ describe("BackgroundService", () => {
                 parentFrameId: 123,
                 tabId: 123,
                 timeStamp: 123,
-                type: "object"
+                type: "xmlhttprequest"
             } as chrome.webRequest.WebRequestHeadersDetails;
 
             await backgroundService['handleRequest'](req);
@@ -244,6 +275,36 @@ describe("BackgroundService", () => {
 
 
         it('should do nothing when isRecording is true and isSharePointRequest is false', async () => {
+            storageServiceMock.getIsRecordingValue.mockResolvedValue(true);
+            backgroundService['checkIfPageIsSharePoint'] = jest.fn().mockResolvedValue(false);
+            actionsServiceMock.getTitleFromUrl.mockReturnValue('lists');
+
+            const req = {
+                requestId: '123',
+                url: 'https://graph.microsoft.com/_api/web/lists',
+                method: 'GET',
+                initiator: 'https://example.com/',
+                requestHeaders: [{ name: 'Header1', value: 'Value1' }],
+                documentId: 'documentID',
+                documentLifecycle: "prerender",
+                frameType: "outermost_frame",
+                frameId: 123,
+                parentFrameId: 123,
+                tabId: 123,
+                timeStamp: 123,
+                type: "xmlhttprequest"
+            } as chrome.webRequest.WebRequestHeadersDetails;
+
+            await backgroundService['handleRequest'](req);
+
+            expect(storageServiceMock.setNewAction).not.toHaveBeenCalled();
+
+            expect(storageServiceMock.getActions).not.toHaveBeenCalled();
+
+            expect(communicationServiceMock.sendRequest).not.toHaveBeenCalled();
+        });
+
+        it('should omit requests when isRecording is true and isSharePointRequest is false but request type is not xmlhttprequest', async () => {
             storageServiceMock.getIsRecordingValue.mockResolvedValue(true);
             backgroundService['checkIfPageIsSharePoint'] = jest.fn().mockResolvedValue(false);
             actionsServiceMock.getTitleFromUrl.mockReturnValue('lists');

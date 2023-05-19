@@ -10,7 +10,7 @@ export class BackgroundService implements IBackgroundService {
     constructor(private storageService: IStorageService, private communicationService: IExtensionCommunicationService, private actionsService: IActionService) {
     }
 
-    public handleBackgroundAction = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender|null, sendResponse: (response?: any) => void) => {
+    public handleBackgroundAction = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender | null, sendResponse: (response?: any) => void) => {
         if (!this.isCorrectReceiver(message)) { console.log('Incorrect Background Action'); }
         switch (message.actionType) {
             case ActionType.StartRecording:
@@ -47,7 +47,8 @@ export class BackgroundService implements IBackgroundService {
                 const headers = req.requestHeaders ? req.requestHeaders : [];
                 const title = this.actionsService.getTitleFromUrl(req.url);
 
-                if ((!isSharePointRequest && !isGraphRequest) || req.frameType === "sub_frame") { return; }
+                if ((!isSharePointRequest && !isGraphRequest) || req.frameType === "sub_frame" || (req.type as any) != 'xmlhttprequest') { return; }
+                
                 const actionJson = isSharePointRequest ? this.actionsService.getHttpSharePointActionTemplate(req.method, req.url, headers, title, requestBody) :
                     this.actionsService.getHttpRequestActionTemplate(req.method, req.url, headers, title, requestBody);
                 const newAction: IActionModel = {
