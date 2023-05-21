@@ -3,13 +3,20 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { Mode } from './models';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <App isRecording={false}
+      isPowerAutomatePage={false}
+      isSharePointPage={false}
+      hasActionsOnPageToCopy={false}
+      actions={[]}
+      myClipboardActions={[]}
+      currentMode={Mode.Requests} />
   </React.StrictMode>
 );
 

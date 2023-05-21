@@ -40,7 +40,6 @@ export class ContentService implements IContentService {
         }
 
         for (let action of messageContent) {
-
             this.copyText(action.actionJson);
             document.execCommand('paste');
         }

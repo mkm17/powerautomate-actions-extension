@@ -11,7 +11,8 @@ export class ActionsService implements IActionService {
     const headersJson: any = {};
     headers.forEach(header => { headersJson[header.name] = header.value });
     const bodyParameter = `,"parameters/body": ${JSON.stringify(requestBody)}`;
-    const urlSplitted = requestUrl.split('/_api');
+    const isVti = requestUrl.indexOf('_vti_bin') > -1;
+    const urlSplitted = isVti ? requestUrl.split('/_vti_bin') : requestUrl.split('/_api');
     const request = `{
         "id": "7a3955e0-f505-4f9f-ae7f-d805943ff04d",
         "brandColor": "#036C70",
@@ -30,7 +31,7 @@ export class ActionsService implements IActionService {
             "parameters": {
               "dataset": "${urlSplitted[0]}",
               "parameters/method": "${method}",
-              "parameters/uri": "_api${urlSplitted[1]}",
+              "parameters/uri": "${isVti ? '_vti_bin' : '_api'}${urlSplitted[1]}",
               "parameters/headers": ${JSON.stringify(headersJson)}
               ${requestBody && bodyParameter ? bodyParameter : ''}
             },

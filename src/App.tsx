@@ -1,26 +1,40 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import { ActionType, IDataChromeMessage, AppElement, ICommunicationChromeMessage } from './models';
+import { ActionType, IDataChromeMessage, AppElement, ICommunicationChromeMessage, IInitialState, Mode } from './models';
 import { IActionModel } from './models/IActionModel';
 import { StorageService } from './services/StorageService';
 import { ExtensionCommunicationService } from './services';
 import { Checkbox, Icon, Pivot, PivotItem, initializeIcons } from '@fluentui/react';
 
-const enum Mode {
-  CopiedActions,
-  Requests,
-}
-
-function App() {
+function App(initialState?: IInitialState | undefined) {
   const storageService = new StorageService();
   const communicationService = new ExtensionCommunicationService();
-  const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [isPowerAutomatePage, setIsPowerAutomatePage] = useState<boolean>(false);
-  const [isSharePointPage, setIsSharePointPage] = useState<boolean>(false);
-  const [hasActionsOnPageToCopy, setHasActionsOnPageToCopy] = useState<boolean>(false);
-  const [actions, setActions] = useState<IActionModel[]>([]);
-  const [myClipboardActions, setMyClipboardActions] = useState<IActionModel[]>([]);
-  const [currentMode, setCurrentMode] = useState<Mode>(Mode.Requests);
+  const [isRecording, setIsRecording] = useState<boolean>(initialState?.isRecording || false);
+  const [isPowerAutomatePage, setIsPowerAutomatePage] = useState<boolean>(initialState?.isPowerAutomatePage || false);
+  const [isSharePointPage, setIsSharePointPage] = useState<boolean>(initialState?.isSharePointPage || false);
+  const [hasActionsOnPageToCopy, setHasActionsOnPageToCopy] = useState<boolean>(initialState?.hasActionsOnPageToCopy || false);
+  const [actions, setActions] = useState<IActionModel[]>(initialState?.actions || []);
+  const [myClipboardActions, setMyClipboardActions] = useState<IActionModel[]>(initialState?.myClipboardActions || []);
+  const [currentMode, setCurrentMode] = useState<Mode>(initialState?.currentMode || Mode.Requests);
+
+  const setMultiValueState = (newState: {
+    isRecording?: boolean,
+    isPowerAutomatePage?: boolean,
+    isSharePointPage?: boolean,
+    hasActionsOnPageToCopy?: boolean,
+    actions?: IActionModel[],
+    myClipboardActions?: IActionModel[],
+    currentMode?: Mode
+  }) => {
+    const { isRecording, isPowerAutomatePage, isSharePointPage, hasActionsOnPageToCopy, actions, myClipboardActions, currentMode } = newState;
+    isRecording && setIsRecording(isRecording);
+    isPowerAutomatePage && setIsPowerAutomatePage(isPowerAutomatePage);
+    isSharePointPage && setIsSharePointPage(isSharePointPage);
+    hasActionsOnPageToCopy && setHasActionsOnPageToCopy(hasActionsOnPageToCopy);
+    actions && setActions(actions);
+    myClipboardActions && setMyClipboardActions(myClipboardActions);
+    currentMode && setCurrentMode(currentMode);
+  }
 
   const listenToMessage = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
     if (message.to !== AppElement.ReactApp) { return console.log('Incorrect message destination'); }
@@ -37,7 +51,7 @@ function App() {
   const initData = () => {
     initializeIcons();
     communicationService.sendRequest({ actionType: ActionType.CheckSharePointPage, message: "Check SharePoint Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
-      setIsSharePointPage(response)
+      setIsSharePointPage(response);
     });
     communicationService.sendRequest({ actionType: ActionType.CheckPowerAutomatePage, message: "Check PowerAutomate Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
       setIsPowerAutomatePage(response)
