@@ -2,26 +2,26 @@
 
 The Power Automate Actions tool serves as a versatile solution for managing Power Automate actions. It offers the following functionalities::
 
-## **1. Recording SharePoint HTTP Requests and MS Graph HTTP Requests actions.**
+## **1. Recording all HTTP requests from SharePoint**
 
- **Record default requests invoked from SharePoint Page**
+ **Catching requests invoked directly from the SharePoint interface**
 
 ![Recorded Actions](/images/RecordDefaultSPActions.gif)
 
 
- **Capture requests invoked from the browser console**
+ **Recording requests invoked from the browser console**
 
 ![Recorded Actions](/images/RecordConsoleAction.gif)
 
 
- **Capture requests invoked from SP Editor**
+ **Gathering requests executed with SP Editor**
 
 ![Recorded Actions](/images/RecordActionsFromSPEditor.gif)
 
 <br />
 <br />
 
-## **2.	Copying actions between different environments.**
+## **2.	Duplicating actions in between tenants and environments**
 
 Easily copy all actions from the "My Clipboard" section and paste them into the desired environment.
 
@@ -31,7 +31,7 @@ Easily copy all actions from the "My Clipboard" section and paste them into the 
 <br />
 <br />
 
-## **3.	Copying actions from community blogs.**
+## **3.	Coping actions from community blogs**
 
 - Copy all actions stored on a page
 - Copy individual actions using the provided copy button
@@ -42,7 +42,7 @@ Easily copy all actions from the "My Clipboard" section and paste them into the 
 <br />
 <br />
 
-## **4.	Storing actions in a more persistent manner.**
+## **4.	Storing actions in a more persistent way**
 Copy actions from My *Clipboard Section*.
 
 [Copy Actions from My Clipboard](/images/CopyMyClipboardActions.gif)
@@ -50,7 +50,7 @@ Copy actions from My *Clipboard Section*.
 <br />
 <br />
 
-All actions can be copied to My Clipboard section of Power Automate.
+Using recorded and copied actions in Power Automate workflows!.
 
 ![Paste Actions to my clipboard](/images/CopyItemsToMyClipboard.gif)
 
