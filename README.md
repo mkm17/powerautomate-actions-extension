@@ -1,6 +1,8 @@
 # Power Automate Actions Chrome Extension
 
-The Power Automate Actions tool serves as a versatile solution for managing Power Automate actions. It offers the following functionalities::
+[See how to install it now!](#how-to-install-the-tool)
+
+The Power Automate Actions tool serves as a versatile solution for managing Power Automate actions. It offers the following functionalities:
 
 ## **1. Recording all HTTP requests from SharePoint**
 
@@ -50,20 +52,22 @@ Copy actions from My *Clipboard Section*.
 <br />
 <br />
 
-Using recorded and copied actions in Power Automate workflows!.
+Using recorded and copied actions in Power Automate workflows.
+
+Please note that in order to use the copied actions, you need to have the "My Clipboard" section open. 
+Accepting the popup window will finish the action copying process.
 
 ![Paste Actions to my clipboard](/images/CopyItemsToMyClipboard.gif)
 
 <br />
 <br />
 
- **How to install the tool?**
+#### **How to install the tool?**
 
-Currently, the tool is not available from Chrome Store. So, you need to install it manually.
-To do so please unpack *[ApplicationBuild](https://github.com/mkm17/powerautomate-actions-extension/blob/main/ApplicationBuild.zip)* zip file and follow the steps described [here](https://support.google.com/chrome/a/answer/2714278?hl=en) to install the package locally. 
+The tool is available on the Chrome Store [here](https://chrome.google.com/webstore/detail/power-automate-actions-ha/eoeddkppcaagdeafjfiopeldffkhjodl?hl=pl&authuser=0)  
 
-In the future, I will update this page with the link to Chrome Store.
-
+The repository also includes the build package, allowing for direct installation.
+To do so please unpack *[ApplicationBuild](https://github.com/mkm17/powerautomate-actions-extension/blob/main/ApplicationBuild.zip)* zip file and follow the steps described [here](https://support.google.com/chrome/a/answer/2714278?hl=en) to install the package locally on a browser. 
 
 
 ## Available Scripts
