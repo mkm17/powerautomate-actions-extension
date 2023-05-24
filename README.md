@@ -37,7 +37,7 @@ Easily copy all actions from the "My Clipboard" section and paste them into the 
 
 - Copy all actions stored on a page
 - Copy individual actions using the provided copy button
-- Check out [our article on bulb presence,]("https://michalkornet.com/2023/04/25/Bulb_Presence.html)," for a reference.
+- Check out [our article on bulb presence](https://michalkornet.com/2023/04/25/Bulb_Presence.html), for a reference.
 
 ![Copy Actions from blog](/images/CopyItemsFromBlogAndSaveOnFlow.gif)
 
