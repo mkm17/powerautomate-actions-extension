@@ -47,7 +47,7 @@ Easily copy all actions from the "My Clipboard" section and paste them into the 
 ## **4.	Storing actions in a more persistent way**
 Copy actions from My *Clipboard Section*.
 
-[Copy Actions from My Clipboard](/images/CopyMyClipboardActions.gif)
+![Copy Actions from My Clipboard](/images/CopyMyClipboardActions.gif)
 
 <br />
 <br />
