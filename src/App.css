@@ -26,6 +26,12 @@
   height: 30px;
 }
 
+.App-Action-Select {
+  cursor: pointer;
+  font-size: 20px;
+  margin-top: 5px;
+}
+
 .App-Action-Delete {
   cursor: pointer;
   margin: 0 20px;
@@ -60,4 +66,38 @@
 
 .App-link {
   color: #61dafb;
+}
+
+.App-Action-Header {
+  display: grid;
+  grid-template-columns: 100px 30px 1fr repeat(2, 100px);
+  grid-gap: 10px;
+  padding: 10px 20px;
+  background-color: #282c34;
+  color: #fff;
+}
+
+.Current-Action-Icon {
+  width: 30px;
+  height: 30px;
+  margin: auto 25px auto auto;
+}
+
+.Current-Action-Delete {
+  cursor: pointer;
+  margin: 0 20px;
+  padding: 10px;
+}
+
+.Current-Action-Row {
+  display: flex;
+  padding: 10px 20px;
+  
+}
+
+.Current-Action-Element {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: auto;
+  width: 360px;
 }

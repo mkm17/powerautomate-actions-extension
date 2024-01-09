@@ -12,10 +12,10 @@ describe("BackgroundService", () => {
         storageServiceMock = {
             getIsRecordingValue: jest.fn().mockImplementation(() => { return true; }),
             setIsRecordingValue: jest.fn().mockImplementation((value) => { return value; }),
-            deleteAction: jest.fn().mockImplementation((message) => { }),
+            deleteRecordedAction: jest.fn().mockImplementation((message) => { }),
             deleteMyClipboardAction: jest.fn().mockImplementation((message) => { }),
-            setNewAction: jest.fn().mockImplementation((value) => { return value; }),
-            getActions: jest.fn().mockImplementation(() => { return []; }),
+            addNewRecordedAction: jest.fn().mockImplementation((value) => { return value; }),
+            getRecordedActions: jest.fn().mockImplementation(() => { return []; }),
         }
 
         actionsServiceMock = {
@@ -90,7 +90,7 @@ describe("BackgroundService", () => {
                 sendResponseMock
             );
 
-            expect(storageServiceMock.deleteAction).toHaveBeenCalledWith(message.message);
+            expect(storageServiceMock.deleteRecordedAction).toHaveBeenCalledWith(message.message);
         });
 
         test("should remove action when ActionType is DeleteMyClipboardAction", () => {
@@ -154,7 +154,7 @@ describe("BackgroundService", () => {
 
             await backgroundService['handleRequest'](req);
 
-            expect(storageServiceMock.setNewAction).not.toHaveBeenCalled();
+            expect(storageServiceMock.addNewRecordedAction).not.toHaveBeenCalled();
             expect(communicationServiceMock.sendRequest).not.toHaveBeenCalled();
         });
 
@@ -181,7 +181,7 @@ describe("BackgroundService", () => {
 
             await backgroundService['handleRequest'](req);
 
-            expect(storageServiceMock.setNewAction).toHaveBeenCalledWith({
+            expect(storageServiceMock.addNewRecordedAction).toHaveBeenCalledWith({
                 icon: "https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png",
                 actionJson: undefined,
                 id: '123',
@@ -191,7 +191,7 @@ describe("BackgroundService", () => {
                 body: null,
             });
 
-            expect(storageServiceMock.getActions).toHaveBeenCalled();
+            expect(storageServiceMock.getRecordedActions).toHaveBeenCalled();
 
             expect(communicationServiceMock.sendRequest).toHaveBeenCalledWith(
                 { actionType: ActionType.ActionUpdated, message: [] },
@@ -224,9 +224,9 @@ describe("BackgroundService", () => {
 
             await backgroundService['handleRequest'](req);
 
-            expect(storageServiceMock.setNewAction).not.toHaveBeenCalled();
+            expect(storageServiceMock.addNewRecordedAction).not.toHaveBeenCalled();
 
-            expect(storageServiceMock.getActions).not.toHaveBeenCalled();
+            expect(storageServiceMock.getRecordedActions).not.toHaveBeenCalled();
 
             expect(communicationServiceMock.sendRequest).not.toHaveBeenCalled();
         });
@@ -254,7 +254,7 @@ describe("BackgroundService", () => {
 
             await backgroundService['handleRequest'](req);
 
-            expect(storageServiceMock.setNewAction).toHaveBeenCalledWith({
+            expect(storageServiceMock.addNewRecordedAction).toHaveBeenCalledWith({
                 icon: "https://content.powerapps.com/resource/makerx/static/pauto/images/designeroperations/http.a0aaded8.png",
                 actionJson: undefined,
                 id: '123',
@@ -264,7 +264,7 @@ describe("BackgroundService", () => {
                 body: null,
             });
 
-            expect(storageServiceMock.getActions).toHaveBeenCalled();
+            expect(storageServiceMock.getRecordedActions).toHaveBeenCalled();
 
             expect(communicationServiceMock.sendRequest).toHaveBeenCalledWith(
                 { actionType: ActionType.ActionUpdated, message: [] },
@@ -297,9 +297,9 @@ describe("BackgroundService", () => {
 
             await backgroundService['handleRequest'](req);
 
-            expect(storageServiceMock.setNewAction).not.toHaveBeenCalled();
+            expect(storageServiceMock.addNewRecordedAction).not.toHaveBeenCalled();
 
-            expect(storageServiceMock.getActions).not.toHaveBeenCalled();
+            expect(storageServiceMock.getRecordedActions).not.toHaveBeenCalled();
 
             expect(communicationServiceMock.sendRequest).not.toHaveBeenCalled();
         });
@@ -327,9 +327,9 @@ describe("BackgroundService", () => {
 
             await backgroundService['handleRequest'](req);
 
-            expect(storageServiceMock.setNewAction).not.toHaveBeenCalled();
+            expect(storageServiceMock.addNewRecordedAction).not.toHaveBeenCalled();
 
-            expect(storageServiceMock.getActions).not.toHaveBeenCalled();
+            expect(storageServiceMock.getRecordedActions).not.toHaveBeenCalled();
 
             expect(communicationServiceMock.sendRequest).not.toHaveBeenCalled();
         });

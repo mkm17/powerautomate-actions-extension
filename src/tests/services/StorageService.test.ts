@@ -8,9 +8,9 @@ describe("StorageService", () => {
       local: {
         get: jest.fn().mockImplementation((key) => {
           switch (key) {
-            case 'ACTIONS_KEY': return [];
+            case 'RECORDED_ACTIONS_KEY': return [];
             case 'MY_CLIPBOARD_ACTIONS_KEY': return [];
-            case 'IS_RECORDING_KEY': true;
+            case 'IS_RECORDING_KEY': return true;
           }
         }
         ),
@@ -35,9 +35,9 @@ describe("StorageService", () => {
 
   describe("clearActions", () => {
     test("should clear actions in local storage", async () => {
-      await storageService.clearActions();
+      await storageService.clearRecordedActions();
 
-      expect(chrome.storage.local.set).toHaveBeenCalledWith({ [storageService['ACTIONS_KEY']]: [] });
+      expect(chrome.storage.local.set).toHaveBeenCalledWith({ [storageService['RECORDED_ACTIONS_KEY']]: [] });
     });
   });
 

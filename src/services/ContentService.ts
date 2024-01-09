@@ -1,8 +1,10 @@
 import { Constants } from "../constants/Constants";
-import { ActionType, AppElement, IActionModel, ICommunicationChromeMessage } from "../models";
+import { ActionType, AppElement, IActionModel, ICommunicationChromeMessage, ICopiedActionV3Model } from "../models";
 import { IStorageService, IExtensionCommunicationService, IContentService } from "./interfaces";
 
 export class ContentService implements IContentService {
+    private previousValue: string | null = null;
+
     constructor(private storageService: IStorageService, private communicationService: IExtensionCommunicationService) {
     }
 
@@ -26,6 +28,21 @@ export class ContentService implements IContentService {
                 break;
             case ActionType.CopyAllActionsFromPage:
                 sendResponse(this.copyAllActionsFromPage());
+                break;
+            case ActionType.CheckIsNewPowerAutomateEditorV3:
+                sendResponse(this.isNewPowerAutomateEditor());
+                break;
+            case ActionType.AddCopyListenerV3:
+                this.addCopyActionOnPowerAutomateEditorV3Listener();
+                break;
+            case ActionType.SetCurrentCopiedActionFromStorageV3:
+                sendResponse(this.setCurrentCopiedAction());
+                break;
+            case ActionType.SetCurrentCopiedActionV3:
+                this.setCopiedActionInStorage(message);
+                break;
+            case ActionType.ClearCurrentCopiedActionV3:
+                this.clearCopiedActionInStorage();
                 break;
             default:
                 console.log('Incorrect Action Type');
@@ -62,6 +79,10 @@ export class ContentService implements IContentService {
 
     public isPowerAutomatePage = (): boolean => {
         return window && window.location.href.indexOf(Constants.PowerAutomateUrl) > -1;
+    }
+
+    public isNewPowerAutomateEditor = (): boolean => {
+        return document.getElementsByClassName(Constants.PowerAutomateNewEditorClassV3).length > 0;
     }
 
     private isCorrectReceiver = (message: ICommunicationChromeMessage) => {
@@ -140,17 +161,16 @@ export class ContentService implements IContentService {
             { actionType: ActionType.MyClipboardActionsUpdated, message: actions },
             AppElement.Content,
             AppElement.ReactApp);
-
     }
 
     public addCopyListener = () => {
         document.addEventListener('copy', (event) => {
             try {
                 const copiedTextElementClassName = (event?.srcElement as any)['className'];
-                if(copiedTextElementClassName !== Constants.CopyTextareaClassName) { return; }
+                if (copiedTextElementClassName !== Constants.CopyTextareaClassName) { return; }
 
                 const copiedText = (event?.srcElement as any)['value'];
-                
+
                 if (!this.isCorrectJSON(copiedText)) { return; }
 
                 const jsonData = JSON.parse(copiedText);
@@ -164,13 +184,76 @@ export class ContentService implements IContentService {
                     title: jsonData.operationName
                 }
 
-                this.storageService.setNewMyClipboardAction(newAction);
+                this.storageService.addNewMyClipboardAction(newAction);
             } catch (e) {
                 console.log('Cannot Copy the action');
             }
         });
     }
 
+    public addCopyActionOnPowerAutomateEditorV3Listener = async () => {
+        const checkLocalStorageValue = async () => {
+            const currentValue = localStorage.getItem(Constants.PowerAutomateLocalStorageKeyV3);
+            if (!currentValue || currentValue === this.previousValue) { return; }
+
+            this.previousValue = currentValue;
+
+            const allCopiedActionsV3 = await this.storageService.getCopiedActionsV3();
+
+            const isActionAlreadyInCopiedList = allCopiedActionsV3.some((action) => action.actionJson === currentValue);
+            if (isActionAlreadyInCopiedList) { return; }
+
+            const copiedActionSchema: ICopiedActionV3Model = JSON.parse(currentValue);
+
+            const copiedAction: IActionModel = {
+                actionJson: currentValue ? currentValue : '',
+                id: this.generateUniqueId(),
+                method: '',
+                url: '',
+                icon: copiedActionSchema?.nodeData?.operationMetadata?.iconUri,
+                title: copiedActionSchema?.nodeData?.id
+            }
+
+            await this.storageService.setCurrentCopiedActionV3(copiedAction);
+            
+            const actions = await this.storageService.setNewCopiedActionsV3(copiedAction, allCopiedActionsV3);
+            
+            this.communicationService.sendRequest(
+                { actionType: ActionType.MyCopiedActionsV3Updated, message: actions },
+                AppElement.Content,
+                AppElement.ReactApp);
+        }
+
+        this.previousValue = localStorage.getItem(Constants.PowerAutomateLocalStorageKeyV3);
+        setInterval(checkLocalStorageValue, 2000);
+    }
+
+    public setCurrentCopiedAction = () => {
+        const copiedActionSchemaString = window.localStorage.getItem(Constants.PowerAutomateLocalStorageKeyV3);
+        if (!copiedActionSchemaString) { return; }
+
+        const copiedActionSchema: ICopiedActionV3Model = JSON.parse(copiedActionSchemaString);
+
+        const copiedAction: IActionModel = {
+            actionJson: copiedActionSchemaString ? copiedActionSchemaString : '',
+            id: this.generateUniqueId(),
+            method: '',
+            url: '',
+            icon: copiedActionSchema?.nodeData?.operationMetadata?.iconUri,
+            title: copiedActionSchema?.nodeData?.id
+        }
+
+        this.storageService.setCurrentCopiedActionV3(copiedAction);
+        return copiedAction;
+    }
+
+    private async setCopiedActionInStorage(message: ICommunicationChromeMessage) {
+        localStorage.setItem(Constants.PowerAutomateLocalStorageKeyV3, message.message);
+    }
+
+    private async clearCopiedActionInStorage() {
+        localStorage.removeItem(Constants.PowerAutomateLocalStorageKeyV3);
+    }
 
     private generateUniqueId() {
         const timestamp = Date.now().toString(16);
