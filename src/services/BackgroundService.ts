@@ -22,10 +22,13 @@ export class BackgroundService implements IBackgroundService {
                 sendResponse(false);
                 break;
             case ActionType.DeleteAction:
-                this.storageService.deleteAction(message.message);
+                this.storageService.deleteRecordedAction(message.message);
                 break;
             case ActionType.DeleteMyClipboardAction:
                 this.storageService.deleteMyClipboardAction(message.message);
+                break;
+            case ActionType.DeleteMyCopiedActionV3:
+                this.storageService.deleteCopiedActionV3(message.message);
                 break;
             default:
                 console.log('Incorrect Action Type')
@@ -62,8 +65,8 @@ export class BackgroundService implements IBackgroundService {
                     body: requestBody
                 }
 
-                this.storageService.setNewAction(newAction);
-                const actions = await this.storageService.getActions();
+                this.storageService.addNewRecordedAction(newAction);
+                const actions = await this.storageService.getRecordedActions();
                 this.communicationService.sendRequest(
                     { actionType: ActionType.ActionUpdated, message: actions },
                     AppElement.Background,

@@ -16,7 +16,8 @@ root.render(
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}
-      currentMode={Mode.Requests} />
+      currentMode={Mode.Requests}
+      myCopiedActionsV3={[]} />
   </React.StrictMode>
 );
 

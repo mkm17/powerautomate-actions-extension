@@ -15,7 +15,7 @@ describe('App', () => {
       local: {
         get: jest.fn().mockImplementation((key) => {
           switch (key) {
-            case 'ACTIONS_KEY': return [];
+            case 'RECORDED_ACTIONS_KEY': return [];
             case 'MY_CLIPBOARD_ACTIONS_KEY': return [];
             case 'IS_RECORDING_KEY': true;
           }
@@ -69,11 +69,13 @@ describe('App', () => {
   test('renders App component with default buttons', () => {
     render(<App isRecording={false}
       isPowerAutomatePage={false}
-      isSharePointPage={false}
+      isSharePointPage={true}
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}
-      currentMode={Mode.Requests} />);
+      currentMode={Mode.Requests} 
+      myCopiedActionsV3={[]}
+      />);
 
     const clearButton = screen.getByTitle('Clear Items');
     expect(clearButton).toBeInTheDocument();
@@ -91,7 +93,9 @@ describe('App', () => {
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}
-      currentMode={Mode.Requests} />);
+      currentMode={Mode.Requests} 
+      myCopiedActionsV3={[]}
+      />);
 
     const recordButton = screen.getByTitle('Start Recording');
     expect(recordButton).toBeInTheDocument();
@@ -112,7 +116,9 @@ describe('App', () => {
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}
-      currentMode={Mode.Requests} />);
+      currentMode={Mode.Requests} 
+      myCopiedActionsV3={[]}
+      />);
 
     const recordButton = screen.getByTitle('Stop Recording');
     expect(recordButton).toBeInTheDocument();
@@ -133,7 +139,8 @@ describe('App', () => {
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}
-      currentMode={Mode.Requests} />);
+      currentMode={Mode.Requests} 
+      myCopiedActionsV3={[]}/>);
 
     const getMyClipboardActions = screen.getByTitle("Get 'My Clipboard Actions'");
     expect(getMyClipboardActions).toBeInTheDocument();
@@ -157,7 +164,8 @@ describe('App', () => {
       hasActionsOnPageToCopy={true}
       actions={[]}
       myClipboardActions={[]}
-      currentMode={Mode.Requests} />);
+      currentMode={Mode.Requests} 
+      myCopiedActionsV3={[]}/>);
 
     const actionsButton = screen.getByTitle("Copy All Actions From Page");
     expect(actionsButton).toBeInTheDocument();

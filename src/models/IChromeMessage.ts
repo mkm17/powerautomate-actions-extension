@@ -16,7 +16,16 @@ export enum ActionType {
     MyClipboardActionsUpdated,
     DeleteMyClipboardAction,
     CheckIfPageHasActionsToCopy,
-    CopyAllActionsFromPage
+    CopyAllActionsFromPage,
+    
+    CheckIsNewPowerAutomateEditorV3,
+    SetCurrentCopiedActionFromStorageV3,
+    SetCurrentCopiedActionV3,
+    AddCopyListenerV3,
+    MyCopiedActionsV3Updated,
+    RemoveCurrentCopiedActionV3,
+    DeleteMyCopiedActionV3,
+    ClearCurrentCopiedActionV3
 }
 
 export interface IDataChromeMessage {
