@@ -200,7 +200,7 @@ export class ContentService implements IContentService {
 
             const allCopiedActionsV3 = await this.storageService.getCopiedActionsV3();
 
-            const isActionAlreadyInCopiedList = allCopiedActionsV3.some((action) => action.actionJson === currentValue);
+            const isActionAlreadyInCopiedList = allCopiedActionsV3 ? allCopiedActionsV3.some((action) => action.actionJson === currentValue) : false;
             if (isActionAlreadyInCopiedList) { return; }
 
             const copiedActionSchema: ICopiedActionV3Model = JSON.parse(currentValue);
@@ -215,9 +215,9 @@ export class ContentService implements IContentService {
             }
 
             await this.storageService.setCurrentCopiedActionV3(copiedAction);
-            
+
             const actions = await this.storageService.setNewCopiedActionsV3(copiedAction, allCopiedActionsV3);
-            
+
             this.communicationService.sendRequest(
                 { actionType: ActionType.MyCopiedActionsV3Updated, message: actions },
                 AppElement.Content,
