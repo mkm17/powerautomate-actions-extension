@@ -17,8 +17,8 @@ export class ContentService implements IContentService {
             case ActionType.GetElementsFromMyClipboard:
                 this.getElementsFromMyClipboard();
                 break;
-            case ActionType.CheckSharePointPage:
-                sendResponse(this.isSharePointPage());
+            case ActionType.CheckRecordingPage:
+                sendResponse(this.isRecordingPage());
                 break;
             case ActionType.CheckPowerAutomatePage:
                 sendResponse(this.isPowerAutomatePage());
@@ -71,10 +71,12 @@ export class ContentService implements IContentService {
         document.body.removeChild(tempTextarea);
     }
 
-    public isSharePointPage = (): boolean => {
+    public isRecordingPage = (): boolean => {
         const element = document.getElementById(Constants.SharePointPageClass);
         const element2 = document.getElementById(Constants.SharePointPageClass2);
-        return !!element || !!element2;
+        const isGraphExplorerUrl = window &&  window.location.href.indexOf(Constants.GraphExplorerUrl) > -1;
+        console.log('isRecordingPage', !!element || !!element2 || !!isGraphExplorerUrl);
+        return !!element || !!element2 || !!isGraphExplorerUrl;
     }
 
     public isPowerAutomatePage = (): boolean => {

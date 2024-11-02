@@ -160,7 +160,7 @@ describe("BackgroundService", () => {
 
         it('should create a new SharePoint action when isRecording is true and isSharePointRequest is true', async () => {
             storageServiceMock.getIsRecordingValue.mockResolvedValue(true);
-            backgroundService['checkIfPageIsSharePoint'] = jest.fn().mockResolvedValue(true);
+            backgroundService['checkIfPageIsRecordingPage'] = jest.fn().mockResolvedValue(true);
             actionsServiceMock.getTitleFromUrl.mockReturnValue('lists');
 
             const req = {
@@ -203,7 +203,7 @@ describe("BackgroundService", () => {
 
         it('should omit creating a new SharePoint action when isRecording is true and isSharePointRequest is true by type is incorrect', async () => {
             storageServiceMock.getIsRecordingValue.mockResolvedValue(true);
-            backgroundService['checkIfPageIsSharePoint'] = jest.fn().mockResolvedValue(true);
+            backgroundService['checkIfPageIsRecordingPage'] = jest.fn().mockResolvedValue(true);
             actionsServiceMock.getTitleFromUrl.mockReturnValue('lists');
 
             const req = {
@@ -233,7 +233,7 @@ describe("BackgroundService", () => {
 
         it('should create a new Http action for MS Graph when isRecording is true and isSharePointRequest is true', async () => {
             storageServiceMock.getIsRecordingValue.mockResolvedValue(true);
-            backgroundService['checkIfPageIsSharePoint'] = jest.fn().mockResolvedValue(true);
+            backgroundService['checkIfPageIsRecordingPage'] = jest.fn().mockResolvedValue(true);
             actionsServiceMock.getTitleFromUrl.mockReturnValue('lists');
 
             const req = {
@@ -276,7 +276,7 @@ describe("BackgroundService", () => {
 
         it('should do nothing when isRecording is true and isSharePointRequest is false', async () => {
             storageServiceMock.getIsRecordingValue.mockResolvedValue(true);
-            backgroundService['checkIfPageIsSharePoint'] = jest.fn().mockResolvedValue(false);
+            backgroundService['checkIfPageIsRecordingPage'] = jest.fn().mockResolvedValue(false);
             actionsServiceMock.getTitleFromUrl.mockReturnValue('lists');
 
             const req = {
@@ -306,7 +306,7 @@ describe("BackgroundService", () => {
 
         it('should omit requests when isRecording is true and isSharePointRequest is false but request type is not xmlhttprequest', async () => {
             storageServiceMock.getIsRecordingValue.mockResolvedValue(true);
-            backgroundService['checkIfPageIsSharePoint'] = jest.fn().mockResolvedValue(false);
+            backgroundService['checkIfPageIsRecordingPage'] = jest.fn().mockResolvedValue(false);
             actionsServiceMock.getTitleFromUrl.mockReturnValue('lists');
 
             const req = {

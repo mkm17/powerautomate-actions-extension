@@ -60,9 +60,9 @@ describe("ContentService", () => {
 
         test("should call isSharePointPage when ActionType is CheckSharePointPage", () => {
             const sendResponseMock = jest.fn();
-            contentService['isSharePointPage'] = jest.fn();
+            contentService['isRecordingPage'] = jest.fn();
             const message: ICommunicationChromeMessage = {
-                actionType: ActionType.CheckSharePointPage,
+                actionType: ActionType.CheckRecordingPage,
                 message: [],
                 from: AppElement.ReactApp,
                 to: AppElement.Content,
@@ -74,7 +74,7 @@ describe("ContentService", () => {
                 sendResponseMock
             );
 
-            expect(contentService['isSharePointPage']).toHaveBeenCalled();
+            expect(contentService['isRecordingPage']).toHaveBeenCalled();
         });
 
         test("should call isPowerAutomatePage when ActionType is CheckPowerAutomatePage", () => {

@@ -18,4 +18,6 @@ export class Constants {
 
     public static readonly PowerAutomateNewEditorClassV3 = 'fl-V3DesignerPage';
     public static readonly PowerAutomateLocalStorageKeyV3 = 'msla-clipboard';
+
+    public static readonly GraphExplorerUrl = 'https://developer.microsoft.com/en-us/graph/graph-explorer';
 }
