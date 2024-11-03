@@ -69,7 +69,7 @@ describe('App', () => {
   test('renders App component with default buttons', () => {
     render(<App isRecording={false}
       isPowerAutomatePage={false}
-      isSharePointPage={true}
+      isRecordingPage={true}
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}
@@ -89,7 +89,7 @@ describe('App', () => {
 
     render(<App isRecording={false}
       isPowerAutomatePage={false}
-      isSharePointPage={true}
+      isRecordingPage={true}
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}
@@ -112,7 +112,7 @@ describe('App', () => {
 
     render(<App isRecording={true}
       isPowerAutomatePage={false}
-      isSharePointPage={true}
+      isRecordingPage={true}
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}
@@ -135,7 +135,7 @@ describe('App', () => {
 
     render(<App isRecording={false}
       isPowerAutomatePage={true}
-      isSharePointPage={false}
+      isRecordingPage={false}
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}
@@ -160,7 +160,7 @@ describe('App', () => {
 
     render(<App isRecording={false}
       isPowerAutomatePage={false}
-      isSharePointPage={false}
+      isRecordingPage={false}
       hasActionsOnPageToCopy={true}
       actions={[]}
       myClipboardActions={[]}
