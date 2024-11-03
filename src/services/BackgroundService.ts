@@ -42,28 +42,10 @@ export class BackgroundService implements IBackgroundService {
                 const isRecordingPage = await this.checkIfPageIsRecordingPage();
                 if (!isRecordingPage) { return; }
 
-                const findedAction = this.actionsWithBody.find((action) => action.requestId === req.requestId);
-                const rawData: any = findedAction?.requestBody?.raw ? findedAction.requestBody.raw[0] : null;
-                const requestBody = rawData && rawData['bytes'] ? this.tryParseJson(new TextDecoder("utf-8").decode(rawData['bytes'])) : null;
+                const foundAction = this.actionsWithBody.find((action) => action.requestId === req.requestId);
+                const newAction = this.actionsService.getCorrectAction(req, foundAction);
 
-                const isSharePointRequest = req.url.indexOf(req.initiator ? req.initiator : '') > -1;
-                const isGraphRequest = req.url.indexOf(Constants.MSGraphUrl) > -1;
-                const headers = req.requestHeaders ? req.requestHeaders : [];
-                const title = this.actionsService.getTitleFromUrl(req.url);
-
-                if ((!isSharePointRequest && !isGraphRequest) || req.frameType === "sub_frame" || (req.type as any) != 'xmlhttprequest') { return; }
-
-                const actionJson = isSharePointRequest ? this.actionsService.getHttpSharePointActionTemplate(req.method, req.url, headers, title, requestBody) :
-                    this.actionsService.getHttpRequestActionTemplate(req.method, req.url, headers, title, requestBody);
-                const newAction: IActionModel = {
-                    icon: isSharePointRequest ? Constants.SharePointIcon : Constants.HttpRequestIcon,
-                    actionJson: actionJson,
-                    id: req.requestId,
-                    method: req.method,
-                    url: req.url,
-                    title: title,
-                    body: requestBody
-                }
+                if(!newAction) { return; }
 
                 this.storageService.addNewRecordedAction(newAction);
                 const actions = await this.storageService.getRecordedActions();
@@ -136,17 +118,4 @@ export class BackgroundService implements IBackgroundService {
 
         return this.isRecordingPageVar
     }
-
-    private tryParseJson = (jsonString: string) => {
-        try {
-            var o = JSON.parse(jsonString);
-            if (o && typeof o === "object") {
-                return o;
-            }
-        }
-        catch (e) { }
-
-        return jsonString
-    }
-
 }
