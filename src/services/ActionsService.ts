@@ -9,7 +9,7 @@ export class ActionsService implements IActionService {
     const requestBody = rawData && rawData['bytes'] ? this.tryParseJson(new TextDecoder("utf-8").decode(rawData['bytes'])) : null;
 
     const isSharePointRequest = req.url.indexOf('_api') > -1 || req.url.indexOf('_vti_bin') > -1;
-    //req.url.indexOf(req.initiator ? req.initiator : '') > -1;
+
     const isGraphRequest = req.url.indexOf(Constants.MSGraphUrl) > -1;
     const headers = req.requestHeaders ? req.requestHeaders : [];
     const title = this.getTitleFromUrl(req.url);
@@ -130,7 +130,7 @@ export class ActionsService implements IActionService {
     name: string,
     requestBody: any) {
 
-    const bodyParameter = `,"body": ${JSON.stringify(requestBody)}`;
+    const bodyParameter = `,"Body": ${JSON.stringify(requestBody)}`;
     const jsonString = `{
       "id":"b172c361-e70a-49df-ad72-5be8c0e48a6f",
       "brandColor":"#EB3C00"
@@ -170,7 +170,7 @@ export class ActionsService implements IActionService {
     name: string,
     requestBody: any) {
     //CustomHeader1
-    const bodyParameter = `,"body": ${JSON.stringify(requestBody)}`;
+    const bodyParameter = `,"Body": ${JSON.stringify(requestBody)}`;
     const jsonString = `{
       "id": "c63ac87d-3625-4926-a709-48be9789f3bc",
       "brandColor": "#4B53BC",
@@ -211,7 +211,7 @@ export class ActionsService implements IActionService {
     headersJson: any,
     name: string,
     requestBody: any) {
-    const bodyParameter = `,"body": ${JSON.stringify(requestBody)}`;
+    const bodyParameter = `,"Body": ${JSON.stringify(requestBody)}`;
     const jsonString = `{
       "id": "37a2e863-6b96-4a08-ae7c-1f721154ba7a",
       "brandColor": "#0078D4",

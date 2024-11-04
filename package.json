@@ -1,6 +1,6 @@
 {
   "name": "powerautomate-sharepoint-http-actions",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": true,
   "dependencies": {
     "@craco/craco": "^7.0.0-alpha.3",
@@ -24,7 +24,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "craco build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --coverage",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
