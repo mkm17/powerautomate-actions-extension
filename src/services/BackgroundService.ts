@@ -1,5 +1,4 @@
-import { Constants } from "../constants/Constants";
-import { ActionType, AppElement, IActionModel, ICommunicationChromeMessage } from "../models";
+import { ActionType, AppElement, ICommunicationChromeMessage } from "../models";
 import { IBackgroundService, IStorageService, IExtensionCommunicationService, IActionService } from "./interfaces";
 
 export class BackgroundService implements IBackgroundService {
@@ -44,8 +43,7 @@ export class BackgroundService implements IBackgroundService {
 
                 const foundAction = this.actionsWithBody.find((action) => action.requestId === req.requestId);
                 const newAction = this.actionsService.getCorrectAction(req, foundAction);
-
-                if(!newAction) { return; }
+                if (!newAction) { return; }
 
                 this.storageService.addNewRecordedAction(newAction);
                 const actions = await this.storageService.getRecordedActions();
@@ -62,6 +60,10 @@ export class BackgroundService implements IBackgroundService {
 
     public recordActions = () => {
         chrome.webRequest.onBeforeRequest.addListener((req) => {
+            if (this.actionsWithBody.length >= 10) {
+                this.actionsWithBody.shift();
+            }
+    
             this.actionsWithBody.push(req);
         }, {
             urls: ["<all_urls>"],

@@ -33,7 +33,7 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
 
     return <>
         <div>{renderHeader()}</div>
-        <div>{renderActions()}</div>
+        <div className="App-Actions">{renderActions()}</div>
     </>;
 }
 

@@ -310,7 +310,7 @@ describe('ActionsService', () => {
       const expectedTemplate = {
         "actionJson": `{
       "id":"b172c361-e70a-49df-ad72-5be8c0e48a6f",
-      "brandColor":"#EB3C00"
+      "brandColor":"#EB3C00",
       "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1681/1.0.1681.3663/office365groups/icon.png",
       "isTrigger": false,
       "operationName": "${name}",

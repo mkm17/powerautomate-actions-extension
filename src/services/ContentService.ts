@@ -72,11 +72,11 @@ export class ContentService implements IContentService {
     }
 
     public isRecordingPage = (): boolean => {
-        const element = document.getElementById(Constants.SharePointPageClass);
-        const element2 = document.getElementById(Constants.SharePointPageClass2);
-        const isGraphExplorerUrl = window &&  window.location.href.indexOf(Constants.GraphExplorerUrl) > -1;
-        console.log('isRecordingPage', !!element || !!element2 || !!isGraphExplorerUrl);
-        return !!element || !!element2 || !!isGraphExplorerUrl;
+        const spElement = document.getElementById(Constants.SharePointPageClass);
+        const spElement2 = document.getElementById(Constants.SharePointPageClass2);
+        const classicSpelement = document.getElementById(Constants.SharePointClassicPageClass);
+        const isGraphExplorerUrl = window && window.location.href.indexOf(Constants.GraphExplorerUrl) > -1;
+        return !!spElement || !!spElement2 || !!classicSpelement || !!isGraphExplorerUrl;
     }
 
     public isPowerAutomatePage = (): boolean => {

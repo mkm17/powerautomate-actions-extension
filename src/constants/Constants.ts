@@ -15,6 +15,7 @@ export class Constants {
 
     public static readonly SharePointPageClass = 'SPPageChrome';
     public static readonly SharePointPageClass2 = 'spoAppComponent';
+    public static readonly SharePointClassicPageClass = 's4-ribbonrow';
 
     public static readonly PowerAutomateNewEditorClassV3 = 'fl-V3DesignerPage';
     public static readonly PowerAutomateLocalStorageKeyV3 = 'msla-clipboard';

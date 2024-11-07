@@ -14,7 +14,7 @@ export class ActionsService implements IActionService {
     const headers = req.requestHeaders ? req.requestHeaders : [];
     const title = this.getTitleFromUrl(req.url);
 
-    if ((!isSharePointRequest && !isGraphRequest) || req.frameType === "sub_frame" || (req.type as any) != 'xmlhttprequest') { return null; }
+    if ((!isSharePointRequest && !isGraphRequest) || req.frameType === "sub_frame" || req.type.toLowerCase() !== 'xmlhttprequest') { return null; }
 
     const headersJson: any = {};
     headers.forEach(header => { headersJson[header.name] = header.value });
@@ -42,7 +42,8 @@ export class ActionsService implements IActionService {
   private getCorrectGraphActionJson(req: chrome.webRequest.WebRequestHeadersDetails, requestBody: any, headersJson: any, title: string): { icon: string, actionJson: string } {
     const graph1stSegment = req.url.split('/')[4];
     const graph2ndSegment = req.url.split('/')[5];
-    const segmentsCombined = `${graph1stSegment}/${graph2ndSegment}`;
+    const graph3rdSegment = req.url.split('/')[6];
+    const segmentsCombined = graph1stSegment ==='me' ?`${graph1stSegment}/${graph2ndSegment}`:`${graph1stSegment}/${graph3rdSegment}`;
     if (graph1stSegment === 'groups') {
       return this.o365GroupsGraphActionTemplate(req.method, req.url, headersJson, title, requestBody);
     }
@@ -133,7 +134,7 @@ export class ActionsService implements IActionService {
     const bodyParameter = `,"Body": ${JSON.stringify(requestBody)}`;
     const jsonString = `{
       "id":"b172c361-e70a-49df-ad72-5be8c0e48a6f",
-      "brandColor":"#EB3C00"
+      "brandColor":"#EB3C00",
       "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1681/1.0.1681.3663/office365groups/icon.png",
       "isTrigger": false,
       "operationName": "${name}",
