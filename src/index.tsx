@@ -12,7 +12,7 @@ root.render(
   <React.StrictMode>
     <App isRecording={false}
       isPowerAutomatePage={false}
-      isSharePointPage={false}
+      isRecordingPage={false}
       hasActionsOnPageToCopy={false}
       actions={[]}
       myClipboardActions={[]}

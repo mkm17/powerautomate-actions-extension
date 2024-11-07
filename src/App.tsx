@@ -12,7 +12,7 @@ function App(initialState?: IInitialState | undefined) {
   const communicationService = useMemo(() => { return new ExtensionCommunicationService(); }, []);
   const [isRecording, setIsRecording] = useState<boolean>(initialState?.isRecording || false);
   const [isPowerAutomatePage, setIsPowerAutomatePage] = useState<boolean>(initialState?.isPowerAutomatePage || false);
-  const [isSharePointPage, setIsSharePointPage] = useState<boolean>(initialState?.isSharePointPage || false);
+  const [isRecordingPage, setIsRecordingPage] = useState<boolean>(initialState?.isRecordingPage || false);
   const [hasActionsOnPageToCopy, setHasActionsOnPageToCopy] = useState<boolean>(initialState?.hasActionsOnPageToCopy || false);
   const [actions, setActions] = useState<IActionModel[]>(initialState?.actions || []);
   const [myClipboardActions, setMyClipboardActions] = useState<IActionModel[]>(initialState?.myClipboardActions || []);
@@ -38,8 +38,8 @@ function App(initialState?: IInitialState | undefined) {
 
   const initData = useCallback(() => {
     initializeIcons();
-    communicationService.sendRequest({ actionType: ActionType.CheckSharePointPage, message: "Check SharePoint Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
-      setIsSharePointPage(response);
+    communicationService.sendRequest({ actionType: ActionType.CheckRecordingPage, message: "Check Recording Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
+      setIsRecordingPage(response);
     });
     communicationService.sendRequest({ actionType: ActionType.CheckPowerAutomatePage, message: "Check PowerAutomate Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
       setIsPowerAutomatePage(response)
@@ -184,15 +184,15 @@ function App(initialState?: IInitialState | undefined) {
   }, [communicationService, myCopiedActionsV3, storageService])
 
   const renderRecordButton = useCallback(() => {
-    return isSharePointPage && <>{isRecording ?
+    return isRecordingPage && <>{isRecording ?
       <Icon className="App-icon" iconName='CircleStopSolid' title="Stop Recording" onClick={sendRecordingStatus}></Icon> :
       <Icon className="App-icon" iconName='Record2' title="Start Recording" onClick={sendRecordingStatus}></Icon>
     }</>
-  }, [isRecording, isSharePointPage, sendRecordingStatus])
+  }, [isRecording, isRecordingPage, sendRecordingStatus])
 
   const renderClearButton = useCallback(() => {
-    return (isSharePointPage || isPowerAutomatePage || hasActionsOnPageToCopy) && <Icon className="App-icon" iconName='Clear' title="Clear Items" onClick={clearActionList}></Icon>;
-  }, [clearActionList, isPowerAutomatePage, isSharePointPage, hasActionsOnPageToCopy])
+    return (isRecordingPage || isPowerAutomatePage || hasActionsOnPageToCopy) && <Icon className="App-icon" iconName='Clear' title="Clear Items" onClick={clearActionList}></Icon>;
+  }, [clearActionList, isPowerAutomatePage, isRecordingPage, hasActionsOnPageToCopy])
 
   const renderCopyButton = useCallback(() => {
     return isPowerAutomatePage && !isV3PowerAutomateEditor && <Icon className="App-icon" iconName='Copy' title="Copy Items" onClick={copyItems}></Icon>;

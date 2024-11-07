@@ -64,7 +64,7 @@ Accepting the popup window will finish the action copying process.
 
 
 ## **5.	Extended Copy/Paste feature for the new PowerAutomate editor**
-In version 1.0.0.4 the new feature was added to the extension. It allows for store copied actions to the extension storage and choose which actions should be pasted to the workflow.
+In version 1.0.4 the new feature was added to the extension. It allows for store copied actions to the extension storage and choose which actions should be pasted to the workflow.
 
 ![Copy Paste Example](/images/CopyPasteExample.gif)
 
@@ -90,5 +90,11 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
-* 1.0.0.4 - Added support for copying actions from the new Power Automate editor.
+* 1.0.3 : Handling SharePoint requests which use _vti_bin endpoint.
+* 1.0.4 - Added support for copying actions from the new Power Automate editor.
+* 1.0.5 - Fix- issue storage of new editor PA actions
+* 1.0.6 - Support of MS Graph actions. 
+        - Allow to record actions on MS Graph API and Classic SharePoint pages. 
+        - Allow to record actions in more persistent way.
+        - Fix of actions scrolling.
 

@@ -1,5 +1,7 @@
 .App {
   text-align: center;
+  max-height: 600px;
+  overflow-y: hidden;
 }
 
 .App-header {
@@ -19,6 +21,11 @@
   padding: 10px 20px;
   background-color: #282c34;
   color: #fff;
+}
+
+.App-Actions {
+  height: 400px;
+  overflow-y: scroll;
 }
 
 .App-Action-Icon {
@@ -92,7 +99,6 @@
 .Current-Action-Row {
   display: flex;
   padding: 10px 20px;
-  
 }
 
 .Current-Action-Element {

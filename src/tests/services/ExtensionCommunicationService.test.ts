@@ -29,7 +29,7 @@ describe("ExtensionCommunicationService", () => {
   describe("sendRequest", () => {
     test("should call sendRequestInTabsScript when receiver is AppElement.Content", () => {
       const requestObject: IDataChromeMessage = {
-        actionType: ActionType.CheckSharePointPage,
+        actionType: ActionType.CheckRecordingPage,
         message: "someMessage",
       };
       const sender = AppElement.Background;
@@ -51,7 +51,7 @@ describe("ExtensionCommunicationService", () => {
 
     test("should call sendRequestInRuntimeScript when receiver is AppElement.Background or AppElement.ReactApp", () => {
       const requestObject: IDataChromeMessage = {
-        actionType: ActionType.CheckSharePointPage,
+        actionType: ActionType.CheckRecordingPage,
         message: "someMessage",
       };
       const sender = AppElement.ReactApp;

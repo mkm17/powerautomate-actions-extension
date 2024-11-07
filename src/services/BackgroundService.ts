@@ -1,11 +1,10 @@
-import { Constants } from "../constants/Constants";
-import { ActionType, AppElement, IActionModel, ICommunicationChromeMessage } from "../models";
+import { ActionType, AppElement, ICommunicationChromeMessage } from "../models";
 import { IBackgroundService, IStorageService, IExtensionCommunicationService, IActionService } from "./interfaces";
 
 export class BackgroundService implements IBackgroundService {
     private actionsWithBody: chrome.webRequest.WebRequestBodyDetails[] = [];
     private previousUrl = '';
-    private isSharePointPageVar = false;
+    private isRecordingPageVar = false;
 
     constructor(private storageService: IStorageService, private communicationService: IExtensionCommunicationService, private actionsService: IActionService) {
     }
@@ -39,31 +38,12 @@ export class BackgroundService implements IBackgroundService {
         try {
             const isRecording = await this.storageService.getIsRecordingValue();
             if (isRecording) {
-                const isSharePointPage = await this.checkIfPageIsSharePoint();
-                if (!isSharePointPage) { return; }
+                const isRecordingPage = await this.checkIfPageIsRecordingPage();
+                if (!isRecordingPage) { return; }
 
-                const findedAction = this.actionsWithBody.find((action) => action.requestId === req.requestId);
-                const rawData: any = findedAction?.requestBody?.raw ? findedAction.requestBody.raw[0] : null;
-                const requestBody = rawData && rawData['bytes'] ? this.tryParseJson(new TextDecoder("utf-8").decode(rawData['bytes'])) : null;
-
-                const isSharePointRequest = req.url.indexOf(req.initiator ? req.initiator : '') > -1;
-                const isGraphRequest = req.url.indexOf(Constants.MSGraphUrl) > -1;
-                const headers = req.requestHeaders ? req.requestHeaders : [];
-                const title = this.actionsService.getTitleFromUrl(req.url);
-
-                if ((!isSharePointRequest && !isGraphRequest) || req.frameType === "sub_frame" || (req.type as any) != 'xmlhttprequest') { return; }
-
-                const actionJson = isSharePointRequest ? this.actionsService.getHttpSharePointActionTemplate(req.method, req.url, headers, title, requestBody) :
-                    this.actionsService.getHttpRequestActionTemplate(req.method, req.url, headers, title, requestBody);
-                const newAction: IActionModel = {
-                    icon: isSharePointRequest ? Constants.SharePointIcon : Constants.HttpRequestIcon,
-                    actionJson: actionJson,
-                    id: req.requestId,
-                    method: req.method,
-                    url: req.url,
-                    title: title,
-                    body: requestBody
-                }
+                const foundAction = this.actionsWithBody.find((action) => action.requestId === req.requestId);
+                const newAction = this.actionsService.getCorrectAction(req, foundAction);
+                if (!newAction) { return; }
 
                 this.storageService.addNewRecordedAction(newAction);
                 const actions = await this.storageService.getRecordedActions();
@@ -80,6 +60,10 @@ export class BackgroundService implements IBackgroundService {
 
     public recordActions = () => {
         chrome.webRequest.onBeforeRequest.addListener((req) => {
+            if (this.actionsWithBody.length >= 10) {
+                this.actionsWithBody.shift();
+            }
+    
             this.actionsWithBody.push(req);
         }, {
             urls: ["<all_urls>"],
@@ -114,9 +98,9 @@ export class BackgroundService implements IBackgroundService {
         });
     }
 
-    public isSharePointPage(): Promise<boolean> {
+    public isRecordingPage(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            this.communicationService.sendRequest({ actionType: ActionType.CheckSharePointPage, message: "Check SharePoint Page" }, AppElement.Background, AppElement.Content,
+            this.communicationService.sendRequest({ actionType: ActionType.CheckRecordingPage, message: "Check Recording Page" }, AppElement.Background, AppElement.Content,
                 (response) => {
                     resolve(response)
                 });
@@ -128,25 +112,12 @@ export class BackgroundService implements IBackgroundService {
         return (this.previousUrl !== url);
     }
 
-    private checkIfPageIsSharePoint = async () => {
+    private checkIfPageIsRecordingPage = async () => {
         const urlHasChanged = await this.checkUrlChange();
         if (urlHasChanged) {
-            this.isSharePointPageVar = await this.isSharePointPage();
+            this.isRecordingPageVar = await this.isRecordingPage();
         }
 
-        return this.isSharePointPageVar
+        return this.isRecordingPageVar
     }
-
-    private tryParseJson = (jsonString: string) => {
-        try {
-            var o = JSON.parse(jsonString);
-            if (o && typeof o === "object") {
-                return o;
-            }
-        }
-        catch (e) { }
-
-        return jsonString
-    }
-
 }

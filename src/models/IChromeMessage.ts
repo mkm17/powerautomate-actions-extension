@@ -8,7 +8,7 @@ export enum ActionType {
     StartRecording,
     StopRecording,
     CopyAction,
-    CheckSharePointPage,
+    CheckRecordingPage,
     CheckPowerAutomatePage,
     ActionUpdated,
     DeleteAction,
