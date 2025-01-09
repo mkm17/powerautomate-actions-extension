@@ -19,13 +19,7 @@ export enum ActionType {
     CopyAllActionsFromPage,
     
     CheckIsNewPowerAutomateEditorV3,
-    SetCurrentCopiedActionFromStorageV3,
-    SetCurrentCopiedActionV3,
-    AddCopyListenerV3,
-    MyCopiedActionsV3Updated,
-    RemoveCurrentCopiedActionV3,
-    DeleteMyCopiedActionV3,
-    ClearCurrentCopiedActionV3
+    SetSelectedActionsIntoClipboardV3,
 }
 
 export interface IDataChromeMessage {

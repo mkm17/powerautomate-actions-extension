@@ -26,9 +26,6 @@ export class BackgroundService implements IBackgroundService {
             case ActionType.DeleteMyClipboardAction:
                 this.storageService.deleteMyClipboardAction(message.message);
                 break;
-            case ActionType.DeleteMyCopiedActionV3:
-                this.storageService.deleteCopiedActionV3(message.message);
-                break;
             default:
                 console.log('Incorrect Action Type')
         }
@@ -63,7 +60,7 @@ export class BackgroundService implements IBackgroundService {
             if (this.actionsWithBody.length >= 10) {
                 this.actionsWithBody.shift();
             }
-    
+
             this.actionsWithBody.push(req);
         }, {
             urls: ["<all_urls>"],

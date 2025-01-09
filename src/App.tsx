@@ -17,8 +17,6 @@ function App(initialState?: IInitialState | undefined) {
   const [actions, setActions] = useState<IActionModel[]>(initialState?.actions || []);
   const [myClipboardActions, setMyClipboardActions] = useState<IActionModel[]>(initialState?.myClipboardActions || []);
   const [currentMode, setCurrentMode] = useState<Mode>(initialState?.currentMode || Mode.Requests);
-  const [myCopiedActionsV3, setMyCopiedActionsV3] = useState<IActionModel[]>(initialState?.myCopiedActionsV3 || []);
-  const [currentCopiedValueV3, setCurrentCopiedValueV3] = useState<IActionModel>();
   const [isV3PowerAutomateEditor, setIsV3PowerAutomateEditor] = useState<boolean>(false);
 
   const listenToMessage = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
@@ -29,9 +27,6 @@ function App(initialState?: IInitialState | undefined) {
         break;
       case ActionType.MyClipboardActionsUpdated:
         message.message && setMyClipboardActions(message.message);
-        break;
-      case ActionType.MyCopiedActionsV3Updated:
-        message.message && setMyCopiedActionsV3(message.message);
         break;
     }
   }
@@ -49,27 +44,20 @@ function App(initialState?: IInitialState | undefined) {
     });
     communicationService.sendRequest({ actionType: ActionType.CheckIsNewPowerAutomateEditorV3, message: "Check If Page is a new Power Automate editor" }, AppElement.ReactApp, AppElement.Content, (response) => {
       setIsV3PowerAutomateEditor(response);
-      if (response) {
-        setCurrentMode(Mode.CopiedActionsV3);
-        communicationService.sendRequest({ actionType: ActionType.SetCurrentCopiedActionFromStorageV3, message: "Get Copied Value V3" }, AppElement.ReactApp, AppElement.Content, (response) => {
-          setCurrentCopiedValueV3(response);
-        });
-      }
     });
 
     storageService.getRecordedActions().then((actions) => {
       setActions(actions);
     });
+
     storageService.getMyClipboardActions().then((actions) => {
       setMyClipboardActions(actions);
-    });
-    storageService.getCopiedActionsV3().then((actions) => {
-      setMyCopiedActionsV3(actions);
     });
 
     storageService.getIsRecordingValue().then((isRecording) => {
       setIsRecording(isRecording);
     });
+
     chrome.runtime.onMessage.addListener(listenToMessage);
   }, [communicationService, storageService]);
 
@@ -99,10 +87,6 @@ function App(initialState?: IInitialState | undefined) {
       case Mode.CopiedActions:
         storageService.clearMyClipboardActions();
         setMyClipboardActions([]);
-        break;
-      case Mode.CopiedActionsV3:
-        storageService.clearCopiedActionsV3();
-        setMyCopiedActionsV3([]);
         break;
     }
   }, [currentMode, storageService])
@@ -138,10 +122,6 @@ function App(initialState?: IInitialState | undefined) {
     deleteAction(action, myClipboardActions, setMyClipboardActions, ActionType.DeleteMyClipboardAction);
   }, [myClipboardActions, setMyClipboardActions, deleteAction])
 
-  const deleteCopiedActionV3 = useCallback((action: IActionModel) => {
-    deleteAction(action, myCopiedActionsV3, setMyCopiedActionsV3, ActionType.DeleteMyCopiedActionV3);
-  }, [myCopiedActionsV3, setMyCopiedActionsV3, deleteAction])
-
   const getMyClipboardActions = useCallback(() => {
     const message: IDataChromeMessage = {
       actionType: ActionType.GetElementsFromMyClipboard,
@@ -149,12 +129,6 @@ function App(initialState?: IInitialState | undefined) {
     }
     communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Content);
   }, [communicationService])
-
-  const removeCurrentAction = useCallback(() => {
-    storageService.clearCurrentCopiedActionV3();
-    setCurrentCopiedValueV3(undefined);
-    communicationService.sendRequest({ actionType: ActionType.ClearCurrentCopiedActionV3, message: {} }, AppElement.ReactApp, AppElement.Content);
-  }, [communicationService, storageService])
 
   const changeSelection = useCallback((action: IActionModel, oldActions: IActionModel[], setActionsFunc: (value: React.SetStateAction<IActionModel[]>) => void) => {
     const allActions = [...(oldActions || [])];
@@ -171,17 +145,14 @@ function App(initialState?: IInitialState | undefined) {
     changeSelection(action, myClipboardActions, setMyClipboardActions);
   }, [changeSelection, myClipboardActions])
 
-  const changeCopiedActionSelectionV3 = useCallback((action: IActionModel) => {
-    const allCurrentActions = [...(myCopiedActionsV3 || [])];
-    for (let i = 0; i < allCurrentActions.length; i++) {
-      if (allCurrentActions[i].id === action.id) { continue; }
-      allCurrentActions[i].isSelected = false;
-    }
-    storageService.setCurrentCopiedActionV3(action);
-    setCurrentCopiedValueV3(action);
-    setMyCopiedActionsV3(allCurrentActions);
-    communicationService.sendRequest({ actionType: ActionType.SetCurrentCopiedActionV3, message: action.actionJson }, AppElement.ReactApp, AppElement.Content);
-  }, [communicationService, myCopiedActionsV3, storageService])
+  const insertSelectedActionsToClipboard = useCallback(() => {
+    const selectedActions = currentMode === Mode.Requests ? actions.filter(a => a.isSelected) : myClipboardActions.filter(a => a.isSelected);
+
+    communicationService.sendRequest({ actionType: ActionType.SetSelectedActionsIntoClipboardV3, message: selectedActions}, AppElement.ReactApp, AppElement.Content, (response) => {
+      console.log(response);
+      navigator.clipboard.writeText(response);
+    });
+  }, [actions, myClipboardActions, currentMode, communicationService])
 
   const renderRecordButton = useCallback(() => {
     return isRecordingPage && <>{isRecording ?
@@ -206,13 +177,9 @@ function App(initialState?: IInitialState | undefined) {
     return hasActionsOnPageToCopy && !isPowerAutomatePage && <Icon className="App-icon" iconName='SetAction' title="Copy All Actions From Page" onClick={copyAllActionsFromPage}></Icon>;
   }, [copyAllActionsFromPage, hasActionsOnPageToCopy, isPowerAutomatePage])
 
-  const renderV3CopiedAction = useCallback(() => {
-    return isV3PowerAutomateEditor && currentCopiedValueV3 && <div className='Current-Action-Row' title={currentCopiedValueV3?.url}>
-      <img src={currentCopiedValueV3?.icon} className='Current-Action-Icon' alt={currentCopiedValueV3?.title}></img>
-      <span className='Current-Action-Element' title="Currently Copied Action">{currentCopiedValueV3?.title}</span>
-      <Icon className='Current-Action-Delete' iconName='Delete' onClick={removeCurrentAction} title="Clear Current Copied Action"></Icon>
-    </div>;
-  }, [currentCopiedValueV3, isV3PowerAutomateEditor, removeCurrentAction])
+  const renderInsertToClipboardV3Button = useCallback(() => {
+    return isV3PowerAutomateEditor && <Icon className="App-icon" iconName='Copy' title="Insert Selected Actions Into Clipboard" onClick={insertSelectedActionsToClipboard}></Icon>;
+  }, [insertSelectedActionsToClipboard, isV3PowerAutomateEditor])
 
   return (
     <div className="App">
@@ -222,7 +189,7 @@ function App(initialState?: IInitialState | undefined) {
         {renderCopyButton()}
         {renderGetClipboardActions()}
         {renderCopyAllActionsFromPage()}
-        {renderV3CopiedAction()}
+        {renderInsertToClipboardV3Button()}
       </header>
       <Pivot onLinkClick={(item: PivotItem | undefined) => {
         switch (item?.props.headerText) {
@@ -237,8 +204,7 @@ function App(initialState?: IInitialState | undefined) {
             break;
         }
       }}>
-        {!isV3PowerAutomateEditor &&
-          <PivotItem
+        {<PivotItem
             headerText="Recorded Requests"
           >
             <ActionsList
@@ -249,8 +215,7 @@ function App(initialState?: IInitialState | undefined) {
               showButton={false}
             />
           </PivotItem>}
-        {!isV3PowerAutomateEditor &&
-          <PivotItem
+        {<PivotItem
             headerText="Copied Actions"
           >
             <ActionsList
@@ -261,17 +226,6 @@ function App(initialState?: IInitialState | undefined) {
               showButton={false}
             />
           </PivotItem>}
-        {isV3PowerAutomateEditor && <PivotItem
-          headerText="Copied Actions in the new editor"
-        >
-          <ActionsList
-            actions={myCopiedActionsV3}
-            mode={Mode.CopiedActionsV3}
-            changeSelectionFunc={changeCopiedActionSelectionV3}
-            deleteActionFunc={deleteCopiedActionV3}
-            showButton={true}
-          />
-        </PivotItem>}
       </Pivot>
     </div >
   );
