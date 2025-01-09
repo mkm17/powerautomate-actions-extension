@@ -4,7 +4,7 @@ import { ActionType, IDataChromeMessage, AppElement, ICommunicationChromeMessage
 import { IActionModel } from './models/IActionModel';
 import { StorageService } from './services/StorageService';
 import { ExtensionCommunicationService } from './services';
-import { Icon, Pivot, PivotItem, initializeIcons } from '@fluentui/react';
+import { Icon, MessageBar, MessageBarType, Pivot, PivotItem } from '@fluentui/react';
 import ActionsList from './components/ActionsList';
 
 function App(initialState?: IInitialState | undefined) {
@@ -18,6 +18,9 @@ function App(initialState?: IInitialState | undefined) {
   const [myClipboardActions, setMyClipboardActions] = useState<IActionModel[]>(initialState?.myClipboardActions || []);
   const [currentMode, setCurrentMode] = useState<Mode>(initialState?.currentMode || Mode.Requests);
   const [isV3PowerAutomateEditor, setIsV3PowerAutomateEditor] = useState<boolean>(false);
+  const [hoverMessage, setHoverMessage] = useState<string | null>(null);
+  const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
+  const [isSuccessNotification, setIsSuccessNotification] = useState<boolean>(false);
 
   const listenToMessage = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
     if (message.to !== AppElement.ReactApp) { return console.log('Incorrect message destination'); }
@@ -32,7 +35,6 @@ function App(initialState?: IInitialState | undefined) {
   }
 
   const initData = useCallback(() => {
-    initializeIcons();
     communicationService.sendRequest({ actionType: ActionType.CheckRecordingPage, message: "Check Recording Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
       setIsRecordingPage(response);
     });
@@ -92,7 +94,14 @@ function App(initialState?: IInitialState | undefined) {
   }, [currentMode, storageService])
 
   const copyItems = useCallback(() => {
-    const selectedActions = currentMode === Mode.Requests ? actions.filter(a => a.isSelected) : myClipboardActions.filter(a => a.isSelected);
+    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) : myClipboardActions?.filter(a => a.isSelected);
+
+    if (!selectedActions || selectedActions.length === 0) {
+      setNotificationMessage("No actions selected");
+      setIsSuccessNotification(false);
+      return;
+    }
+
     const message: IDataChromeMessage = {
       actionType: ActionType.CopyAction,
       message: selectedActions,
@@ -146,39 +155,96 @@ function App(initialState?: IInitialState | undefined) {
   }, [changeSelection, myClipboardActions])
 
   const insertSelectedActionsToClipboard = useCallback(() => {
-    const selectedActions = currentMode === Mode.Requests ? actions.filter(a => a.isSelected) : myClipboardActions.filter(a => a.isSelected);
+    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) : myClipboardActions?.filter(a => a.isSelected);
 
-    communicationService.sendRequest({ actionType: ActionType.SetSelectedActionsIntoClipboardV3, message: selectedActions}, AppElement.ReactApp, AppElement.Content, (response) => {
+    if (!selectedActions || selectedActions.length === 0) {
+      setNotificationMessage("No actions selected");
+      setIsSuccessNotification(false);
+      return;
+    }
+
+    communicationService.sendRequest({ actionType: ActionType.SetSelectedActionsIntoClipboardV3, message: selectedActions }, AppElement.ReactApp, AppElement.Content, (response) => {
       console.log(response);
       navigator.clipboard.writeText(response);
+      setNotificationMessage("Actions have been copied - now you can paste them in the Power Automate editor");
+      setIsSuccessNotification(true);
     });
   }, [actions, myClipboardActions, currentMode, communicationService])
 
   const renderRecordButton = useCallback(() => {
     return isRecordingPage && <>{isRecording ?
-      <Icon className="App-icon" iconName='CircleStopSolid' title="Stop Recording" onClick={sendRecordingStatus}></Icon> :
-      <Icon className="App-icon" iconName='Record2' title="Start Recording" onClick={sendRecordingStatus}></Icon>
+      <Icon
+        className="App-icon"
+        iconName='CircleStopSolid'
+        title="Stop Recording"
+        onClick={sendRecordingStatus}
+        onMouseEnter={() => { setHoverMessage("Stop Action Recording") }}
+        onMouseLeave={() => { setHoverMessage(null) }}>
+      </Icon> :
+      <Icon
+        className="App-icon"
+        iconName='Record2'
+        title="Start Recording"
+        onClick={sendRecordingStatus}
+        onMouseEnter={() => { setHoverMessage("Start Action Recording") }}
+        onMouseLeave={() => { setHoverMessage(null) }}>
+      </Icon>
     }</>
   }, [isRecording, isRecordingPage, sendRecordingStatus])
 
   const renderClearButton = useCallback(() => {
-    return (isRecordingPage || isPowerAutomatePage || hasActionsOnPageToCopy) && <Icon className="App-icon" iconName='Clear' title="Clear Items" onClick={clearActionList}></Icon>;
+    return (isRecordingPage || isPowerAutomatePage || hasActionsOnPageToCopy) && <Icon
+      className="App-icon"
+      iconName='Clear'
+      title="Clear Items"
+      onClick={clearActionList}
+      onMouseEnter={() => { setHoverMessage("Remove All Items from the Current List") }}
+      onMouseLeave={() => { setHoverMessage(null) }}
+    ></Icon>;
   }, [clearActionList, isPowerAutomatePage, isRecordingPage, hasActionsOnPageToCopy])
 
   const renderCopyButton = useCallback(() => {
-    return isPowerAutomatePage && !isV3PowerAutomateEditor && <Icon className="App-icon" iconName='Copy' title="Copy Items" onClick={copyItems}></Icon>;
+    return isPowerAutomatePage && !isV3PowerAutomateEditor && <Icon
+      className="App-icon"
+      iconName='Copy'
+      title="Copy Items"
+      onClick={copyItems}
+      onMouseEnter={() => { setHoverMessage("Copy Items to the 'My Clipboard' Section") }}
+      onMouseLeave={() => { setHoverMessage(null) }}
+    ></Icon>;
   }, [copyItems, isPowerAutomatePage, isV3PowerAutomateEditor])
 
   const renderGetClipboardActions = useCallback(() => {
-    return isPowerAutomatePage && !isV3PowerAutomateEditor && <Icon className="App-icon" iconName='DoubleChevronDown12' title="Get 'My Clipboard Actions'" onClick={getMyClipboardActions}></Icon>;
+    return isPowerAutomatePage && !isV3PowerAutomateEditor && <Icon
+      className="App-icon"
+      iconName='DoubleChevronDown12'
+      title="Get 'My Clipboard Actions'"
+      onClick={getMyClipboardActions}
+      onMouseEnter={() => { setHoverMessage("Retrieve Actions from the 'My Clipboard' Section") }}
+      onMouseLeave={() => { setHoverMessage(null) }}
+    ></Icon>;
   }, [getMyClipboardActions, isPowerAutomatePage, isV3PowerAutomateEditor])
 
   const renderCopyAllActionsFromPage = useCallback(() => {
-    return hasActionsOnPageToCopy && !isPowerAutomatePage && <Icon className="App-icon" iconName='SetAction' title="Copy All Actions From Page" onClick={copyAllActionsFromPage}></Icon>;
+    return hasActionsOnPageToCopy && !isPowerAutomatePage && <Icon
+      className="App-icon"
+      iconName='SetAction'
+      title="Copy All Actions from the Page"
+      onClick={copyAllActionsFromPage}
+      onMouseEnter={() => { setHoverMessage("Copy All Actions from the Page") }}
+      onMouseLeave={() => { setHoverMessage(null) }}
+    ></Icon>;
   }, [copyAllActionsFromPage, hasActionsOnPageToCopy, isPowerAutomatePage])
 
   const renderInsertToClipboardV3Button = useCallback(() => {
-    return isV3PowerAutomateEditor && <Icon className="App-icon" iconName='Copy' title="Insert Selected Actions Into Clipboard" onClick={insertSelectedActionsToClipboard}></Icon>;
+    return isV3PowerAutomateEditor && <Icon
+      className="App-icon"
+      iconName='Copy'
+      title="Add Selected Actions to Clipboard"
+      onClick={insertSelectedActionsToClipboard}
+      onMouseEnter={() => { setHoverMessage("Add Selected Actions to Clipboard") }}
+      onMouseLeave={() => { setHoverMessage(null) }}
+    ></Icon>;
   }, [insertSelectedActionsToClipboard, isV3PowerAutomateEditor])
 
   return (
@@ -191,6 +257,17 @@ function App(initialState?: IInitialState | undefined) {
         {renderCopyAllActionsFromPage()}
         {renderInsertToClipboardV3Button()}
       </header>
+      {notificationMessage ? <MessageBar
+        messageBarType={isSuccessNotification ? MessageBarType.success : MessageBarType.warning}
+        isMultiline={false}
+        onDismiss={() => setNotificationMessage(null)}
+        messageBarIconProps={{ iconName: isSuccessNotification ? 'Completed' : 'Warning' }}
+        >{notificationMessage}
+      </MessageBar> : <MessageBar
+        messageBarType={MessageBarType.info}
+        messageBarIconProps={{ iconName: 'Info', styles: { root: { display: !hoverMessage ? 'none': 'block' } } }}
+      >{hoverMessage}
+      </MessageBar>}
       <Pivot onLinkClick={(item: PivotItem | undefined) => {
         switch (item?.props.headerText) {
           case "Recorded Requests":
@@ -205,27 +282,27 @@ function App(initialState?: IInitialState | undefined) {
         }
       }}>
         {<PivotItem
-            headerText="Recorded Requests"
-          >
-            <ActionsList
-              actions={actions}
-              mode={Mode.Requests}
-              changeSelectionFunc={changeSelectionRecordedAction}
-              deleteActionFunc={deleteRecordedAction}
-              showButton={false}
-            />
-          </PivotItem>}
+          headerText="Recorded Requests"
+        >
+          <ActionsList
+            actions={actions}
+            mode={Mode.Requests}
+            changeSelectionFunc={changeSelectionRecordedAction}
+            deleteActionFunc={deleteRecordedAction}
+            showButton={false}
+          />
+        </PivotItem>}
         {<PivotItem
-            headerText="Copied Actions"
-          >
-            <ActionsList
-              actions={myClipboardActions}
-              mode={Mode.CopiedActions}
-              changeSelectionFunc={changeCopiedActionSelection}
-              deleteActionFunc={deleteMyClipboardAction}
-              showButton={false}
-            />
-          </PivotItem>}
+          headerText="Copied Actions"
+        >
+          <ActionsList
+            actions={myClipboardActions}
+            mode={Mode.CopiedActions}
+            changeSelectionFunc={changeCopiedActionSelection}
+            deleteActionFunc={deleteMyClipboardAction}
+            showButton={false}
+          />
+        </PivotItem>}
       </Pivot>
     </div >
   );

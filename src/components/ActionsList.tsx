@@ -1,7 +1,14 @@
 import { useCallback } from "react";
-import { IActionsListProps } from "./IActionsListProps";
-import { IActionModel } from "../models";
 import { Checkbox, Icon } from "@fluentui/react";
+import { IActionModel, Mode } from "../models";
+
+export interface IActionsListProps {
+    actions: IActionModel[];
+    mode: Mode;
+    changeSelectionFunc: (action: IActionModel) => void;
+    deleteActionFunc: (action: IActionModel) => void;
+    showButton: boolean;
+}
 
 const ActionsList: React.FC<IActionsListProps> = (props) => {
     const renderAction = useCallback((action: IActionModel) => {
