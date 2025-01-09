@@ -8,10 +8,6 @@ const contentService = new ContentService(storageService, communicationService);
 const main = () => {
     chrome.runtime.onMessage.addListener(contentService.handleContentAction);
     contentService.addCopyListener();
-
-    if(contentService.isPowerAutomatePage()) {
-        contentService.addCopyActionOnPowerAutomateEditorV3Listener();
-    }
 }
 
 main();

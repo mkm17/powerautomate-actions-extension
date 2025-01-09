@@ -1,9 +1,9 @@
 import { Constants } from "../constants/Constants";
 import { ActionType, AppElement, IActionModel, ICommunicationChromeMessage, ICopiedActionV3Model } from "../models";
+import { IActionBody } from "../models/NewEditorModels";
 import { IStorageService, IExtensionCommunicationService, IContentService } from "./interfaces";
 
 export class ContentService implements IContentService {
-    private previousValue: string | null = null;
 
     constructor(private storageService: IStorageService, private communicationService: IExtensionCommunicationService) {
     }
@@ -32,17 +32,8 @@ export class ContentService implements IContentService {
             case ActionType.CheckIsNewPowerAutomateEditorV3:
                 sendResponse(this.isNewPowerAutomateEditor());
                 break;
-            case ActionType.AddCopyListenerV3:
-                this.addCopyActionOnPowerAutomateEditorV3Listener();
-                break;
-            case ActionType.SetCurrentCopiedActionFromStorageV3:
-                sendResponse(this.setCurrentCopiedAction());
-                break;
-            case ActionType.SetCurrentCopiedActionV3:
-                this.setCopiedActionInStorage(message);
-                break;
-            case ActionType.ClearCurrentCopiedActionV3:
-                this.clearCopiedActionInStorage();
+            case ActionType.SetSelectedActionsIntoClipboardV3:
+                sendResponse(this.setSelectedActionsIntoClipboardV3(message));
                 break;
             default:
                 console.log('Incorrect Action Type');
@@ -85,6 +76,40 @@ export class ContentService implements IContentService {
 
     public isNewPowerAutomateEditor = (): boolean => {
         return document.getElementsByClassName(Constants.PowerAutomateNewEditorClassV3).length > 0;
+    }
+
+    public setSelectedActionsIntoClipboardV3 = (message: ICommunicationChromeMessage) => {
+        const messageContent: IActionModel[] = message.message;
+        if (!messageContent || messageContent.length === 0) {
+            console.log('Incorrect message');
+            return;
+        }
+        const itemToSave: IActionBody = {
+            nodeId: 'Copy_Container',
+            serializedOperation: {
+                type: 'Scope',
+                actions: {},
+                runAfter: {},
+                metadata: {
+                    operationMetadataId: this.getGUID()
+                }
+            },
+            allConnectionData: {},
+            staticResults: {},
+            isScopeNode: true,
+            mslaNode: true
+        }
+
+        for (let action of messageContent) {
+            const actionJson = JSON.parse(action.actionJson);
+            itemToSave.serializedOperation.actions[action.title] = actionJson.operationDefinition;
+            itemToSave.serializedOperation.actions[action.title].runAfter = {};
+            if (actionJson.operationDefinition.inputs.host && actionJson.operationDefinition.inputs.host.connectionName) {
+                itemToSave.serializedOperation.actions[action.title].inputs.host.connection = actionJson.operationDefinition.inputs.host.connectionName;
+            }
+        }
+
+        return JSON.stringify(itemToSave);
     }
 
     private isCorrectReceiver = (message: ICommunicationChromeMessage) => {
@@ -153,7 +178,6 @@ export class ContentService implements IContentService {
                 icon: icon
             }
             clipBoardActions.push(newAction);
-
         }
 
         if (clipBoardActions.length === 0) { return; }
@@ -193,43 +217,6 @@ export class ContentService implements IContentService {
         });
     }
 
-    public addCopyActionOnPowerAutomateEditorV3Listener = async () => {
-        const checkLocalStorageValue = async () => {
-            const currentValue = localStorage.getItem(Constants.PowerAutomateLocalStorageKeyV3);
-            if (!currentValue || currentValue === this.previousValue) { return; }
-
-            this.previousValue = currentValue;
-
-            const allCopiedActionsV3 = await this.storageService.getCopiedActionsV3();
-
-            const isActionAlreadyInCopiedList = allCopiedActionsV3 ? allCopiedActionsV3.some((action) => action.actionJson === currentValue) : false;
-            if (isActionAlreadyInCopiedList) { return; }
-
-            const copiedActionSchema: ICopiedActionV3Model = JSON.parse(currentValue);
-
-            const copiedAction: IActionModel = {
-                actionJson: currentValue ? currentValue : '',
-                id: this.generateUniqueId(),
-                method: '',
-                url: '',
-                icon: copiedActionSchema?.nodeData?.operationMetadata?.iconUri,
-                title: copiedActionSchema?.nodeData?.id
-            }
-
-            await this.storageService.setCurrentCopiedActionV3(copiedAction);
-
-            const actions = await this.storageService.setNewCopiedActionsV3(copiedAction, allCopiedActionsV3);
-
-            this.communicationService.sendRequest(
-                { actionType: ActionType.MyCopiedActionsV3Updated, message: actions },
-                AppElement.Content,
-                AppElement.ReactApp);
-        }
-
-        this.previousValue = localStorage.getItem(Constants.PowerAutomateLocalStorageKeyV3);
-        setInterval(checkLocalStorageValue, 2000);
-    }
-
     public setCurrentCopiedAction = () => {
         const copiedActionSchemaString = window.localStorage.getItem(Constants.PowerAutomateLocalStorageKeyV3);
         if (!copiedActionSchemaString) { return; }
@@ -249,14 +236,6 @@ export class ContentService implements IContentService {
         return copiedAction;
     }
 
-    private async setCopiedActionInStorage(message: ICommunicationChromeMessage) {
-        localStorage.setItem(Constants.PowerAutomateLocalStorageKeyV3, message.message);
-    }
-
-    private async clearCopiedActionInStorage() {
-        localStorage.removeItem(Constants.PowerAutomateLocalStorageKeyV3);
-    }
-
     private generateUniqueId() {
         const timestamp = Date.now().toString(16);
         const randomNum = Math.floor(Math.random() * 1000000).toString(16);
@@ -271,5 +250,15 @@ export class ContentService implements IContentService {
         } catch (e) {
             return false;
         }
+    }
+
+    private getGUID(): string {
+        let d = new Date().getTime();
+        const guid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+            const r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        return guid;
     }
 } 
