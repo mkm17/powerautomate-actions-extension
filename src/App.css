@@ -1,6 +1,7 @@
 .App {
   text-align: center;
   max-height: 600px;
+  height: 570px;
   overflow-y: hidden;
 }
 
@@ -106,4 +107,19 @@
   text-overflow: ellipsis;
   margin: auto;
   width: 360px;
+}
+
+.Hover-message {
+  width: 598px;
+  height: 20px;
+  line-height: 20px;
+  display: inline-block;
+  background-color: #f0f0f0;
+  color: #333;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 0px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
 }
