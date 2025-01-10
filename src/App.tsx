@@ -75,7 +75,7 @@ function App(initialState?: IInitialState | undefined) {
   const copyAllActionsFromPage = useCallback(() => {
     const message = {
       actionType: ActionType.CopyAllActionsFromPage,
-      message: "Copy All Actions From Page",
+      message: "Copy All Actions From the Page",
     }
     communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Content);
   }, [communicationService])

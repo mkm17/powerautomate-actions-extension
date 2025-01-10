@@ -433,7 +433,7 @@ describe('ActionsService', () => {
   describe('outlookGraphActionTemplate', () => {
     it('should return the correct GET outlookGraph action template', () => {
       const method = 'GET';
-      const requestUrl = 'https://graph.microsoft.com/v1.0/users/messages';
+      const requestUrl = 'https://graph.microsoft.com/v1.0/users/12a2e863-6b33-4a08-ae7c-1f721154ba7a/messages';
       const headers = [
         { name: 'Content-Type', value: 'application/json' },
         { name: 'Authorization', value: 'Bearer token' }
