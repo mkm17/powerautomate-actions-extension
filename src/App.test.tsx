@@ -167,7 +167,7 @@ describe('App', () => {
       currentMode={Mode.Requests} 
       myCopiedActionsV3={[]}/>);
 
-    const actionsButton = screen.getByTitle("Copy All Actions From Page");
+    const actionsButton = screen.getByTitle("Copy All Actions from the Page");
     expect(actionsButton).toBeInTheDocument();
 
     const clearButton = screen.getByTitle('Clear Items');

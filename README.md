@@ -90,6 +90,10 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
+**1.0.7**
+- Fixed pasting recorded actions into the new Power Automate editor.
+- Added a notification banner.
+
 **1.0.6**
 - Added support for HTTP Microsoft Graph actions.
 - Enabled recording of actions on Microsoft Graph Explorer and Classic SharePoint pages.
