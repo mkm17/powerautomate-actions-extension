@@ -34,7 +34,8 @@
       ],
       "js": [
         "./static/js/Content.js"
-      ]
+      ],
+      "all_frames": true
     }
   ]
 }

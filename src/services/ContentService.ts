@@ -67,11 +67,12 @@ export class ContentService implements IContentService {
         const spElement2 = document.getElementById(Constants.SharePointPageClass2);
         const classicSpelement = document.getElementById(Constants.SharePointClassicPageClass);
         const isGraphExplorerUrl = window && window.location.href.indexOf(Constants.GraphExplorerUrl) > -1;
-        return !!spElement || !!spElement2 || !!classicSpelement || !!isGraphExplorerUrl;
+        const isSPAdminUrl = window && window.location.href.indexOf(Constants.SharePointAdminUrl) > -1;
+        return !!spElement || !!spElement2 || !!classicSpelement || !!isGraphExplorerUrl || !!isSPAdminUrl;
     }
 
     public isPowerAutomatePage = (): boolean => {
-        return window && window.location.href.indexOf(Constants.PowerAutomateUrl) > -1;
+        return window && window.location.href.indexOf(Constants.PowerAutomateUrl) > -1 || window.location.href.indexOf(Constants.PowerAppsUrl) > -1;
     }
 
     public isNewPowerAutomateEditor = (): boolean => {
