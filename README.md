@@ -90,6 +90,10 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
+**1.0.8**
+- Added recording capability on the SharePoint Admin page.
+- Enabled the ability to copy actions within iframes (including the make.powerapps page and directly from Canvas Apps).
+
 **1.0.7**
 - Fixed pasting recorded actions into the new Power Automate editor.
 - Added a notification banner.
