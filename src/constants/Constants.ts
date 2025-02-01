@@ -1,6 +1,7 @@
 export class Constants {
     public static readonly MSGraphUrl = 'https://graph.microsoft.com/';
     public static readonly PowerAutomateUrl = 'make.powerautomate.com';
+    public static readonly PowerAppsUrl = 'make.powerapps.com';
 
     public static readonly SharePointIcon = 'https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png';
     public static readonly HttpRequestIcon = 'https://content.powerapps.com/resource/makerx/static/pauto/images/designeroperations/http.a0aaded8.png';
@@ -21,4 +22,5 @@ export class Constants {
     public static readonly PowerAutomateLocalStorageKeyV3 = 'msla-clipboard';
 
     public static readonly GraphExplorerUrl = 'https://developer.microsoft.com/en-us/graph/graph-explorer';
+    public static readonly SharePointAdminUrl = 'layouts/15/online/AdminHome.aspx';
 }
