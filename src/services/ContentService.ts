@@ -66,9 +66,10 @@ export class ContentService implements IContentService {
         const spElement = document.getElementById(Constants.SharePointPageClass);
         const spElement2 = document.getElementById(Constants.SharePointPageClass2);
         const classicSpelement = document.getElementById(Constants.SharePointClassicPageClass);
+        const spIframeFix = window && window.location.href.indexOf(Constants.SPIframeFixUrl) > -1;
         const isGraphExplorerUrl = window && window.location.href.indexOf(Constants.GraphExplorerUrl) > -1;
         const isSPAdminUrl = window && window.location.href.indexOf(Constants.SharePointAdminUrl) > -1;
-        return !!spElement || !!spElement2 || !!classicSpelement || !!isGraphExplorerUrl || !!isSPAdminUrl;
+        return !!spElement || !!spElement2 || !!classicSpelement || isGraphExplorerUrl || isSPAdminUrl || spIframeFix;
     }
 
     public isPowerAutomatePage = (): boolean => {
