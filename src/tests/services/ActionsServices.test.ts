@@ -22,7 +22,7 @@ describe('ActionsService', () => {
         "id": "7a3955e0-f505-4f9f-ae7f-d805943ff04d",
         "brandColor": "#036C70",
         "connectorDisplayName": "SharePoint",
-        "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png",
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png",
         "isTrigger": false,
         "operationName": "${name}",
         "operationDefinition": {
@@ -44,7 +44,7 @@ describe('ActionsService', () => {
           }
         }
       }`,
-        "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png"
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png"
       };
 
       //const result = actionsService.getHttpSharePointActionTemplate(method, requestUrl, headers, name, requestBody);
@@ -89,7 +89,7 @@ describe('ActionsService', () => {
         "id": "7a3955e0-f505-4f9f-ae7f-d805943ff04d",
         "brandColor": "#036C70",
         "connectorDisplayName": "SharePoint",
-        "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png",
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png",
         "isTrigger": false,
         "operationName": "${name}",
         "operationDefinition": {
@@ -111,7 +111,7 @@ describe('ActionsService', () => {
           }
         }
       }`,
-        "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png"
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png"
       };
 
       const result = actionsService.getHttpSharePointActionTemplate(method, requestUrl, headers, name, requestBody);
@@ -133,7 +133,7 @@ describe('ActionsService', () => {
         "id": "7a3955e0-f505-4f9f-ae7f-d805943ff04d",
         "brandColor": "#036C70",
         "connectorDisplayName": "SharePoint",
-        "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png",
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png",
         "isTrigger": false,
         "operationName": "${name}",
         "operationDefinition": {
@@ -155,7 +155,7 @@ describe('ActionsService', () => {
           }
         }
       }`,
-        "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png"
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png"
       };
 
       const result = actionsService.getHttpSharePointActionTemplate(method, requestUrl, headers, name, null);
@@ -311,7 +311,7 @@ describe('ActionsService', () => {
         "actionJson": `{
       "id":"b172c361-e70a-49df-ad72-5be8c0e48a6f",
       "brandColor":"#EB3C00",
-      "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1681/1.0.1681.3663/office365groups/icon.png",
+      "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1681/1.0.1681.3663/office365groups/icon.png",
       "isTrigger": false,
       "operationName": "${name}",
       "operationDefinition": {
@@ -334,7 +334,7 @@ describe('ActionsService', () => {
         }, "runAfter": {}
       }
     }`,
-        "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1681/1.0.1681.3663/office365groups/icon.png"
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1681/1.0.1681.3663/office365groups/icon.png"
       };
 
       const req = {
@@ -378,7 +378,7 @@ describe('ActionsService', () => {
         "actionJson": `{
       "id": "c63ac87d-3625-4926-a709-48be9789f3bc",
       "brandColor": "#4B53BC",
-      "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1719/1.0.1719.3955/teams/icon.png",
+      "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1719/1.0.1719.3955/teams/icon.png",
       "isTrigger": false,
       "operationName": "${name}",
       "operationDefinition": {
@@ -403,7 +403,7 @@ describe('ActionsService', () => {
         "runAfter": {}
       }
     }`,
-        "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1719/1.0.1719.3955/teams/icon.png"
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1719/1.0.1719.3955/teams/icon.png"
       };
 
       const req = {
@@ -444,7 +444,7 @@ describe('ActionsService', () => {
         "actionJson": `{
       "id": "37a2e863-6b96-4a08-ae7c-1f721154ba7a",
       "brandColor": "#0078D4",
-      "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1716/1.0.1716.3922/office365/icon.png",
+      "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1722/1.0.1722.3975/office365/icon.png",
       "isTrigger": false,
       "operationName": "${name}",
       "operationDefinition": {
@@ -467,7 +467,7 @@ describe('ActionsService', () => {
         }, "runAfter": {}
       }
     }`,
-        "icon": "https://connectoricons-prod.azureedge.net/releases/v1.0.1716/1.0.1716.3922/office365/icon.png"
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1722/1.0.1722.3975/office365/icon.png"
       };
 
       const req = {
