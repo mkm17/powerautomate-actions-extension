@@ -1,6 +1,6 @@
 {
   "name": "powerautomate-sharepoint-http-actions",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "private": true,
   "dependencies": {
     "@craco/craco": "^7.0.0-alpha.3",
