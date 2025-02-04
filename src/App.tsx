@@ -164,7 +164,6 @@ function App(initialState?: IInitialState | undefined) {
     }
 
     communicationService.sendRequest({ actionType: ActionType.SetSelectedActionsIntoClipboardV3, message: selectedActions }, AppElement.ReactApp, AppElement.Content, (response) => {
-      console.log(response);
       navigator.clipboard.writeText(response);
       setNotificationMessage("Actions have been copied - now you can paste them in the Power Automate editor");
       setIsSuccessNotification(true);
@@ -172,7 +171,7 @@ function App(initialState?: IInitialState | undefined) {
   }, [actions, myClipboardActions, currentMode, communicationService])
 
   const renderRecordButton = useCallback(() => {
-    return isRecordingPage && <>{isRecording ?
+    return isRecordingPage && !isPowerAutomatePage && <>{isRecording ?
       <Icon
         className="App-icon"
         iconName='CircleStopSolid'
@@ -190,7 +189,7 @@ function App(initialState?: IInitialState | undefined) {
         onMouseLeave={() => { setHoverMessage(null) }}>
       </Icon>
     }</>
-  }, [isRecording, isRecordingPage, sendRecordingStatus])
+  }, [isRecording, isRecordingPage, isPowerAutomatePage, sendRecordingStatus])
 
   const renderClearButton = useCallback(() => {
     return (isRecordingPage || isPowerAutomatePage || hasActionsOnPageToCopy) && <Icon
@@ -262,10 +261,10 @@ function App(initialState?: IInitialState | undefined) {
         isMultiline={false}
         onDismiss={() => setNotificationMessage(null)}
         messageBarIconProps={{ iconName: isSuccessNotification ? 'Completed' : 'Warning' }}
-        >{notificationMessage}
+      >{notificationMessage}
       </MessageBar> : <MessageBar
         messageBarType={MessageBarType.info}
-        messageBarIconProps={{ iconName: 'Info', styles: { root: { display: !hoverMessage ? 'none': 'block' } } }}
+        messageBarIconProps={{ iconName: 'Info', styles: { root: { display: !hoverMessage ? 'none' : 'block' } } }}
       >{hoverMessage}
       </MessageBar>}
       <Pivot onLinkClick={(item: PivotItem | undefined) => {

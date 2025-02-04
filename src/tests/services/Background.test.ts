@@ -180,7 +180,7 @@ describe("BackgroundService", () => {
             } as chrome.webRequest.WebRequestHeadersDetails;
 
             const returnedValue = {
-                icon: "https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png",
+                icon: "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png",
                 actionJson: test,
                 id: '123',
                 method: 'GET',

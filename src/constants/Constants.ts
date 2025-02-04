@@ -3,7 +3,7 @@ export class Constants {
     public static readonly PowerAutomateUrl = 'make.powerautomate.com';
     public static readonly PowerAppsUrl = 'make.powerapps.com';
 
-    public static readonly SharePointIcon = 'https://connectoricons-prod.azureedge.net/releases/v1.0.1627/1.0.1627.3238/sharepointonline/icon.png';
+    public static readonly SharePointIcon = 'https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png';
     public static readonly HttpRequestIcon = 'https://content.powerapps.com/resource/makerx/static/pauto/images/designeroperations/http.a0aaded8.png';
 
     public static readonly MyClipboardItemClass = 'fl-MyClipboardRecommendationItem';
