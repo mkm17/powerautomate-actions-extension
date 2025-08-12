@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import App from './App';
 import { Mode } from './models';
-import { ExtensionCommunicationService } from './services';
 
 describe('App', () => {
   let storageServiceMock: any;
@@ -75,6 +73,7 @@ describe('App', () => {
       myClipboardActions={[]}
       currentMode={Mode.Requests} 
       myCopiedActionsV3={[]}
+      favoriteActions={[]}
       />);
 
     const clearButton = screen.getByTitle('Clear Items');
@@ -95,6 +94,7 @@ describe('App', () => {
       myClipboardActions={[]}
       currentMode={Mode.Requests} 
       myCopiedActionsV3={[]}
+      favoriteActions={[]}
       />);
 
     const recordButton = screen.getByTitle('Start Recording');
@@ -118,6 +118,7 @@ describe('App', () => {
       myClipboardActions={[]}
       currentMode={Mode.Requests} 
       myCopiedActionsV3={[]}
+      favoriteActions={[]}
       />);
 
     const recordButton = screen.getByTitle('Stop Recording');
@@ -140,7 +141,9 @@ describe('App', () => {
       actions={[]}
       myClipboardActions={[]}
       currentMode={Mode.Requests} 
-      myCopiedActionsV3={[]}/>);
+      myCopiedActionsV3={[]}
+      favoriteActions={[]}
+      />);
 
     const getMyClipboardActions = screen.getByTitle("Get 'My Clipboard Actions'");
     expect(getMyClipboardActions).toBeInTheDocument();
@@ -165,7 +168,9 @@ describe('App', () => {
       actions={[]}
       myClipboardActions={[]}
       currentMode={Mode.Requests} 
-      myCopiedActionsV3={[]}/>);
+      myCopiedActionsV3={[]}
+      favoriteActions={[]}
+      />);
 
     const actionsButton = screen.getByTitle("Copy All Actions from the Page");
     expect(actionsButton).toBeInTheDocument();

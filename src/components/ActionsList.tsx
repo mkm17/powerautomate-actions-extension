@@ -8,6 +8,7 @@ export interface IActionsListProps {
     changeSelectionFunc: (action: IActionModel) => void;
     deleteActionFunc: (action: IActionModel) => void;
     showButton: boolean;
+    toggleFavoriteFunc?: (action: IActionModel) => void;
 }
 
 const ActionsList: React.FC<IActionsListProps> = (props) => {
@@ -20,6 +21,14 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
             <img src={action.icon} className='App-Action-Icon' alt={action.title}></img>
             <span className='App-Action-Element'>{action.title}</span>
             <span className='App-Action-Element'>{action.method}</span>
+            {props.toggleFavoriteFunc && (
+                <Icon 
+                    className='App-Action-Favorite' 
+                    iconName={action.isFavorite ? 'FavoriteStarFill' : 'FavoriteStar'} 
+                    onClick={() => { props.toggleFavoriteFunc!(action) }} 
+                    title={action.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                ></Icon>
+            )}
             <Icon className='App-Action-Delete' iconName='Delete' onClick={() => { props.deleteActionFunc(action) }}></Icon>
         </div>;
     }, [props])
@@ -29,14 +38,16 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
     }, [props.actions, renderAction])
 
     const renderHeader = useCallback(() => {
-        return <div className='App-Action-Header'>
+        const columns = props.toggleFavoriteFunc ? 6 : 5;
+        return <div className='App-Action-Header' style={{ gridTemplateColumns: props.toggleFavoriteFunc ? '100px 30px 1fr repeat(3, 100px)' : '100px 30px 1fr repeat(2, 100px)' }}>
             <span>Select</span>
             <span></span>
             <span>Title</span>
             <span>Method</span>
+            {props.toggleFavoriteFunc && <span>Favorite</span>}
             <span></span>
         </div>;
-    }, [])
+    }, [props.toggleFavoriteFunc])
 
     return <>
         <div>{renderHeader()}</div>
