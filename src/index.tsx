@@ -20,7 +20,8 @@ root.render(
       actions={[]}
       myClipboardActions={[]}
       currentMode={Mode.Requests}
-      myCopiedActionsV3={[]} />
+      myCopiedActionsV3={[]}
+      favoriteActions={[]} />
   </React.StrictMode>
 );
 

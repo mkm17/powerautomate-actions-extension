@@ -17,6 +17,7 @@ function App(initialState?: IInitialState | undefined) {
   const [actions, setActions] = useState<IActionModel[]>(initialState?.actions || []);
   const [myClipboardActions, setMyClipboardActions] = useState<IActionModel[]>(initialState?.myClipboardActions || []);
   const [currentMode, setCurrentMode] = useState<Mode>(initialState?.currentMode || Mode.Requests);
+  const [favoriteActions, setFavoriteActions] = useState<IActionModel[]>(initialState?.favoriteActions || []);
   const [isV3PowerAutomateEditor, setIsV3PowerAutomateEditor] = useState<boolean>(false);
   const [hoverMessage, setHoverMessage] = useState<string | null>(null);
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
@@ -56,6 +57,10 @@ function App(initialState?: IInitialState | undefined) {
       setMyClipboardActions(actions);
     });
 
+    storageService.getFavoriteActions().then((actions) => {
+      setFavoriteActions(actions);
+    });
+
     storageService.getIsRecordingValue().then((isRecording) => {
       setIsRecording(isRecording);
     });
@@ -90,11 +95,17 @@ function App(initialState?: IInitialState | undefined) {
         storageService.clearMyClipboardActions();
         setMyClipboardActions([]);
         break;
+      case Mode.Favorites:
+        storageService.clearFavoriteActions();
+        setFavoriteActions([]);
+        break;
     }
   }, [currentMode, storageService])
 
   const copyItems = useCallback(() => {
-    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) : myClipboardActions?.filter(a => a.isSelected);
+    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) : 
+                           currentMode === Mode.CopiedActions ? myClipboardActions?.filter(a => a.isSelected) :
+                           favoriteActions?.filter(a => a.isSelected);
 
     if (!selectedActions || selectedActions.length === 0) {
       setNotificationMessage("No actions selected");
@@ -107,7 +118,7 @@ function App(initialState?: IInitialState | undefined) {
       message: selectedActions,
     }
     communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Content);
-  }, [actions, myClipboardActions, currentMode, communicationService])
+  }, [actions, myClipboardActions, favoriteActions, currentMode, communicationService])
 
   const deleteAction = useCallback((action: IActionModel, oldActions: IActionModel[], setActionsFunc: (value: React.SetStateAction<IActionModel[]>)
     => void, actionType: ActionType) => {
@@ -131,6 +142,14 @@ function App(initialState?: IInitialState | undefined) {
     deleteAction(action, myClipboardActions, setMyClipboardActions, ActionType.DeleteMyClipboardAction);
   }, [myClipboardActions, setMyClipboardActions, deleteAction])
 
+  const deleteFavoriteAction = useCallback((action: IActionModel) => {
+    storageService.removeFavoriteAction(action).then((updatedFavorites) => {
+      setFavoriteActions(updatedFavorites);
+      // Update the isFavorite flag in other lists
+      updateFavoriteStatusInLists(action.id, false);
+    });
+  }, [storageService])
+
   const getMyClipboardActions = useCallback(() => {
     const message: IDataChromeMessage = {
       actionType: ActionType.GetElementsFromMyClipboard,
@@ -139,12 +158,45 @@ function App(initialState?: IInitialState | undefined) {
     communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Content);
   }, [communicationService])
 
+  const updateFavoriteStatusInLists = useCallback((actionId: string, isFavorite: boolean) => {
+    // Update actions list
+    setActions(prevActions => 
+      prevActions.map(action => 
+        action.id === actionId ? { ...action, isFavorite } : action
+      )
+    );
+    
+    // Update clipboard actions list
+    setMyClipboardActions(prevActions => 
+      prevActions.map(action => 
+        action.id === actionId ? { ...action, isFavorite } : action
+      )
+    );
+  }, [])
+
   const changeSelection = useCallback((action: IActionModel, oldActions: IActionModel[], setActionsFunc: (value: React.SetStateAction<IActionModel[]>) => void) => {
     const allActions = [...(oldActions || [])];
     const index = allActions.findIndex(a => a.id === action.id);
     allActions[index].isSelected = !action.isSelected;
     setActionsFunc(allActions);
   }, [])
+
+  const toggleFavorite = useCallback((action: IActionModel) => {
+    if (action.isFavorite) {
+      // Remove from favorites
+      storageService.removeFavoriteAction(action).then((updatedFavorites) => {
+        setFavoriteActions(updatedFavorites);
+        updateFavoriteStatusInLists(action.id, false);
+      });
+    } else {
+      // Add to favorites
+      const favoriteAction = { ...action, isFavorite: true };
+      storageService.addFavoriteAction(favoriteAction).then((updatedFavorites) => {
+        setFavoriteActions(updatedFavorites);
+        updateFavoriteStatusInLists(action.id, true);
+      });
+    }
+  }, [storageService, updateFavoriteStatusInLists])
 
   const changeSelectionRecordedAction = useCallback((action: IActionModel) => {
     changeSelection(action, actions, setActions);
@@ -154,8 +206,14 @@ function App(initialState?: IInitialState | undefined) {
     changeSelection(action, myClipboardActions, setMyClipboardActions);
   }, [changeSelection, myClipboardActions])
 
+  const changeFavoriteActionSelection = useCallback((action: IActionModel) => {
+    changeSelection(action, favoriteActions, setFavoriteActions);
+  }, [changeSelection, favoriteActions])
+
   const insertSelectedActionsToClipboard = useCallback(() => {
-    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) : myClipboardActions?.filter(a => a.isSelected);
+    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) : 
+                           currentMode === Mode.CopiedActions ? myClipboardActions?.filter(a => a.isSelected) :
+                           favoriteActions?.filter(a => a.isSelected);
 
     if (!selectedActions || selectedActions.length === 0) {
       setNotificationMessage("No actions selected");
@@ -168,7 +226,7 @@ function App(initialState?: IInitialState | undefined) {
       setNotificationMessage("Actions have been copied - now you can paste them in the Power Automate editor");
       setIsSuccessNotification(true);
     });
-  }, [actions, myClipboardActions, currentMode, communicationService])
+  }, [actions, myClipboardActions, favoriteActions, currentMode, communicationService])
 
   const renderRecordButton = useCallback(() => {
     return isRecordingPage && !isPowerAutomatePage && <>{isRecording ?
@@ -278,6 +336,9 @@ function App(initialState?: IInitialState | undefined) {
           case "Copied Actions in the new editor":
             setCurrentMode(Mode.CopiedActionsV3);
             break;
+          case "Favorites":
+            setCurrentMode(Mode.Favorites);
+            break;
         }
       }}>
         {<PivotItem
@@ -289,6 +350,7 @@ function App(initialState?: IInitialState | undefined) {
             changeSelectionFunc={changeSelectionRecordedAction}
             deleteActionFunc={deleteRecordedAction}
             showButton={false}
+            toggleFavoriteFunc={toggleFavorite}
           />
         </PivotItem>}
         {<PivotItem
@@ -299,6 +361,18 @@ function App(initialState?: IInitialState | undefined) {
             mode={Mode.CopiedActions}
             changeSelectionFunc={changeCopiedActionSelection}
             deleteActionFunc={deleteMyClipboardAction}
+            showButton={false}
+            toggleFavoriteFunc={toggleFavorite}
+          />
+        </PivotItem>}
+        {<PivotItem
+          headerText="Favorites"
+        >
+          <ActionsList
+            actions={favoriteActions}
+            mode={Mode.Favorites}
+            changeSelectionFunc={changeFavoriteActionSelection}
+            deleteActionFunc={deleteFavoriteAction}
             showButton={false}
           />
         </PivotItem>}
