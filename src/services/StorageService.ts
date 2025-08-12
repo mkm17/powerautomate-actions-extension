@@ -7,6 +7,7 @@ export class StorageService implements IStorageService {
     private IS_RECORDING_KEY = "isRecordingActions";
     private CURRENT_COPIED_ACTION_KEY = "currentCopiedActionV3";
     private COPIED_ACTIONS_V3_KEY = "copiedActionsV3";
+    private FAVORITE_ACTIONS_KEY = "favoriteActions";
 
     public async getRecordedActions(): Promise<IActionModel[]> {
         return await this.getActionsByKey(this.RECORDED_ACTIONS_KEY);
@@ -115,6 +116,29 @@ export class StorageService implements IStorageService {
 
     public async clearCopiedActionsV3() {
         await chrome.storage.local.set({ [this.COPIED_ACTIONS_V3_KEY]: [] });
+    }
+
+    public async getFavoriteActions(): Promise<IActionModel[]> {
+        return await this.getActionsByKey(this.FAVORITE_ACTIONS_KEY);
+    }
+
+    public async addFavoriteAction(action: IActionModel): Promise<IActionModel[]> {
+        const result = await this.getFavoriteActions();
+        // Check if action already exists in favorites
+        const existingIndex = result.findIndex(a => a.id === action.id);
+        if (existingIndex === -1) {
+            return await this.setNewActionByKey(action, this.FAVORITE_ACTIONS_KEY, result);
+        }
+        return result;
+    }
+
+    public async removeFavoriteAction(action: IActionModel): Promise<IActionModel[]> {
+        const result = await this.getFavoriteActions();
+        return await this.deleteActionByKey(action, this.FAVORITE_ACTIONS_KEY, result);
+    }
+
+    public async clearFavoriteActions(): Promise<void> {
+        await chrome.storage.local.set({ [this.FAVORITE_ACTIONS_KEY]: [] });
     }
 
     private async getActionsByKey(key: string): Promise<IActionModel[]> {

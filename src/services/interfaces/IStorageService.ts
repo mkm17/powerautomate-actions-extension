@@ -22,4 +22,9 @@ export interface IStorageService {
     setNewCopiedActionsV3(actionToAdd: IActionModel, oldActions: IActionModel[]): Promise<IActionModel[]>;
     deleteCopiedActionV3(action: IActionModel): Promise<IActionModel[]>;
     clearCopiedActionsV3(): Promise<void>;
+
+    getFavoriteActions(): Promise<IActionModel[]>;
+    addFavoriteAction(action: IActionModel): Promise<IActionModel[]>;
+    removeFavoriteAction(action: IActionModel): Promise<IActionModel[]>;
+    clearFavoriteActions(): Promise<void>;
 }

@@ -9,4 +9,5 @@ export interface IInitialState {
     myClipboardActions: IActionModel[];
     currentMode: Mode;
     myCopiedActionsV3: IActionModel[];
+    favoriteActions: IActionModel[];
 }

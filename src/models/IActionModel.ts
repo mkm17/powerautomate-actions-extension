@@ -7,4 +7,5 @@ export interface IActionModel {
     method: string;
     isSelected?: boolean;
     body?: any;
+    isFavorite?: boolean;
 }
