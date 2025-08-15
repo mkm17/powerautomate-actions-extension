@@ -119,12 +119,11 @@ export class StorageService implements IStorageService {
     }
 
     public async getFavoriteActions(): Promise<IActionModel[]> {
-        return await this.getActionsByKey(this.FAVORITE_ACTIONS_KEY);
+        return await this.getActionsByKey(this.FAVORITE_ACTIONS_KEY) || [];;
     }
 
     public async addFavoriteAction(action: IActionModel): Promise<IActionModel[]> {
         const result = await this.getFavoriteActions();
-        // Check if action already exists in favorites
         const existingIndex = result.findIndex(a => a.id === action.id);
         if (existingIndex === -1) {
             return await this.setNewActionByKey(action, this.FAVORITE_ACTIONS_KEY, result);
