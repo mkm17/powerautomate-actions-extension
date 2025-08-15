@@ -145,7 +145,6 @@ function App(initialState?: IInitialState | undefined) {
   const deleteFavoriteAction = useCallback((action: IActionModel) => {
     storageService.removeFavoriteAction(action).then((updatedFavorites) => {
       setFavoriteActions(updatedFavorites);
-      // Update the isFavorite flag in other lists
       updateFavoriteStatusInLists(action.id, false);
     });
   }, [storageService])
@@ -159,17 +158,15 @@ function App(initialState?: IInitialState | undefined) {
   }, [communicationService])
 
   const updateFavoriteStatusInLists = useCallback((actionId: string, isFavorite: boolean) => {
-    // Update actions list
     setActions(prevActions => 
-      prevActions.map(action => 
-        action.id === actionId ? { ...action, isFavorite } : action
+      (prevActions ?? []).map(action => 
+      action.id === actionId ? { ...action, isFavorite } : action
       )
     );
-    
-    // Update clipboard actions list
+
     setMyClipboardActions(prevActions => 
-      prevActions.map(action => 
-        action.id === actionId ? { ...action, isFavorite } : action
+      (prevActions ?? []).map(action => 
+      action.id === actionId ? { ...action, isFavorite } : action
       )
     );
   }, [])
@@ -183,13 +180,11 @@ function App(initialState?: IInitialState | undefined) {
 
   const toggleFavorite = useCallback((action: IActionModel) => {
     if (action.isFavorite) {
-      // Remove from favorites
       storageService.removeFavoriteAction(action).then((updatedFavorites) => {
         setFavoriteActions(updatedFavorites);
         updateFavoriteStatusInLists(action.id, false);
       });
     } else {
-      // Add to favorites
       const favoriteAction = { ...action, isFavorite: true };
       storageService.addFavoriteAction(favoriteAction).then((updatedFavorites) => {
         setFavoriteActions(updatedFavorites);
