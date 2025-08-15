@@ -90,6 +90,9 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
+**1.0.11**
+- Added Favorite Actions feature.
+
 **1.0.10**
 - Added recording capability on the SharePoint Admin page.
 - Enabled the ability to copy actions within iframes (including the make.powerapps page and directly from Canvas Apps).
