@@ -2,6 +2,10 @@
   "name": "powerautomate-sharepoint-http-actions",
   "version": "1.0.11",
   "private": true,
+  "author": {
+    "name": "Michał Kornet",
+    "url": "https://github.com/mkm17"
+  },
   "dependencies": {
     "@craco/craco": "^7.0.0-alpha.3",
     "@fluentui/react": "^8.108.2",
