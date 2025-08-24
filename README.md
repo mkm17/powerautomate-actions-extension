@@ -92,6 +92,7 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 **1.0.11**
 - Added Favorite Actions feature.
+- Fix changed action property name in Modern Editor.
 
 **1.0.10**
 - Added recording capability on the SharePoint Admin page.
