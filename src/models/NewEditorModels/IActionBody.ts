@@ -1,6 +1,6 @@
 export interface IActionBody {
     nodeId: string;
-    serializedOperation: {
+    serializedValue: {
         type: string;
         actions: any,
         runAfter: {},

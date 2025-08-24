@@ -88,7 +88,7 @@ export class ContentService implements IContentService {
         }
         const itemToSave: IActionBody = {
             nodeId: 'Copy_Container',
-            serializedOperation: {
+            serializedValue: {
                 type: 'Scope',
                 actions: {},
                 runAfter: {},
@@ -104,10 +104,10 @@ export class ContentService implements IContentService {
 
         for (let action of messageContent) {
             const actionJson = JSON.parse(action.actionJson);
-            itemToSave.serializedOperation.actions[action.title] = actionJson.operationDefinition;
-            itemToSave.serializedOperation.actions[action.title].runAfter = {};
+            itemToSave.serializedValue.actions[action.title] = actionJson.operationDefinition;
+            itemToSave.serializedValue.actions[action.title].runAfter = {};
             if (actionJson.operationDefinition.inputs.host && actionJson.operationDefinition.inputs.host.connectionName) {
-                itemToSave.serializedOperation.actions[action.title].inputs.host.connection = actionJson.operationDefinition.inputs.host.connectionName;
+                itemToSave.serializedValue.actions[action.title].inputs.host.connection = actionJson.operationDefinition.inputs.host.connectionName;
             }
         }
 
