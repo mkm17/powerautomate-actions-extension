@@ -22,6 +22,7 @@ function App(initialState?: IInitialState | undefined) {
   const [hoverMessage, setHoverMessage] = useState<string | null>(null);
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
   const [isSuccessNotification, setIsSuccessNotification] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const listenToMessage = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
     if (message.to !== AppElement.ReactApp) { return console.log('Incorrect message destination'); }
@@ -223,6 +224,19 @@ function App(initialState?: IInitialState | undefined) {
     });
   }, [actions, myClipboardActions, favoriteActions, currentMode, communicationService])
 
+  const filterActionsBySearch = useCallback((actionsToFilter: IActionModel[]) => {
+    if (!searchTerm || searchTerm.trim() === '') {
+      return actionsToFilter;
+    }
+    return actionsToFilter?.filter(action => 
+      action.title.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
+  }, [searchTerm])
+
+  const filteredActions = useMemo(() => filterActionsBySearch(actions), [actions, filterActionsBySearch]);
+  const filteredMyClipboardActions = useMemo(() => filterActionsBySearch(myClipboardActions), [myClipboardActions, filterActionsBySearch]);
+  const filteredFavoriteActions = useMemo(() => filterActionsBySearch(favoriteActions), [favoriteActions, filterActionsBySearch]);
+
   const renderRecordButton = useCallback(() => {
     return isRecordingPage && !isPowerAutomatePage && <>{isRecording ?
       <Icon
@@ -340,35 +354,41 @@ function App(initialState?: IInitialState | undefined) {
           headerText="Recorded Requests"
         >
           <ActionsList
-            actions={actions}
+            actions={filteredActions}
             mode={Mode.Requests}
             changeSelectionFunc={changeSelectionRecordedAction}
             deleteActionFunc={deleteRecordedAction}
             showButton={false}
             toggleFavoriteFunc={toggleFavorite}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
           />
         </PivotItem>}
         {<PivotItem
           headerText="Copied Actions"
         >
           <ActionsList
-            actions={myClipboardActions}
+            actions={filteredMyClipboardActions}
             mode={Mode.CopiedActions}
             changeSelectionFunc={changeCopiedActionSelection}
             deleteActionFunc={deleteMyClipboardAction}
             showButton={false}
             toggleFavoriteFunc={toggleFavorite}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
           />
         </PivotItem>}
         {<PivotItem
           headerText="Favorites"
         >
           <ActionsList
-            actions={favoriteActions}
+            actions={filteredFavoriteActions}
             mode={Mode.Favorites}
             changeSelectionFunc={changeFavoriteActionSelection}
             deleteActionFunc={deleteFavoriteAction}
             showButton={false}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
           />
         </PivotItem>}
       </Pivot>

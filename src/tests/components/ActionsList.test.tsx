@@ -25,6 +25,15 @@ jest.mock('@fluentui/react', () => ({
       {iconName}
     </button>
   ),
+  TextField: ({ value, onChange, placeholder, iconProps }: any) => (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e, e.target.value)}
+      placeholder={placeholder}
+      data-testid="mock-textfield"
+    />
+  ),
 }));
 
 describe('ActionsList', () => {
@@ -56,7 +65,9 @@ describe('ActionsList', () => {
     mode: Mode.CopiedActionsV3,
     changeSelectionFunc: jest.fn(),
     deleteActionFunc: jest.fn(),
-    showButton: false
+    showButton: false,
+    searchTerm: '',
+    onSearchChange: jest.fn()
   };
 
   beforeEach(() => {
@@ -120,6 +131,14 @@ describe('ActionsList', () => {
       expect(checkboxes[0].checked).toBe(false);
       expect(checkboxes[1].checked).toBe(true);
     });
+
+    test('should render search field with correct placeholder', () => {
+      render(<ActionsList {...defaultProps} />);
+      
+      const searchField = screen.getByTestId('mock-textfield');
+      expect(searchField).toBeInTheDocument();
+      expect(searchField).toHaveAttribute('placeholder', 'Search actions by title...');
+    });
   });
 
   describe('Interactions', () => {
@@ -171,6 +190,16 @@ describe('ActionsList', () => {
       
       expect(changeSelectionFunc).toHaveBeenCalledWith(mockActions[1]);
       expect(deleteActionFunc).toHaveBeenCalledWith(mockActions[1]);
+    });
+
+    test('should call onSearchChange when search field changes', () => {
+      const onSearchChange = jest.fn();
+      render(<ActionsList {...defaultProps} onSearchChange={onSearchChange} />);
+      
+      const searchField = screen.getByTestId('mock-textfield');
+      fireEvent.change(searchField, { target: { value: 'test search' } });
+      
+      expect(onSearchChange).toHaveBeenCalledWith('test search');
     });
   });
 
