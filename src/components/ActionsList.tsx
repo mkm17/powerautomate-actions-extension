@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Checkbox, Icon } from "@fluentui/react";
+import { Checkbox, Icon, TextField } from "@fluentui/react";
 import { IActionModel, Mode } from "../models";
 
 export interface IActionsListProps {
@@ -9,6 +9,8 @@ export interface IActionsListProps {
     deleteActionFunc: (action: IActionModel) => void;
     showButton: boolean;
     toggleFavoriteFunc?: (action: IActionModel) => void;
+    searchTerm: string;
+    onSearchChange: (searchTerm: string) => void;
 }
 
 const ActionsList: React.FC<IActionsListProps> = (props) => {
@@ -34,12 +36,15 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
     }, [props])
 
     const renderActions = useCallback(() => {
-        return props.actions && props.actions.length > 0 && props.actions.map(renderAction)
+        return props.actions && props.actions.length > 0 && props.actions.map((action, index) => 
+            <div key={action.id || index}>
+                {renderAction(action)}
+            </div>
+        )
     }, [props.actions, renderAction])
 
     const renderHeader = useCallback(() => {
-        const columns = props.toggleFavoriteFunc ? 6 : 5;
-        return <div className='App-Action-Header' style={{ gridTemplateColumns: props.toggleFavoriteFunc ? '100px 30px 1fr repeat(3, 100px)' : '100px 30px 1fr repeat(2, 100px)' }}>
+        return <div className='App-Action-Header' style={{ gridTemplateColumns: props.toggleFavoriteFunc ? '80px 30px 200px 60px 75px 75px' : '80px 30px 200px 60px 75px 75px' }}>
             <span>Select</span>
             <span></span>
             <span>Title</span>
@@ -49,8 +54,24 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
         </div>;
     }, [props.toggleFavoriteFunc])
 
+    const renderSearch = useCallback(() => {
+        return <div style={{ padding: '10px 20px', backgroundColor: '#f3f2f1' }}>
+            <TextField
+                placeholder="Search actions by title..."
+                value={props.searchTerm}
+                onChange={(event, newValue) => props.onSearchChange(newValue || '')}
+                styles={{
+                    root: { width: '100%' },
+                    field: { fontSize: '14px' }
+                }}
+                iconProps={{ iconName: 'Search' }}
+            />
+        </div>;
+    }, [props.searchTerm, props.onSearchChange])
+
     return <>
         <div>{renderHeader()}</div>
+        <div>{renderSearch()}</div>
         <div className="App-Actions">{renderActions()}</div>
     </>;
 }

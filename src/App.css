@@ -17,7 +17,7 @@
 
 .App-Action-Header {
   display: grid;
-  grid-template-columns: 100px 30px 1fr repeat(2, 100px);
+  grid-template-columns: 80px 30px 200px 60px 75px 75px;
   grid-gap: 10px;
   padding: 10px 20px;
   background-color: #282c34;
@@ -25,7 +25,7 @@
 }
 
 .App-Actions {
-  height: 400px;
+  height: 350px;
   overflow-y: scroll;
 }
 
@@ -55,13 +55,13 @@
 
 .App-Action-Row {
   display: grid;
-  grid-template-columns: 100px 30px 1fr repeat(2, 100px);
+  grid-template-columns: 80px 30px 200px 60px 75px 75px;
   grid-gap: 10px;
   padding: 10px 20px;
 }
 
 .App-Action-Row:has(.App-Action-Favorite) {
-  grid-template-columns: 100px 30px 1fr repeat(3, 100px);
+  grid-template-columns: 80px 30px 200px 60px 75px 75px;
 }
 
 .App-Action-Element {
@@ -89,7 +89,7 @@
 
 .App-Action-Header {
   display: grid;
-  grid-template-columns: 100px 30px 1fr repeat(2, 100px);
+  grid-template-columns: 80px 30px 200px 60px 75px 75px;
   grid-gap: 10px;
   padding: 10px 20px;
   background-color: #282c34;

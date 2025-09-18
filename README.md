@@ -90,6 +90,10 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
+**1.0.12**
+- Added search functionality across all tabs to filter actions by title.
+- Extended title column width for better readability of action titles.
+
 **1.0.11**
 - Added Favorite Actions feature.
 - Fix changed action property name in Modern Editor.
