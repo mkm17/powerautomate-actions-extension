@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import { Checkbox, Icon, TextField } from "@fluentui/react";
+import { useCallback, useState } from "react";
+import { Checkbox, Icon, TextField, Panel, PanelType } from "@fluentui/react";
 import { IActionModel, Mode } from "../models";
 
 export interface IActionsListProps {
@@ -14,6 +14,131 @@ export interface IActionsListProps {
 }
 
 const ActionsList: React.FC<IActionsListProps> = (props) => {
+    const [selectedActionForDetails, setSelectedActionForDetails] = useState<IActionModel | null>(null);
+    const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+    const showActionDetails = useCallback((action: IActionModel) => {
+        setSelectedActionForDetails(action);
+        setIsPanelOpen(true);
+    }, []);
+
+    const hideActionDetails = useCallback(() => {
+        setIsPanelOpen(false);
+        setSelectedActionForDetails(null);
+    }, []);
+
+    const renderActionDetails = useCallback(() => {
+        if (!selectedActionForDetails) return null;
+
+        let parsedBody: any = null;
+        let parsedHeaders: any = null;
+        
+        try {
+            const actionData = JSON.parse(selectedActionForDetails.actionJson);
+            parsedBody = actionData.body || selectedActionForDetails.body;
+            parsedHeaders = actionData.headers;
+        } catch (e) {
+            parsedBody = selectedActionForDetails.body;
+        }
+
+        return (
+            <Panel
+                isOpen={isPanelOpen}
+                onDismiss={hideActionDetails}
+                type={PanelType.custom}
+                customWidth="450px"
+                headerText={`Action Details: ${selectedActionForDetails.title}`}
+                closeButtonAriaLabel="Close"
+                styles={{
+                    content: { padding: '20px' }
+                }}
+            >
+                <div style={{ fontSize: '14px', lineHeight: '1.5' }}>
+                    <div style={{ marginBottom: '15px' }}>
+                        <strong>URL:</strong>
+                        <div style={{ 
+                            backgroundColor: '#f5f5f5', 
+                            padding: '8px', 
+                            marginTop: '5px', 
+                            borderRadius: '4px',
+                            wordBreak: 'break-all',
+                            fontFamily: 'monospace',
+                            fontSize: '12px'
+                        }}>
+                            {selectedActionForDetails.url}
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '15px' }}>
+                        <strong>Method:</strong>
+                        <div style={{ 
+                            backgroundColor: '#f5f5f5', 
+                            padding: '8px', 
+                            marginTop: '5px', 
+                            borderRadius: '4px',
+                            fontFamily: 'monospace',
+                            fontSize: '12px'
+                        }}>
+                            {selectedActionForDetails.method}
+                        </div>
+                    </div>
+
+                    {parsedHeaders && (
+                        <div style={{ marginBottom: '15px' }}>
+                            <strong>Headers:</strong>
+                            <div style={{ 
+                                backgroundColor: '#f5f5f5', 
+                                padding: '8px', 
+                                marginTop: '5px', 
+                                borderRadius: '4px',
+                                fontFamily: 'monospace',
+                                fontSize: '12px',
+                                whiteSpace: 'pre-wrap'
+                            }}>
+                                {JSON.stringify(parsedHeaders, null, 2)}
+                            </div>
+                        </div>
+                    )}
+
+                    {parsedBody && (
+                        <div style={{ marginBottom: '15px' }}>
+                            <strong>Body:</strong>
+                            <div style={{ 
+                                backgroundColor: '#f5f5f5', 
+                                padding: '8px', 
+                                marginTop: '5px', 
+                                borderRadius: '4px',
+                                fontFamily: 'monospace',
+                                fontSize: '12px',
+                                whiteSpace: 'pre-wrap',
+                                maxHeight: '300px',
+                                overflowY: 'auto'
+                            }}>
+                                {typeof parsedBody === 'string' ? parsedBody : JSON.stringify(parsedBody, null, 2)}
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={{ marginBottom: '15px' }}>
+                        <strong>Raw Action JSON:</strong>
+                        <div style={{ 
+                            backgroundColor: '#f5f5f5', 
+                            padding: '8px', 
+                            marginTop: '5px', 
+                            borderRadius: '4px',
+                            fontFamily: 'monospace',
+                            fontSize: '12px',
+                            whiteSpace: 'pre-wrap',
+                            maxHeight: '200px',
+                            overflowY: 'auto'
+                        }}>
+                            {JSON.stringify(JSON.parse(selectedActionForDetails.actionJson), null, 2)}
+                        </div>
+                    </div>
+                </div>
+            </Panel>
+        );
+    }, [selectedActionForDetails, isPanelOpen, hideActionDetails]);
     const renderAction = useCallback((action: IActionModel) => {
         return <div className='App-Action-Row' title={action.url}>
             {props.showButton ?
@@ -23,6 +148,12 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
             <img src={action.icon} className='App-Action-Icon' alt={action.title}></img>
             <span className='App-Action-Element'>{action.title}</span>
             <span className='App-Action-Element'>{action.method}</span>
+            <Icon 
+                className='App-Action-Info' 
+                iconName='Info' 
+                onClick={() => { showActionDetails(action) }} 
+                title="Show Action Details"
+            ></Icon>
             {props.toggleFavoriteFunc && (
                 <Icon 
                     className='App-Action-Favorite' 
@@ -33,7 +164,7 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
             )}
             <Icon className='App-Action-Delete' iconName='Delete' onClick={() => { props.deleteActionFunc(action) }}></Icon>
         </div>;
-    }, [props])
+    }, [props, showActionDetails])
 
     const renderActions = useCallback(() => {
         return props.actions && props.actions.length > 0 && props.actions.map((action, index) => 
@@ -44,12 +175,13 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
     }, [props.actions, renderAction])
 
     const renderHeader = useCallback(() => {
-        return <div className='App-Action-Header' style={{ gridTemplateColumns: props.toggleFavoriteFunc ? '80px 30px 200px 60px 75px 75px' : '80px 30px 200px 60px 75px 75px' }}>
+        return <div className='App-Action-Header' style={{ gridTemplateColumns: props.toggleFavoriteFunc ? '80px 30px 200px 60px 30px 30px 30px' : '80px 30px 200px 60px 30px 30px' }}>
             <span>Select</span>
             <span></span>
             <span>Title</span>
             <span>Method</span>
-            {props.toggleFavoriteFunc && <span>Favorite</span>}
+            <span>Info</span>
+            {props.toggleFavoriteFunc && <span>Fav</span>}
             <span></span>
         </div>;
     }, [props.toggleFavoriteFunc])
@@ -73,6 +205,7 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
         <div>{renderHeader()}</div>
         <div>{renderSearch()}</div>
         <div className="App-Actions">{renderActions()}</div>
+        {renderActionDetails()}
     </>;
 }
 
