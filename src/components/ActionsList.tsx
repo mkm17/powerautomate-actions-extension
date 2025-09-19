@@ -32,11 +32,12 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
 
         let parsedBody: any = null;
         let parsedHeaders: any = null;
+        let parsedActionData: any = null;
         
         try {
-            const actionData = JSON.parse(selectedActionForDetails.actionJson);
-            parsedBody = actionData.body || selectedActionForDetails.body;
-            parsedHeaders = actionData.headers;
+            parsedActionData = JSON.parse(selectedActionForDetails.actionJson);
+            parsedBody = parsedActionData.body || selectedActionForDetails.body;
+            parsedHeaders = parsedActionData.headers;
         } catch (e) {
             parsedBody = selectedActionForDetails.body;
         }
@@ -132,7 +133,7 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
                             maxHeight: '200px',
                             overflowY: 'auto'
                         }}>
-                            {JSON.stringify(JSON.parse(selectedActionForDetails.actionJson), null, 2)}
+                            {parsedActionData ? JSON.stringify(parsedActionData, null, 2) : selectedActionForDetails.actionJson}
                         </div>
                     </div>
                 </div>
