@@ -3,6 +3,8 @@
   max-height: 600px;
   height: 570px;
   overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .App-header {
