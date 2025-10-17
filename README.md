@@ -90,6 +90,10 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
+**1.0.13**
+- Added a Settings tab with options to configure the maximum recording time and toggle the visibility of the action search bar.
+- Added a setting to manually override page type detection.
+
 **1.0.12**
 - Added search functionality across all tabs to filter actions by title.
 - Extended title column width for better readability of action titles.
