@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import { ActionType, IDataChromeMessage, AppElement, ICommunicationChromeMessage, IInitialState, Mode } from './models';
 import { IActionModel } from './models/IActionModel';
+import { ISettingsModel } from './models/ISettingsModel';
 import { StorageService } from './services/StorageService';
 import { ExtensionCommunicationService } from './services';
 import { Icon, MessageBar, MessageBarType, Pivot, PivotItem } from '@fluentui/react';
 import ActionsList from './components/ActionsList';
+import Settings from './components/Settings';
 
 function App(initialState?: IInitialState | undefined) {
   const storageService = useMemo(() => { return new StorageService(); }, []);
@@ -23,6 +25,10 @@ function App(initialState?: IInitialState | undefined) {
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
   const [isSuccessNotification, setIsSuccessNotification] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [recordingTimeLeft, setRecordingTimeLeft] = useState<number | null>(null);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const listenToMessage = (message: ICommunicationChromeMessage, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
     if (message.to !== AppElement.ReactApp) { return console.log('Incorrect message destination'); }
@@ -36,18 +42,139 @@ function App(initialState?: IInitialState | undefined) {
     }
   }
 
-  const initData = useCallback(() => {
-    communicationService.sendRequest({ actionType: ActionType.CheckRecordingPage, message: "Check Recording Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
-      setIsRecordingPage(response);
-    });
-    communicationService.sendRequest({ actionType: ActionType.CheckPowerAutomatePage, message: "Check PowerAutomate Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
-      setIsPowerAutomatePage(response)
-    });
+  const getRecordingPageSetting = useCallback(async (isRecordingPageSetting: boolean | null) => {
+    if (isRecordingPageSetting !== null) {
+      setIsRecordingPage(isRecordingPageSetting);
+    } else {
+      communicationService.sendRequest({ actionType: ActionType.CheckRecordingPage, message: "Check Recording Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
+        setIsRecordingPage(response);
+      });
+    }
+  }, []);
+
+  const getClassicPASetting = useCallback(async (isPAEditorPage: boolean | null) => {
+    if (isPAEditorPage !== null) {
+      setIsPowerAutomatePage(isPAEditorPage);
+    } else {
+      communicationService.sendRequest({ actionType: ActionType.CheckPowerAutomatePage, message: "Check PowerAutomate Page" }, AppElement.ReactApp, AppElement.Content, (response) => {
+        setIsPowerAutomatePage(response)
+      });
+    }
+  }, []);
+
+  const getNewPASetting = useCallback(async (isNewPAEditorPage: boolean | null) => {
+    if (isNewPAEditorPage !== null) {
+      setIsV3PowerAutomateEditor(isNewPAEditorPage);
+    } else {
+      communicationService.sendRequest({ actionType: ActionType.CheckIsNewPowerAutomateEditorV3, message: "Check If Page is a new Power Automate editor" }, AppElement.ReactApp, AppElement.Content, (response) => {
+        setIsV3PowerAutomateEditor(response);
+      });
+    }
+  }, []);
+
+
+
+  const stopRecordingTimer = useCallback(async () => {
+    if (recordingTimerRef.current) {
+      clearTimeout(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
+    setRecordingTimeLeft(null);
+    
+    await storageService.setRecordingStartTime(null);
+  }, [storageService]);
+
+  const startRecordingTimer = useCallback(async (maxRecordingTimeMinutes: number, startTime?: number) => {
+    const currentStartTime = startTime || Date.now();
+    const maxTimeMs = maxRecordingTimeMinutes * 60 * 1000;
+    
+    if (startTime) {
+      const elapsedMs = Date.now() - startTime;
+      const remainingMs = maxTimeMs - elapsedMs;
+      const remainingSeconds = Math.ceil(remainingMs / 1000);
+      setRecordingTimeLeft(remainingSeconds);
+      
+      recordingTimerRef.current = setTimeout(() => {
+        const message: IDataChromeMessage = { 
+          actionType: ActionType.StopRecording, 
+          message: "Stop recording - time limit reached" 
+        };
+        communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, (response) => {
+          setIsRecording(response);
+          setNotificationMessage(`Recording stopped automatically after ${maxRecordingTimeMinutes} minutes`);
+          setIsSuccessNotification(false);
+          stopRecordingTimer();
+        });
+      }, remainingMs);
+    } else {
+      setRecordingTimeLeft(maxRecordingTimeMinutes * 60);
+      
+      recordingTimerRef.current = setTimeout(() => {
+        const message: IDataChromeMessage = { 
+          actionType: ActionType.StopRecording, 
+          message: "Stop recording - time limit reached" 
+        };
+        communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, (response) => {
+          setIsRecording(response);
+          setNotificationMessage(`Recording stopped automatically after ${maxRecordingTimeMinutes} minutes`);
+          setIsSuccessNotification(false);
+          stopRecordingTimer();
+        });
+      }, maxTimeMs);
+      
+      await storageService.setRecordingStartTime(currentStartTime);
+    }
+
+    countdownTimerRef.current = setInterval(() => {
+      setRecordingTimeLeft(prevTime => {
+        if (prevTime === null || prevTime <= 1) {
+          return null;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+  }, [communicationService, stopRecordingTimer, storageService]);
+
+  const sendRecordingStatus = useCallback(async () => {
+    if (isRecording) {
+      const message: IDataChromeMessage = { 
+        actionType: ActionType.StopRecording, 
+        message: "Stop recording" 
+      };
+      communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, async (response) => {
+        setIsRecording(response);
+        await stopRecordingTimer();
+      });
+    } else {
+      const settings = await storageService.getSettings();
+      const message: IDataChromeMessage = { 
+        actionType: ActionType.StartRecording, 
+        message: "Start recording" 
+      };
+      
+      communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, (response) => {
+        setIsRecording(response);
+        
+        if (response && settings.maximumRecordingTimeMinutes && settings.maximumRecordingTimeMinutes > 0) {
+          startRecordingTimer(settings.maximumRecordingTimeMinutes);
+        }
+      });
+    }
+  }, [communicationService, isRecording, storageService, stopRecordingTimer, startRecordingTimer]);
+
+  const initData = useCallback(async () => {
+    const settings = await storageService.getSettings();
+
+    getRecordingPageSetting(settings.isRecordingPage ?? null);
+    getClassicPASetting(settings.isClassicPowerAutomatePage ?? null);
+    getNewPASetting(settings.isModernPowerAutomatePage ?? null);
+
     communicationService.sendRequest({ actionType: ActionType.CheckIfPageHasActionsToCopy, message: "Check If Page has actions to copy" }, AppElement.ReactApp, AppElement.Content, (response) => {
       setHasActionsOnPageToCopy(response)
-    });
-    communicationService.sendRequest({ actionType: ActionType.CheckIsNewPowerAutomateEditorV3, message: "Check If Page is a new Power Automate editor" }, AppElement.ReactApp, AppElement.Content, (response) => {
-      setIsV3PowerAutomateEditor(response);
     });
 
     storageService.getRecordedActions().then((actions) => {
@@ -64,19 +191,42 @@ function App(initialState?: IInitialState | undefined) {
 
     storageService.getIsRecordingValue().then((isRecording) => {
       setIsRecording(isRecording);
+      
+      if (isRecording && settings.recordingStartTime && settings.maximumRecordingTimeMinutes) {
+        const elapsedMs = Date.now() - settings.recordingStartTime;
+        const maxTimeMs = settings.maximumRecordingTimeMinutes * 60 * 1000;
+        const remainingMs = maxTimeMs - elapsedMs;
+        
+        if (remainingMs > 0) {
+          const remainingSeconds = Math.ceil(remainingMs / 1000);
+          setRecordingTimeLeft(remainingSeconds);
+          startRecordingTimer(settings.maximumRecordingTimeMinutes, settings.recordingStartTime);
+          const message: IDataChromeMessage = { 
+            actionType: ActionType.StopRecording, 
+            message: "Stop recording - time limit already reached" 
+          };
+          communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, (response) => {
+            setIsRecording(response);
+            setNotificationMessage(`Recording was stopped automatically - time limit exceeded`);
+            setIsSuccessNotification(false);
+            stopRecordingTimer();
+          });
+        }
+      }
     });
 
     chrome.runtime.onMessage.addListener(listenToMessage);
-  }, [communicationService, storageService]);
+  }, [communicationService, storageService, getRecordingPageSetting, getClassicPASetting, getNewPASetting, startRecordingTimer, stopRecordingTimer]);
 
-  useEffect(initData, []);
+  useEffect(() => {
+    initData();
+  }, [initData]);
 
-  const sendRecordingStatus = useCallback(() => {
-    const message: IDataChromeMessage = isRecording
-      ? { actionType: ActionType.StopRecording, message: "Stop recording" }
-      : { actionType: ActionType.StartRecording, message: "Start recording" };
-    communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, setIsRecording);
-  }, [communicationService, isRecording]);
+  useEffect(() => {
+    return () => {
+      stopRecordingTimer();
+    };
+  }, [stopRecordingTimer]);
 
   const copyAllActionsFromPage = useCallback(() => {
     const message = {
@@ -104,9 +254,10 @@ function App(initialState?: IInitialState | undefined) {
   }, [currentMode, storageService])
 
   const copyItems = useCallback(() => {
-    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) : 
-                           currentMode === Mode.CopiedActions ? myClipboardActions?.filter(a => a.isSelected) :
-                           favoriteActions?.filter(a => a.isSelected);
+    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) :
+      currentMode === Mode.CopiedActions ? myClipboardActions?.filter(a => a.isSelected) :
+        currentMode === Mode.Favorites ? favoriteActions?.filter(a => a.isSelected) :
+          [];
 
     if (!selectedActions || selectedActions.length === 0) {
       setNotificationMessage("No actions selected");
@@ -159,15 +310,15 @@ function App(initialState?: IInitialState | undefined) {
   }, [communicationService])
 
   const updateFavoriteStatusInLists = useCallback((actionId: string, isFavorite: boolean) => {
-    setActions(prevActions => 
-      (prevActions ?? []).map(action => 
-      action.id === actionId ? { ...action, isFavorite } : action
+    setActions(prevActions =>
+      (prevActions ?? []).map(action =>
+        action.id === actionId ? { ...action, isFavorite } : action
       )
     );
 
-    setMyClipboardActions(prevActions => 
-      (prevActions ?? []).map(action => 
-      action.id === actionId ? { ...action, isFavorite } : action
+    setMyClipboardActions(prevActions =>
+      (prevActions ?? []).map(action =>
+        action.id === actionId ? { ...action, isFavorite } : action
       )
     );
   }, [])
@@ -207,9 +358,10 @@ function App(initialState?: IInitialState | undefined) {
   }, [changeSelection, favoriteActions])
 
   const insertSelectedActionsToClipboard = useCallback(() => {
-    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) : 
-                           currentMode === Mode.CopiedActions ? myClipboardActions?.filter(a => a.isSelected) :
-                           favoriteActions?.filter(a => a.isSelected);
+    const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) :
+      currentMode === Mode.CopiedActions ? myClipboardActions?.filter(a => a.isSelected) :
+        currentMode === Mode.Favorites ? favoriteActions?.filter(a => a.isSelected) :
+          [];
 
     if (!selectedActions || selectedActions.length === 0) {
       setNotificationMessage("No actions selected");
@@ -228,7 +380,7 @@ function App(initialState?: IInitialState | undefined) {
     if (!searchTerm || searchTerm.trim() === '') {
       return actionsToFilter;
     }
-    return actionsToFilter?.filter(action => 
+    return actionsToFilter?.filter(action =>
       action.title.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
   }, [searchTerm])
@@ -237,26 +389,40 @@ function App(initialState?: IInitialState | undefined) {
   const filteredMyClipboardActions = useMemo(() => filterActionsBySearch(myClipboardActions), [myClipboardActions, filterActionsBySearch]);
   const filteredFavoriteActions = useMemo(() => filterActionsBySearch(favoriteActions), [favoriteActions, filterActionsBySearch]);
 
+  const formatTimeLeft = useCallback((seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }, []);
+
   const renderRecordButton = useCallback(() => {
+    const recordingTitle = isRecording 
+      ? (recordingTimeLeft ? `Stop Recording (${formatTimeLeft(recordingTimeLeft)} left)` : "Stop Recording")
+      : "Start Recording";
+    
+    const hoverText = isRecording 
+      ? (recordingTimeLeft ? `Stop Action Recording (${formatTimeLeft(recordingTimeLeft)} remaining)` : "Stop Action Recording")
+      : "Start Action Recording";
+
     return isRecordingPage && !isPowerAutomatePage && <>{isRecording ?
       <Icon
         className="App-icon"
         iconName='CircleStopSolid'
-        title="Stop Recording"
+        title={recordingTitle}
         onClick={sendRecordingStatus}
-        onMouseEnter={() => { setHoverMessage("Stop Action Recording") }}
+        onMouseEnter={() => { setHoverMessage(hoverText) }}
         onMouseLeave={() => { setHoverMessage(null) }}>
       </Icon> :
       <Icon
         className="App-icon"
         iconName='Record2'
-        title="Start Recording"
+        title={recordingTitle}
         onClick={sendRecordingStatus}
-        onMouseEnter={() => { setHoverMessage("Start Action Recording") }}
+        onMouseEnter={() => { setHoverMessage(hoverText) }}
         onMouseLeave={() => { setHoverMessage(null) }}>
       </Icon>
     }</>
-  }, [isRecording, isRecordingPage, isPowerAutomatePage, sendRecordingStatus])
+  }, [isRecording, isRecordingPage, isPowerAutomatePage, sendRecordingStatus, recordingTimeLeft, formatTimeLeft])
 
   const renderClearButton = useCallback(() => {
     return (isRecordingPage || isPowerAutomatePage || hasActionsOnPageToCopy) && <Icon
@@ -313,6 +479,30 @@ function App(initialState?: IInitialState | undefined) {
     ></Icon>;
   }, [insertSelectedActionsToClipboard, isV3PowerAutomateEditor])
 
+  const handleSettingsChange = useCallback((newSettings: ISettingsModel) => {
+    getRecordingPageSetting(newSettings.isRecordingPage ?? null);
+    getClassicPASetting(newSettings.isClassicPowerAutomatePage ?? null);
+    getNewPASetting(newSettings.isModernPowerAutomatePage ?? null);
+  }, [getRecordingPageSetting, getClassicPASetting, getNewPASetting]);
+
+  const renderSettingsButton = useCallback(() => {
+    return <Icon
+      className="App-icon"
+      iconName='Settings'
+      title="Settings"
+      onClick={() => setShowSettings(!showSettings)}
+      onMouseEnter={() => { setHoverMessage("Open Extension Settings") }}
+      onMouseLeave={() => { setHoverMessage(null) }}
+      styles={{
+        root: {
+          color: showSettings ? '#0078d4' : 'white',
+          backgroundColor: showSettings ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+          borderRadius: '4px'
+        }
+      }}
+    ></Icon>;
+  }, [showSettings])
+
   return (
     <div className="App">
       <header className="App-header">
@@ -322,6 +512,9 @@ function App(initialState?: IInitialState | undefined) {
         {renderGetClipboardActions()}
         {renderCopyAllActionsFromPage()}
         {renderInsertToClipboardV3Button()}
+        <div style={{ marginLeft: 'auto' }}>
+          {renderSettingsButton()}
+        </div>
       </header>
       {notificationMessage ? <MessageBar
         messageBarType={isSuccessNotification ? MessageBarType.success : MessageBarType.warning}
@@ -334,64 +527,78 @@ function App(initialState?: IInitialState | undefined) {
         messageBarIconProps={{ iconName: 'Info', styles: { root: { display: !hoverMessage ? 'none' : 'block' } } }}
       >{hoverMessage}
       </MessageBar>}
-      <Pivot onLinkClick={(item: PivotItem | undefined) => {
-        switch (item?.props.headerText) {
-          case "Recorded Requests":
-            setCurrentMode(Mode.Requests);
-            break;
-          case "Copied Actions":
-            setCurrentMode(Mode.CopiedActions);
-            break;
-          case "Copied Actions in the new editor":
-            setCurrentMode(Mode.CopiedActionsV3);
-            break;
-          case "Favorites":
-            setCurrentMode(Mode.Favorites);
-            break;
-        }
-      }}>
-        {<PivotItem
-          headerText="Recorded Requests"
-        >
-          <ActionsList
-            actions={filteredActions}
-            mode={Mode.Requests}
-            changeSelectionFunc={changeSelectionRecordedAction}
-            deleteActionFunc={deleteRecordedAction}
-            showButton={false}
-            toggleFavoriteFunc={toggleFavorite}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
+
+      {showSettings ? (
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '20px'
+        }}>
+          <Settings 
+            storageService={storageService} 
+            onSettingsChange={handleSettingsChange}
           />
-        </PivotItem>}
-        {<PivotItem
-          headerText="Copied Actions"
-        >
-          <ActionsList
-            actions={filteredMyClipboardActions}
-            mode={Mode.CopiedActions}
-            changeSelectionFunc={changeCopiedActionSelection}
-            deleteActionFunc={deleteMyClipboardAction}
-            showButton={false}
-            toggleFavoriteFunc={toggleFavorite}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-          />
-        </PivotItem>}
-        {<PivotItem
-          headerText="Favorites"
-        >
-          <ActionsList
-            actions={filteredFavoriteActions}
-            mode={Mode.Favorites}
-            changeSelectionFunc={changeFavoriteActionSelection}
-            deleteActionFunc={deleteFavoriteAction}
-            showButton={false}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-          />
-        </PivotItem>}
-      </Pivot>
+        </div>
+      ) : (
+        <Pivot onLinkClick={(item: PivotItem | undefined) => {
+          switch (item?.props.headerText) {
+            case "Recorded Requests":
+              setCurrentMode(Mode.Requests);
+              break;
+            case "Copied Actions":
+              setCurrentMode(Mode.CopiedActions);
+              break;
+            case "Copied Actions in the new editor":
+              setCurrentMode(Mode.CopiedActionsV3);
+              break;
+            case "Favorites":
+              setCurrentMode(Mode.Favorites);
+              break;
+          }
+        }}>
+          {<PivotItem
+            headerText="Recorded Requests"
+          >
+            <ActionsList
+              actions={filteredActions}
+              mode={Mode.Requests}
+              changeSelectionFunc={changeSelectionRecordedAction}
+              deleteActionFunc={deleteRecordedAction}
+              showButton={false}
+              toggleFavoriteFunc={toggleFavorite}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
+          </PivotItem>}
+          {<PivotItem
+            headerText="Copied Actions"
+          >
+            <ActionsList
+              actions={filteredMyClipboardActions}
+              mode={Mode.CopiedActions}
+              changeSelectionFunc={changeCopiedActionSelection}
+              deleteActionFunc={deleteMyClipboardAction}
+              showButton={false}
+              toggleFavoriteFunc={toggleFavorite}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
+          </PivotItem>}
+          {<PivotItem
+            headerText="Favorites"
+          >
+            <ActionsList
+              actions={filteredFavoriteActions}
+              mode={Mode.Favorites}
+              changeSelectionFunc={changeFavoriteActionSelection}
+              deleteActionFunc={deleteFavoriteAction}
+              showButton={false}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
+          </PivotItem>}
+        </Pivot>
+      )}
     </div >
   );
 }

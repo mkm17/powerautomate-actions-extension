@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import App from './App';
 import { Mode } from './models';
 
@@ -181,6 +181,31 @@ describe('App', () => {
     const pivotComponent = screen.getByRole('tablist');
     expect(pivotComponent).toBeInTheDocument();
 
+  });
+
+  test('renders App component with Settings tab', async () => {
+    render(<App isRecording={false}
+      isPowerAutomatePage={false}
+      isRecordingPage={false}
+      hasActionsOnPageToCopy={false}
+      actions={[]}
+      myClipboardActions={[]}
+      currentMode={Mode.Settings} 
+      myCopiedActionsV3={[]}
+      favoriteActions={[]}
+      />);
+
+    const settingsTab = screen.getByText('Settings');
+    expect(settingsTab).toBeInTheDocument();
+
+    act(() => {
+      settingsTab.click();
+    });
+
+    await waitFor(() => {
+      const settingsContent = screen.getByText('SharePoint Page Override');
+      expect(settingsContent).toBeInTheDocument();
+    });
   });
 
 });
