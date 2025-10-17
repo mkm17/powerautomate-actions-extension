@@ -1,4 +1,4 @@
-import { IActionModel } from "../models";
+import { IActionModel, ISettingsModel, defaultSettings } from "../models";
 import { IStorageService } from "./interfaces";
 
 export class StorageService implements IStorageService {
@@ -8,6 +8,7 @@ export class StorageService implements IStorageService {
     private CURRENT_COPIED_ACTION_KEY = "currentCopiedActionV3";
     private COPIED_ACTIONS_V3_KEY = "copiedActionsV3";
     private FAVORITE_ACTIONS_KEY = "favoriteActions";
+    private SETTINGS_KEY = "appSettings";
 
     public async getRecordedActions(): Promise<IActionModel[]> {
         return await this.getActionsByKey(this.RECORDED_ACTIONS_KEY);
@@ -138,6 +139,47 @@ export class StorageService implements IStorageService {
 
     public async clearFavoriteActions(): Promise<void> {
         await chrome.storage.local.set({ [this.FAVORITE_ACTIONS_KEY]: [] });
+    }
+
+    public async getSettings(): Promise<ISettingsModel> {
+        return new Promise((resolve, reject) => {
+            try {
+                chrome.storage.local.get(this.SETTINGS_KEY, (result) => {
+                    let settings = result[this.SETTINGS_KEY] as ISettingsModel;
+                    
+                    if (!settings) {
+                        resolve(defaultSettings);
+                    } else {
+                        const mergedSettings: ISettingsModel = { ...defaultSettings, ...settings };
+                        resolve(mergedSettings);
+                    }
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    public async updateSettings(partialSettings: Partial<ISettingsModel>): Promise<ISettingsModel> {
+        const currentSettings = await this.getSettings();
+        const updatedSettings: ISettingsModel = { ...currentSettings, ...partialSettings };
+        
+        await chrome.storage.local.set({ [this.SETTINGS_KEY]: updatedSettings });
+        return updatedSettings;
+    }
+
+    public async resetSettings(): Promise<ISettingsModel> {
+        await chrome.storage.local.set({ [this.SETTINGS_KEY]: defaultSettings });
+        return defaultSettings;
+    }
+
+    public async setRecordingStartTime(startTime: number | null): Promise<void> {
+        await this.updateSettings({ recordingStartTime: startTime });
+    }
+
+    public async getRecordingStartTime(): Promise<number | null> {
+        const settings = await this.getSettings();
+        return settings.recordingStartTime || null;
     }
 
     private async getActionsByKey(key: string): Promise<IActionModel[]> {

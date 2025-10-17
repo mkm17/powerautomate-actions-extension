@@ -58,7 +58,7 @@ describe("ContentService", () => {
             expect(contentService['getElementsFromMyClipboard']).toHaveBeenCalled();
         });
 
-        test("should call isSharePointPage when ActionType is CheckSharePointPage", () => {
+        test("should call isRecordingPage when ActionType is CheckRecordingPage", () => {
             const sendResponseMock = jest.fn();
             contentService['isRecordingPage'] = jest.fn();
             const message: ICommunicationChromeMessage = {

@@ -1,11 +1,12 @@
 import { StorageService } from "./../../services";
-import { IActionModel } from "../../models";
+import { IActionModel, defaultSettings } from "../../models";
 
 const mockChrome = {
   storage: {
     local: {
       get: jest.fn(),
       set: jest.fn(),
+      remove: jest.fn(),
     },
   },
 };
@@ -338,6 +339,144 @@ describe("StorageService", () => {
         await storageService.clearCopiedActionsV3();
 
         expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'copiedActionsV3': [] });
+      });
+    });
+  });
+
+  describe("Settings Object Management", () => {
+    describe("getSettings", () => {
+      test("should return default settings when no settings stored", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: undefined });
+        });
+
+        const result = await storageService.getSettings();
+
+        expect(result).toEqual(defaultSettings);
+        expect(mockChrome.storage.local.get).toHaveBeenCalledWith('appSettings', expect.any(Function));
+      });
+
+      test("should return stored settings", async () => {
+        const storedSettings = { 
+          isRecordingPage: true,
+          isClassicPowerAutomatePage: false,
+          maximumRecordingTimeMinutes: 30 
+        };
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: storedSettings });
+        });
+
+        const result = await storageService.getSettings();
+
+        expect(result).toEqual({ ...defaultSettings, ...storedSettings });
+      });
+
+      test("should merge with defaults for partial settings", async () => {
+        const partialSettings = { isRecordingPage: true }; // Missing other settings
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: partialSettings });
+        });
+
+        const result = await storageService.getSettings();
+
+        expect(result).toEqual({ ...defaultSettings, ...partialSettings });
+      });
+    });
+
+    describe("updateSettings", () => {
+      test("should update partial settings and return merged result", async () => {
+        // Mock getSettings call
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: defaultSettings });
+        });
+        // Mock set call
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.updateSettings({ isRecordingPage: true });
+
+        expect(result).toEqual({ ...defaultSettings, isRecordingPage: true });
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 
+          'appSettings': { ...defaultSettings, isRecordingPage: true } 
+        });
+      });
+
+      test("should preserve existing settings when updating", async () => {
+        const existingSettings = { ...defaultSettings, isRecordingPage: false, maximumRecordingTimeMinutes: 60 };
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: existingSettings });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.updateSettings({ isRecordingPage: true });
+
+        expect(result).toEqual({ ...existingSettings, isRecordingPage: true });
+      });
+    });
+
+    describe("resetSettings", () => {
+      test("should reset settings to defaults", async () => {
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.resetSettings();
+
+        expect(result).toEqual(defaultSettings);
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 
+          'appSettings': defaultSettings 
+        });
+      });
+    });
+
+    describe("New Settings Features", () => {
+      test("should update Power Automate page settings", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: defaultSettings });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.updateSettings({ 
+          isClassicPowerAutomatePage: true,
+          isModernPowerAutomatePage: false 
+        });
+
+        expect(result).toEqual({ 
+          ...defaultSettings, 
+          isClassicPowerAutomatePage: true,
+          isModernPowerAutomatePage: false 
+        });
+      });
+
+      test("should update maximum recording time", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: defaultSettings });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.updateSettings({ maximumRecordingTimeMinutes: 30 });
+
+        expect(result).toEqual({ ...defaultSettings, maximumRecordingTimeMinutes: 30 });
+      });
+
+      test("should update show action search bar setting", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: defaultSettings });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.updateSettings({ showActionSearchBar: false });
+
+        expect(result).toEqual({ ...defaultSettings, showActionSearchBar: false });
       });
     });
   });

@@ -1,4 +1,4 @@
-import { IActionModel } from "../../models";
+import { IActionModel, ISettingsModel } from "../../models";
 
 export interface IStorageService {
     getRecordedActions(): Promise<IActionModel[]>;
@@ -27,4 +27,8 @@ export interface IStorageService {
     addFavoriteAction(action: IActionModel): Promise<IActionModel[]>;
     removeFavoriteAction(action: IActionModel): Promise<IActionModel[]>;
     clearFavoriteActions(): Promise<void>;
+    
+    getSettings(): Promise<ISettingsModel>;
+    updateSettings(partialSettings: Partial<ISettingsModel>): Promise<ISettingsModel>;
+    resetSettings(): Promise<ISettingsModel>;
 }
