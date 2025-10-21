@@ -201,6 +201,7 @@ function App(initialState?: IInitialState | undefined) {
           const remainingSeconds = Math.ceil(remainingMs / 1000);
           setRecordingTimeLeft(remainingSeconds);
           startRecordingTimer(settings.maximumRecordingTimeMinutes, settings.recordingStartTime);
+        } else {
           const message: IDataChromeMessage = { 
             actionType: ActionType.StopRecording, 
             message: "Stop recording - time limit already reached" 
