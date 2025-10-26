@@ -1,6 +1,6 @@
 {
-  "name": "Power Automate actions handler",
-  "description": "The tool to handle Power Automate actions",
+  "name": "Power Automate Actions Handler",
+  "description": "Record, copy, and manage Power Automate actions from SharePoint. Capture HTTP requests and duplicate actions between tenants.",
   "version": "1.0.13",
   "manifest_version": 3,
   "action": {
@@ -8,9 +8,9 @@
     "default_title": "Open the popup"
   },
   "icons": {
-    "16": "logo192.png",
-    "48": "logo192.png",
-    "128": "logo192.png"
+    "16": "logo16.png",
+    "48": "logo48.png",
+    "128": "logo128.png"
   },
   "permissions": [
     "activeTab",
@@ -21,8 +21,7 @@
     "clipboardWrite"
   ],
   "background": {
-    "service_worker":
-      "./static/js/Background.js"
+    "service_worker": "./static/js/background.js"
   },
   "host_permissions": [
     "https://*/*"
@@ -33,7 +32,7 @@
         "https://*/*"
       ],
       "js": [
-        "./static/js/Content.js"
+        "./static/js/content.js"
       ],
       "all_frames": true
     }
