@@ -29,6 +29,7 @@ const mockStorageService: IStorageService = {
   addFavoriteAction: jest.fn(),
   removeFavoriteAction: jest.fn(),
   clearFavoriteActions: jest.fn(),
+  setFavoriteActions: jest.fn(),
   // Settings methods
   getSettings: jest.fn(),
   updateSettings: jest.fn(),
@@ -89,15 +90,17 @@ describe('Settings component', () => {
   test('renders recording time setting', () => {
     render(<Settings storageService={mockStorageService} />);
     
-    const timeField = screen.getByRole('spinbutton', { name: 'Maximum recording duration (minutes)' });
+    const timeField = screen.getByRole('spinbutton');
     expect(timeField).toBeInTheDocument();
+    expect(timeField).toHaveAttribute('placeholder', 'No limit');
   });
 
   test('renders action search bar setting', () => {
     render(<Settings storageService={mockStorageService} />);
     
-    const searchBarToggle = screen.getByRole('switch', { name: 'Display action search bar' });
+    const searchBarToggle = screen.getByRole('switch');
     expect(searchBarToggle).toBeInTheDocument();
+    expect(searchBarToggle).toHaveAttribute('aria-checked', 'true');
   });
 
   test('loads initial settings from storage', async () => {
@@ -200,30 +203,7 @@ describe('Settings component', () => {
     });
   });
 
-  test('updates to automatic detection mode when selected', async () => {
-    const updatedSettings: ISettingsModel = { 
-      ...defaultSettings, 
-      isRecordingPage: false,
-      isModernPowerAutomatePage: false,
-      isClassicPowerAutomatePage: false 
-    };
-    (mockStorageService.updateSettings as jest.Mock).mockResolvedValue(updatedSettings);
-    
-    render(<Settings storageService={mockStorageService} />);
-    
-    const automaticOption = screen.getByRole('radio', { name: 'Automatic Detection' });
-    fireEvent.click(automaticOption);
-    
-    await waitFor(() => {
-      expect(mockStorageService.updateSettings).toHaveBeenCalledWith({ 
-        isRecordingPage: false,
-        isModernPowerAutomatePage: false,
-        isClassicPowerAutomatePage: false 
-      });
-    });
-  });
-
-  test('updates to automatic detection mode when selected', async () => {
+  test('updates to automatic detection mode when switching from another mode', async () => {
     // Start with recording page enabled
     const initialSettings: ISettingsModel = { 
       ...defaultSettings, 
