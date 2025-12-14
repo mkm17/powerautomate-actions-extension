@@ -479,5 +479,177 @@ describe("StorageService", () => {
         expect(result).toEqual({ ...defaultSettings, showActionSearchBar: false });
       });
     });
+
+    describe("Recording Start Time", () => {
+      test("should set recording start time", async () => {
+        const startTime = Date.now();
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: defaultSettings });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        await storageService.setRecordingStartTime(startTime);
+
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({
+          'appSettings': { ...defaultSettings, recordingStartTime: startTime }
+        });
+      });
+
+      test("should set recording start time to null", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: defaultSettings });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        await storageService.setRecordingStartTime(null);
+
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({
+          'appSettings': { ...defaultSettings, recordingStartTime: null }
+        });
+      });
+
+      test("should get recording start time", async () => {
+        const startTime = Date.now();
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: { ...defaultSettings, recordingStartTime: startTime } });
+        });
+
+        const result = await storageService.getRecordingStartTime();
+
+        expect(result).toBe(startTime);
+      });
+
+      test("should return null when no recording start time is set", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: defaultSettings });
+        });
+
+        const result = await storageService.getRecordingStartTime();
+
+        expect(result).toBeNull();
+      });
+    });
+  });
+
+  describe("Favorite Actions", () => {
+    describe("getFavoriteActions", () => {
+      test("should return stored favorite actions", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: [mockAction] });
+        });
+
+        const result = await storageService.getFavoriteActions();
+        expect(result).toEqual([mockAction]);
+      });
+
+      test("should return empty array when no favorites stored", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: undefined });
+        });
+
+        const result = await storageService.getFavoriteActions();
+        expect(result).toEqual([]);
+      });
+    });
+
+    describe("addFavoriteAction", () => {
+      test("should add action to favorites", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: [] });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.addFavoriteAction(mockAction);
+
+        expect(result).toEqual([mockAction]);
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'favoriteActions': [mockAction] });
+      });
+
+      test("should add action to existing favorites", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: [mockAction] });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.addFavoriteAction(mockAction2);
+
+        expect(result).toEqual([mockAction, mockAction2]);
+      });
+
+      test("should not add duplicate action to favorites", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: [mockAction] });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.addFavoriteAction(mockAction);
+
+        expect(result).toEqual([mockAction]);
+        expect(mockChrome.storage.local.set).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("removeFavoriteAction", () => {
+      test("should remove action from favorites", async () => {
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: [mockAction, mockAction2] });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.removeFavoriteAction(mockAction);
+
+        expect(result).toEqual([mockAction2]);
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'favoriteActions': [mockAction2] });
+      });
+    });
+
+    describe("clearFavoriteActions", () => {
+      test("should clear all favorite actions", async () => {
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        await storageService.clearFavoriteActions();
+
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'favoriteActions': [] });
+      });
+    });
+
+    describe("setFavoriteActions", () => {
+      test("should set favorite actions", async () => {
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+        const favoriteActions = [mockAction, mockAction2];
+
+        const result = await storageService.setFavoriteActions(favoriteActions);
+
+        expect(result).toEqual(favoriteActions);
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'favoriteActions': favoriteActions });
+      });
+
+      test("should set empty array of favorites", async () => {
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.setFavoriteActions([]);
+
+        expect(result).toEqual([]);
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'favoriteActions': [] });
+      });
+    });
   });
 });

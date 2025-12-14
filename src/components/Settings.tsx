@@ -1,15 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Stack, Text, Separator, Toggle, TooltipHost, TextField, ChoiceGroup, IChoiceGroupOption } from '@fluentui/react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { Stack, Text, Separator, Toggle, TooltipHost, TextField, ChoiceGroup, IChoiceGroupOption, PrimaryButton, DefaultButton, MessageBar, MessageBarType } from '@fluentui/react';
 import { IStorageService } from '../services/interfaces';
-import { ISettingsModel, defaultSettings } from '../models';
+import { ISettingsModel, defaultSettings, IActionModel } from '../models';
 
 interface SettingsProps {
   storageService: IStorageService;
   onSettingsChange?: (settings: ISettingsModel) => void;
+  onFavoritesImported?: () => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange }) => {
+const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, onFavoritesImported }) => {
   const [settings, setSettings] = useState<ISettingsModel>(defaultSettings);
+  const [message, setMessage] = useState<{ text: string; type: MessageBarType } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     storageService.getSettings().then((loadedSettings) => {
@@ -60,8 +63,93 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange })
     setSettings(updatedSettings);
   }, [storageService]);
 
+  const handleExport = useCallback(async () => {
+    try {
+      const favorites = await storageService.getFavoriteActions();
+      
+      if (!favorites || favorites.length === 0) {
+        setMessage({ text: 'No favorite actions to export', type: MessageBarType.warning });
+        return;
+      }
+
+      const dataStr = JSON.stringify(favorites, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `power-automate-favorites-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      setMessage({ text: `Successfully exported ${favorites.length} favorite action(s)`, type: MessageBarType.success });
+    } catch (error) {
+      setMessage({ text: 'Failed to export favorites', type: MessageBarType.error });
+      console.error('Export error:', error);
+    }
+  }, [storageService]);
+
+  const handleImport = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+      setMessage({ text: 'Please select a valid JSON file', type: MessageBarType.error });
+      return;
+    }
+
+    try {
+      const fileContent = await file.text();
+      const importedActions: IActionModel[] = JSON.parse(fileContent);
+
+      if (!Array.isArray(importedActions)) {
+        setMessage({ text: 'Invalid file format: Expected an array of actions', type: MessageBarType.error });
+        return;
+      }
+
+      // Validate that each item has the required IActionModel properties
+      const isValid = importedActions.every(action => 
+        action.id && action.title && action.actionJson
+      );
+
+      if (!isValid) {
+        setMessage({ text: 'Invalid file format: Missing required action properties', type: MessageBarType.error });
+        return;
+      }
+
+      await storageService.setFavoriteActions(importedActions);
+      setMessage({ text: `Successfully imported ${importedActions.length} favorite action(s)`, type: MessageBarType.success });
+      
+      // Trigger favorites list refresh
+      if (onFavoritesImported) {
+        onFavoritesImported();
+      }
+    } catch (error) {
+      setMessage({ text: 'Failed to import favorites: Invalid JSON format', type: MessageBarType.error });
+      console.error('Import error:', error);
+    } finally {
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  }, [storageService]);
+
   return (
     <Stack tokens={{ childrenGap: 24 }}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json,application/json"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+      
       <Stack tokens={{ childrenGap: 8 }}>
         <Text variant="xLarge" styles={{ root: { fontWeight: 600, color: '#323130' } }}>
           Extension Settings
@@ -69,7 +157,41 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange })
         <Text variant="medium" styles={{ root: { color: '#605e5c' } }}>
           Configure how the Power Automate Actions extension behaves
         </Text>
-      </Stack>      <Separator />
+      </Stack>
+
+      {message && (
+        <MessageBar
+          messageBarType={message.type}
+          isMultiline={false}
+          onDismiss={() => setMessage(null)}
+          dismissButtonAriaLabel="Close"
+        >
+          {message.text}
+        </MessageBar>
+      )}
+
+      <Stack tokens={{ childrenGap: 12 }}>
+        <Text variant="medium" styles={{ root: { fontWeight: 600 } }}>
+          Favorite Actions Management
+        </Text>
+        <Text variant="small" styles={{ root: { color: '#605e5c' } }}>
+          Import or export your favorite actions as a JSON file
+        </Text>
+        
+        <Stack horizontal tokens={{ childrenGap: 12 }}>
+          <PrimaryButton
+            text="Import Favorites"
+            onClick={handleImport}
+            iconProps={{ iconName: 'Download' }}
+          />
+          <DefaultButton
+            text="Export Favorites"
+            onClick={handleExport}
+            iconProps={{ iconName: 'Upload' }}
+          />
+        </Stack>
+      </Stack>
+      <Separator />
       
       <Stack tokens={{ childrenGap: 12 }}>
         <Text variant="medium" styles={{ root: { fontWeight: 600 } }}>

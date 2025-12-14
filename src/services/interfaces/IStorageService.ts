@@ -27,6 +27,7 @@ export interface IStorageService {
     addFavoriteAction(action: IActionModel): Promise<IActionModel[]>;
     removeFavoriteAction(action: IActionModel): Promise<IActionModel[]>;
     clearFavoriteActions(): Promise<void>;
+    setFavoriteActions(actions: IActionModel[]): Promise<IActionModel[]>;
     
     getSettings(): Promise<ISettingsModel>;
     updateSettings(partialSettings: Partial<ISettingsModel>): Promise<ISettingsModel>;

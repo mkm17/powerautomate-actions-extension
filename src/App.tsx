@@ -538,6 +538,10 @@ function App(initialState?: IInitialState | undefined) {
           <Settings 
             storageService={storageService} 
             onSettingsChange={handleSettingsChange}
+            onFavoritesImported={async () => {
+              const favorites = await storageService.getFavoriteActions();
+              setFavoriteActions(favorites);
+            }}
           />
         </div>
       ) : (
