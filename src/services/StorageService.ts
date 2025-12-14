@@ -141,6 +141,11 @@ export class StorageService implements IStorageService {
         await chrome.storage.local.set({ [this.FAVORITE_ACTIONS_KEY]: [] });
     }
 
+    public async setFavoriteActions(actions: IActionModel[]): Promise<IActionModel[]> {
+        await chrome.storage.local.set({ [this.FAVORITE_ACTIONS_KEY]: actions });
+        return actions;
+    }
+
     public async getSettings(): Promise<ISettingsModel> {
         return new Promise((resolve, reject) => {
             try {
