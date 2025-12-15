@@ -90,6 +90,9 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
+**1.0.14**
+- Export and import favorites functionality.
+
 **1.0.13**
 - Added a Settings tab with options to configure the maximum recording time and toggle the visibility of the action search bar.
 - Added a setting to manually override page type detection.

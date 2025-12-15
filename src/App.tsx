@@ -72,8 +72,6 @@ function App(initialState?: IInitialState | undefined) {
     }
   }, []);
 
-
-
   const stopRecordingTimer = useCallback(async () => {
     if (recordingTimerRef.current) {
       clearTimeout(recordingTimerRef.current);
