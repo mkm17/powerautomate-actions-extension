@@ -4,14 +4,16 @@ import { ActionType, IDataChromeMessage, AppElement, ICommunicationChromeMessage
 import { IActionModel } from './models/IActionModel';
 import { ISettingsModel } from './models/ISettingsModel';
 import { StorageService } from './services/StorageService';
-import { ExtensionCommunicationService } from './services';
+import { ExtensionCommunicationService, PredefinedActionsService } from './services';
 import { Icon, MessageBar, MessageBarType, Pivot, PivotItem } from '@fluentui/react';
 import ActionsList from './components/ActionsList';
 import Settings from './components/Settings';
+import PredefinedActionsList from './components/PredefinedActionsList';
 
 function App(initialState?: IInitialState | undefined) {
   const storageService = useMemo(() => { return new StorageService(); }, []);
   const communicationService = useMemo(() => { return new ExtensionCommunicationService(); }, []);
+  const predefinedActionsService = useMemo(() => { return new PredefinedActionsService(); }, []);
   const [isRecording, setIsRecording] = useState<boolean>(initialState?.isRecording || false);
   const [isPowerAutomatePage, setIsPowerAutomatePage] = useState<boolean>(initialState?.isPowerAutomatePage || false);
   const [isRecordingPage, setIsRecordingPage] = useState<boolean>(initialState?.isRecordingPage || false);
@@ -20,12 +22,15 @@ function App(initialState?: IInitialState | undefined) {
   const [myClipboardActions, setMyClipboardActions] = useState<IActionModel[]>(initialState?.myClipboardActions || []);
   const [currentMode, setCurrentMode] = useState<Mode>(initialState?.currentMode || Mode.Requests);
   const [favoriteActions, setFavoriteActions] = useState<IActionModel[]>(initialState?.favoriteActions || []);
+  const [predefinedActions, setPredefinedActions] = useState<IActionModel[]>([]);
+  const [predefinedActionsLoading, setPredefinedActionsLoading] = useState<boolean>(false);
   const [isV3PowerAutomateEditor, setIsV3PowerAutomateEditor] = useState<boolean>(false);
   const [hoverMessage, setHoverMessage] = useState<string | null>(null);
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
   const [isSuccessNotification, setIsSuccessNotification] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const [settings, setSettings] = useState<ISettingsModel | null>(null);
   const [recordingTimeLeft, setRecordingTimeLeft] = useState<number | null>(null);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -50,7 +55,7 @@ function App(initialState?: IInitialState | undefined) {
         setIsRecordingPage(response);
       });
     }
-  }, []);
+  }, [communicationService]);
 
   const getClassicPASetting = useCallback(async (isPAEditorPage: boolean | null) => {
     if (isPAEditorPage !== null) {
@@ -60,7 +65,7 @@ function App(initialState?: IInitialState | undefined) {
         setIsPowerAutomatePage(response)
       });
     }
-  }, []);
+  }, [communicationService]);
 
   const getNewPASetting = useCallback(async (isNewPAEditorPage: boolean | null) => {
     if (isNewPAEditorPage !== null) {
@@ -70,7 +75,7 @@ function App(initialState?: IInitialState | undefined) {
         setIsV3PowerAutomateEditor(response);
       });
     }
-  }, []);
+  }, [communicationService]);
 
   const stopRecordingTimer = useCallback(async () => {
     if (recordingTimerRef.current) {
@@ -164,8 +169,56 @@ function App(initialState?: IInitialState | undefined) {
     }
   }, [communicationService, isRecording, storageService, stopRecordingTimer, startRecordingTimer]);
 
+  const loadPredefinedActions = useCallback(async (url: string) => {
+    if (!url || url.trim() === '') {
+      setPredefinedActions([]);
+      return;
+    }
+
+    setPredefinedActionsLoading(true);
+    try {
+      const actions = await predefinedActionsService.fetchPredefinedActions(url);
+      setPredefinedActions(actions);
+    } catch (error) {
+      console.error('Failed to load predefined actions:', error);
+      setPredefinedActions([]);
+    } finally {
+      setPredefinedActionsLoading(false);
+    }
+  }, [predefinedActionsService]);
+
+  const handleSettingsChange = useCallback(async (updatedSettings: ISettingsModel) => {
+    setSettings(updatedSettings);
+    
+    // Reload predefined actions if URL changed or visibility toggled
+    if (updatedSettings.showPredefinedActions && updatedSettings.predefinedActionsUrl) {
+      loadPredefinedActions(updatedSettings.predefinedActionsUrl);
+    } else {
+      setPredefinedActions([]);
+    }
+  }, [loadPredefinedActions]);
+
+  const refreshPredefinedActions = useCallback(async () => {
+    if (settings?.predefinedActionsUrl) {
+      setPredefinedActionsLoading(true);
+      try {
+        const actions = await predefinedActionsService.refreshPredefinedActions(settings.predefinedActionsUrl);
+        setPredefinedActions(actions);
+        setNotificationMessage('Predefined actions refreshed successfully');
+        setIsSuccessNotification(true);
+      } catch (error) {
+        console.error('Failed to refresh predefined actions:', error);
+        setNotificationMessage('Failed to refresh predefined actions');
+        setIsSuccessNotification(false);
+      } finally {
+        setPredefinedActionsLoading(false);
+      }
+    }
+  }, [settings, predefinedActionsService]);
+
   const initData = useCallback(async () => {
     const settings = await storageService.getSettings();
+    setSettings(settings);
 
     getRecordingPageSetting(settings.isRecordingPage ?? null);
     getClassicPASetting(settings.isClassicPowerAutomatePage ?? null);
@@ -186,6 +239,11 @@ function App(initialState?: IInitialState | undefined) {
     storageService.getFavoriteActions().then((actions) => {
       setFavoriteActions(actions);
     });
+
+    // Load predefined actions
+    if (settings.showPredefinedActions && settings.predefinedActionsUrl) {
+      loadPredefinedActions(settings.predefinedActionsUrl);
+    }
 
     storageService.getIsRecordingValue().then((isRecording) => {
       setIsRecording(isRecording);
@@ -215,7 +273,7 @@ function App(initialState?: IInitialState | undefined) {
     });
 
     chrome.runtime.onMessage.addListener(listenToMessage);
-  }, [communicationService, storageService, getRecordingPageSetting, getClassicPASetting, getNewPASetting, startRecordingTimer, stopRecordingTimer]);
+  }, [communicationService, storageService, getRecordingPageSetting, getClassicPASetting, getNewPASetting, startRecordingTimer, stopRecordingTimer, loadPredefinedActions]);
 
   useEffect(() => {
     initData();
@@ -293,21 +351,6 @@ function App(initialState?: IInitialState | undefined) {
     deleteAction(action, myClipboardActions, setMyClipboardActions, ActionType.DeleteMyClipboardAction);
   }, [myClipboardActions, setMyClipboardActions, deleteAction])
 
-  const deleteFavoriteAction = useCallback((action: IActionModel) => {
-    storageService.removeFavoriteAction(action).then((updatedFavorites) => {
-      setFavoriteActions(updatedFavorites);
-      updateFavoriteStatusInLists(action.id, false);
-    });
-  }, [storageService])
-
-  const getMyClipboardActions = useCallback(() => {
-    const message: IDataChromeMessage = {
-      actionType: ActionType.GetElementsFromMyClipboard,
-      message: "Get My Clipboard Actions",
-    }
-    communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Content);
-  }, [communicationService])
-
   const updateFavoriteStatusInLists = useCallback((actionId: string, isFavorite: boolean) => {
     setActions(prevActions =>
       (prevActions ?? []).map(action =>
@@ -321,6 +364,21 @@ function App(initialState?: IInitialState | undefined) {
       )
     );
   }, [])
+
+  const deleteFavoriteAction = useCallback((action: IActionModel) => {
+    storageService.removeFavoriteAction(action).then((updatedFavorites) => {
+      setFavoriteActions(updatedFavorites);
+      updateFavoriteStatusInLists(action.id, false);
+    });
+  }, [storageService, updateFavoriteStatusInLists])
+
+  const getMyClipboardActions = useCallback(() => {
+    const message: IDataChromeMessage = {
+      actionType: ActionType.GetElementsFromMyClipboard,
+      message: "Get My Clipboard Actions",
+    }
+    communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Content);
+  }, [communicationService])
 
   const changeSelection = useCallback((action: IActionModel, oldActions: IActionModel[], setActionsFunc: (value: React.SetStateAction<IActionModel[]>) => void) => {
     const allActions = [...(oldActions || [])];
@@ -478,11 +536,14 @@ function App(initialState?: IInitialState | undefined) {
     ></Icon>;
   }, [insertSelectedActionsToClipboard, isV3PowerAutomateEditor])
 
-  const handleSettingsChange = useCallback((newSettings: ISettingsModel) => {
+  const onSettingsChanged = useCallback((newSettings: ISettingsModel) => {
     getRecordingPageSetting(newSettings.isRecordingPage ?? null);
     getClassicPASetting(newSettings.isClassicPowerAutomatePage ?? null);
     getNewPASetting(newSettings.isModernPowerAutomatePage ?? null);
-  }, [getRecordingPageSetting, getClassicPASetting, getNewPASetting]);
+    
+    // Handle predefined actions settings change
+    handleSettingsChange(newSettings);
+  }, [getRecordingPageSetting, getClassicPASetting, getNewPASetting, handleSettingsChange]);
 
   const renderSettingsButton = useCallback(() => {
     return <Icon
@@ -535,7 +596,7 @@ function App(initialState?: IInitialState | undefined) {
         }}>
           <Settings 
             storageService={storageService} 
-            onSettingsChange={handleSettingsChange}
+            onSettingsChange={onSettingsChanged}
             onFavoritesImported={async () => {
               const favorites = await storageService.getFavoriteActions();
               setFavoriteActions(favorites);
@@ -600,6 +661,15 @@ function App(initialState?: IInitialState | undefined) {
               onSearchChange={setSearchTerm}
             />
           </PivotItem>}
+          {settings?.showPredefinedActions && (
+            <PivotItem headerText="Predefined Actions">
+              <PredefinedActionsList 
+                actions={predefinedActions}
+                isLoading={predefinedActionsLoading}
+                onRefresh={refreshPredefinedActions}
+              />
+            </PivotItem>
+          )}
         </Pivot>
       )}
     </div >

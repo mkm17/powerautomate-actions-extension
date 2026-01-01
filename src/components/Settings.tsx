@@ -63,6 +63,24 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
     setSettings(updatedSettings);
   }, [storageService]);
 
+  const handleShowPredefinedActionsChange = useCallback(async (event: React.MouseEvent<HTMLElement>, checked?: boolean) => {
+    const newValue = checked ?? true;
+    const updatedSettings = await storageService.updateSettings({ showPredefinedActions: newValue });
+    setSettings(updatedSettings);
+    if (onSettingsChange) {
+      onSettingsChange(updatedSettings);
+    }
+  }, [storageService, onSettingsChange]);
+
+  const handlePredefinedActionsUrlChange = useCallback(async (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+    const url = newValue || '';
+    const updatedSettings = await storageService.updateSettings({ predefinedActionsUrl: url });
+    setSettings(updatedSettings);
+    if (onSettingsChange) {
+      onSettingsChange(updatedSettings);
+    }
+  }, [storageService, onSettingsChange]);
+
   const handleExport = useCallback(async () => {
     try {
       const favorites = await storageService.getFavoriteActions();
@@ -138,7 +156,7 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
         fileInputRef.current.value = '';
       }
     }
-  }, [storageService]);
+  }, [storageService, onFavoritesImported]);
 
   return (
     <Stack tokens={{ childrenGap: 24 }}>
@@ -278,6 +296,55 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
           checked={settings.showActionSearchBar ?? true}
           onChange={handleShowActionSearchBarChange}
         />
+      </Stack>
+
+      <Separator />
+
+      <Stack tokens={{ childrenGap: 12 }}>
+        <Text variant="medium" styles={{ root: { fontWeight: 600 } }}>
+          Predefined Actions
+        </Text>
+        <Text variant="small" styles={{ root: { color: '#605e5c' } }}>
+          Load template actions from a GitHub JSON file for easy reuse
+        </Text>
+
+        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
+          <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }} styles={{ root: { flex: 1 } }}>
+            <Text>Show Predefined Actions</Text>
+            <TooltipHost
+              content="Display a section with predefined action templates loaded from GitHub."
+              styles={{ root: { display: 'inline-block' } }}
+            >
+              <span
+                style={{
+                  fontSize: 14,
+                  color: '#0078d4',
+                  cursor: 'help'
+                }}
+              >
+                ℹ️
+              </span>
+            </TooltipHost>
+          </Stack>
+          <Toggle
+            checked={settings.showPredefinedActions ?? true}
+            onChange={handleShowPredefinedActionsChange}
+          />
+        </Stack>
+
+        <Stack tokens={{ childrenGap: 8 }}>
+          <Text variant="small">GitHub JSON URL</Text>
+          <TextField
+            value={settings.predefinedActionsUrl || ''}
+            onChange={handlePredefinedActionsUrlChange}
+            placeholder="https://gist.githubusercontent.com/username/gist-id/raw/predefined-actions.json"
+            description="Enter the raw URL to your GitHub Gist or repository JSON file"
+            multiline={false}
+          />
+          <Text variant="small" styles={{ root: { color: '#605e5c', fontStyle: 'italic' } }}>
+            Tip: Use GitHub Gist for easy editing. Actions are cached for 1 hour.
+          </Text>
+        </Stack>
       </Stack>
     </Stack>
   );
