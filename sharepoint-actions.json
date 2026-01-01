@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "actionJson": "{\n        \"id\": \"7a3955e0-f505-4f9f-ae7f-d805943ff04d\",\n        \"brandColor\": \"#036C70\",\n        \"connectorDisplayName\": \"SharePoint\",\n        \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png\",\n        \"isTrigger\": false,\n        \"operationName\": \"SP.Publishing.SitePageService.GetCurrentUserMemberships\",\n        \"operationDefinition\": {\n          \"type\": \"OpenApiConnection\",\n          \"inputs\": {\n            \"host\": {\n              \"connectionName\": \"shared_sharepointonline\",\n              \"operationId\": \"HttpRequest\",\n              \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n            },\n            \"parameters\": {\n              \"dataset\": \"https://contoso.sharepoint.com/sites/Test\",\n              \"parameters/method\": \"GET\",\n              \"parameters/uri\": \"_api/SP.Publishing.SitePageService.GetCurrentUserMemberships\",\n              \"parameters/headers\": {\"sec-ch-ua-platform\":\"\\\"Windows\\\"\",\"sec-ch-ua\":\"\\\"Google Chrome\\\";v=\\\"143\\\", \\\"Chromium\\\";v=\\\"143\\\", \\\"Not A(Brand\\\";v=\\\"24\\\"\",\"SdkVersion\":\"SPFx/CustomQuickLinksWebPart/ba00f8ca-6eb4-4744-93c0-3ba59254ef86/Is3PRequest:1\",\"sec-ch-ua-mobile\":\"?0\",\"User-Agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\",\"accept\":\"application/json;odata.metadata=minimal\",\"odata-version\":\"4.0\",\"originalcorrelationid\":\"a9cbe8a1-30c2-e000-c92c-1dcf90e36ca7\"}\n              \n            },\n            \"authentication\": \"@parameters('$authentication')\"\n          }\n        }\n      }",
+    "body": null,
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png",
+    "id": "13764",
+    "isFavorite": true,
+    "isSelected": true,
+    "method": "GET",
+    "title": "SP.Publishing.SitePageService.GetCurrentUserMemberships",
+    "url": "https://contoso.sharepoint.com/sites/Test/_api/SP.Publishing.SitePageService.GetCurrentUserMemberships"
+  }
+]
