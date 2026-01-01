@@ -5,6 +5,8 @@ export interface ISettingsModel {
   maximumRecordingTimeMinutes?: number | null;
   showActionSearchBar?: boolean;
   recordingStartTime?: number | null;
+  showPredefinedActions?: boolean;
+  predefinedActionsUrl?: string;
 }
 
 export const defaultSettings: ISettingsModel = {
@@ -13,5 +15,7 @@ export const defaultSettings: ISettingsModel = {
   isModernPowerAutomatePage: null,
   maximumRecordingTimeMinutes: null,
   showActionSearchBar: true,
-  recordingStartTime: null, 
+  recordingStartTime: null,
+  showPredefinedActions: true,
+  predefinedActionsUrl: '',
 };
