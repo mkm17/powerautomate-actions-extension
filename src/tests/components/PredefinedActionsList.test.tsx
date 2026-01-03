@@ -14,7 +14,8 @@ describe('PredefinedActionsList', () => {
       body: null,
       icon: 'https://example.com/icon.png',
       actionJson: '{"method":"GET","url":"https://graph.microsoft.com/v1.0/me"}',
-      isSelected: false
+      isSelected: false,
+      isFavorite: false
     },
     {
       id: 'action-2',
@@ -24,7 +25,8 @@ describe('PredefinedActionsList', () => {
       body: '{"message":{}}',
       icon: 'https://example.com/icon.png',
       actionJson: '{"method":"POST","url":"https://graph.microsoft.com/v1.0/me/sendMail"}',
-      isSelected: false
+      isSelected: false,
+      isFavorite: false
     }
   ];
 
@@ -33,7 +35,8 @@ describe('PredefinedActionsList', () => {
       <PredefinedActionsList
         actions={[]}
         isLoading={true}
-        onRefresh={() => {}}
+        searchTerm=""
+        onSearchChange={() => {}}
       />
     );
     expect(screen.getByText('Loading predefined actions...')).toBeInTheDocument();
@@ -44,11 +47,11 @@ describe('PredefinedActionsList', () => {
       <PredefinedActionsList
         actions={[]}
         isLoading={false}
-        onRefresh={() => {}}
+        searchTerm=""
+        onSearchChange={() => {}}
       />
     );
     expect(screen.getByText('No predefined actions available')).toBeInTheDocument();
-    expect(screen.getByText('Configure the GitHub JSON URL in Settings')).toBeInTheDocument();
   });
 
   it('should render list of actions', () => {
@@ -56,50 +59,59 @@ describe('PredefinedActionsList', () => {
       <PredefinedActionsList
         actions={mockActions}
         isLoading={false}
-        onRefresh={() => {}}
+        searchTerm=""
+        onSearchChange={() => {}}
       />
     );
     expect(screen.getByText('Get User Profile')).toBeInTheDocument();
     expect(screen.getByText('Send Email')).toBeInTheDocument();
-    expect(screen.getByText('Predefined Actions (2)')).toBeInTheDocument();
   });
 
-  it('should display action method and URL', () => {
+  it('should display action method', () => {
     render(
       <PredefinedActionsList
         actions={mockActions}
         isLoading={false}
-        onRefresh={() => {}}
+        searchTerm=""
+        onSearchChange={() => {}}
       />
     );
     expect(screen.getByText('GET')).toBeInTheDocument();
     expect(screen.getByText('POST')).toBeInTheDocument();
   });
 
-  it('should call onRefresh when refresh button is clicked', () => {
-    const mockRefresh = jest.fn();
+  it('should call changeSelectionFunc when checkbox is clicked', () => {
+    const mockChangeSelection = jest.fn();
     render(
       <PredefinedActionsList
         actions={mockActions}
         isLoading={false}
-        onRefresh={mockRefresh}
+        changeSelectionFunc={mockChangeSelection}
+        searchTerm=""
+        onSearchChange={() => {}}
       />
     );
     
-    const refreshButton = screen.getByTitle('Refresh predefined actions');
-    fireEvent.click(refreshButton);
-    expect(mockRefresh).toHaveBeenCalled();
+    const checkboxes = screen.getAllByRole('checkbox');
+    fireEvent.click(checkboxes[0]);
+    expect(mockChangeSelection).toHaveBeenCalled();
   });
 
-  it('should not render refresh button when onRefresh is not provided', () => {
+  it('should call toggleFavoriteFunc when favorite star is clicked', () => {
+    const mockToggleFavorite = jest.fn();
     render(
       <PredefinedActionsList
         actions={mockActions}
         isLoading={false}
-        onRefresh={undefined}
+        toggleFavoriteFunc={mockToggleFavorite}
+        searchTerm=""
+        onSearchChange={() => {}}
       />
     );
-    expect(screen.queryByTitle('Refresh predefined actions')).not.toBeInTheDocument();
+    
+    const favoriteButtons = screen.getAllByTitle('Add to Favorites');
+    fireEvent.click(favoriteButtons[0]);
+    expect(mockToggleFavorite).toHaveBeenCalled();
   });
 
   it('should open details panel when info icon is clicked', async () => {
@@ -107,55 +119,68 @@ describe('PredefinedActionsList', () => {
       <PredefinedActionsList
         actions={mockActions}
         isLoading={false}
-        onRefresh={() => {}}
+        searchTerm=""
+        onSearchChange={() => {}}
       />
     );
     
-    const infoButtons = screen.getAllByTitle('View details');
+    const infoButtons = screen.getAllByTitle('Show Action Details');
     fireEvent.click(infoButtons[0]);
     
     await waitFor(() => {
-      expect(screen.getByText('Predefined Action: Get User Profile')).toBeInTheDocument();
+      expect(screen.getByText(/Action Details: Get User Profile/)).toBeInTheDocument();
     });
   });
 
-  it('should copy action JSON to clipboard when copy icon is clicked', () => {
-    const mockClipboard = {
-      writeText: jest.fn()
-    };
-    Object.assign(navigator, { clipboard: mockClipboard });
-
-    render(
-      <PredefinedActionsList
-        actions={mockActions}
-        isLoading={false}
-        onRefresh={() => {}}
-      />
-    );
-    
-    const copyButtons = screen.getAllByTitle('Copy to clipboard');
-    fireEvent.click(copyButtons[0]);
-    
-    expect(mockClipboard.writeText).toHaveBeenCalledWith(mockActions[0].actionJson);
-  });
-
-  it('should display action count correctly', () => {
+  it('should filter actions by search term', () => {
     const { rerender } = render(
       <PredefinedActionsList
         actions={mockActions}
         isLoading={false}
-        onRefresh={() => {}}
+        searchTerm=""
+        onSearchChange={() => {}}
       />
     );
-    expect(screen.getByText('Predefined Actions (2)')).toBeInTheDocument();
+    expect(screen.getByText('Get User Profile')).toBeInTheDocument();
+    expect(screen.getByText('Send Email')).toBeInTheDocument();
 
     rerender(
       <PredefinedActionsList
-        actions={[mockActions[0]]}
+        actions={mockActions}
         isLoading={false}
-        onRefresh={() => {}}
+        searchTerm="Email"
+        onSearchChange={() => {}}
       />
     );
-    expect(screen.getByText('Predefined Actions (1)')).toBeInTheDocument();
+    expect(screen.queryByText('Get User Profile')).not.toBeInTheDocument();
+    expect(screen.getByText('Send Email')).toBeInTheDocument();
+  });
+
+  it('should display column headers', () => {
+    render(
+      <PredefinedActionsList
+        actions={mockActions}
+        isLoading={false}
+        searchTerm=""
+        onSearchChange={() => {}}
+      />
+    );
+    expect(screen.getByText('Select')).toBeInTheDocument();
+    expect(screen.getByText('Title')).toBeInTheDocument();
+    expect(screen.getByText('Method')).toBeInTheDocument();
+    expect(screen.getByText('Info')).toBeInTheDocument();
+  });
+
+  it('should display favorite column when toggleFavoriteFunc is provided', () => {
+    render(
+      <PredefinedActionsList
+        actions={mockActions}
+        isLoading={false}
+        toggleFavoriteFunc={() => {}}
+        searchTerm=""
+        onSearchChange={() => {}}
+      />
+    );
+    expect(screen.getByText('Fav')).toBeInTheDocument();
   });
 });
