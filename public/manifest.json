@@ -1,7 +1,7 @@
 {
   "name": "Power Automate Actions Handler",
   "description": "Record, copy, and manage Power Automate actions from SharePoint. Capture HTTP requests and duplicate actions between tenants.",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "manifest_version": 3,
   "action": {
     "default_popup": "index.html",
