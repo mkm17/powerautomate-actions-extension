@@ -1,11 +1,15 @@
 import { useCallback, useState } from "react";
-import { Icon, Panel, PanelType, Spinner, SpinnerSize, DefaultButton } from "@fluentui/react";
+import { Icon, TextField, Panel, PanelType, Spinner, SpinnerSize, Checkbox } from "@fluentui/react";
 import { IActionModel } from "../models";
 
 export interface IPredefinedActionsListProps {
     actions: IActionModel[];
     isLoading: boolean;
     onRefresh?: () => void;
+    changeSelectionFunc?: (action: IActionModel) => void;
+    toggleFavoriteFunc?: (action: IActionModel) => void;
+    searchTerm: string;
+    onSearchChange: (searchTerm: string) => void;
 }
 
 const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => {
@@ -20,14 +24,6 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
     const hideActionDetails = useCallback(() => {
         setIsPanelOpen(false);
         setSelectedActionForDetails(null);
-    }, []);
-
-    const copyActionToClipboard = useCallback((action: IActionModel) => {
-        try {
-            navigator.clipboard.writeText(action.actionJson);
-        } catch (error) {
-            console.error('Failed to copy action to clipboard:', error);
-        }
     }, []);
 
     const renderActionDetails = useCallback(() => {
@@ -51,7 +47,7 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
                 onDismiss={hideActionDetails}
                 type={PanelType.custom}
                 customWidth="450px"
-                headerText={`Predefined Action: ${selectedActionForDetails.title}`}
+                headerText={`Action Details: ${selectedActionForDetails.title}`}
                 closeButtonAriaLabel="Close"
                 styles={{
                     content: { padding: '20px' }
@@ -116,25 +112,99 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
                                 fontSize: '12px',
                                 whiteSpace: 'pre-wrap',
                                 maxHeight: '300px',
-                                overflow: 'auto'
+                                overflowY: 'auto'
                             }}>
                                 {typeof parsedBody === 'string' ? parsedBody : JSON.stringify(parsedBody, null, 2)}
                             </div>
                         </div>
                     )}
 
-                    <div style={{ marginTop: '20px' }}>
-                        <DefaultButton
-                            text="Copy Action JSON"
-                            onClick={() => copyActionToClipboard(selectedActionForDetails)}
-                            iconProps={{ iconName: 'Copy' }}
-                            styles={{ root: { width: '100%' } }}
-                        />
+                    <div style={{ marginBottom: '15px' }}>
+                        <strong>Raw Action JSON:</strong>
+                        <div style={{ 
+                            backgroundColor: '#f5f5f5', 
+                            padding: '8px', 
+                            marginTop: '5px', 
+                            borderRadius: '4px',
+                            fontFamily: 'monospace',
+                            fontSize: '12px',
+                            whiteSpace: 'pre-wrap',
+                            maxHeight: '200px',
+                            overflowY: 'auto'
+                        }}>
+                            {parsedActionData ? JSON.stringify(parsedActionData, null, 2) : selectedActionForDetails.actionJson}
+                        </div>
                     </div>
                 </div>
             </Panel>
         );
-    }, [selectedActionForDetails, isPanelOpen, hideActionDetails, copyActionToClipboard]);
+    }, [selectedActionForDetails, isPanelOpen, hideActionDetails]);
+
+    const renderAction = useCallback((action: IActionModel) => {
+        return (
+            <div className='App-Action-Row' key={action.id} title={action.url}>
+                <Checkbox className='App-Action-Checkbox' checked={action.isSelected} defaultChecked={action.isSelected} onChange={() => { props.changeSelectionFunc?.(action) }}></Checkbox>
+                <img src={action.icon} className='App-Action-Icon' alt={action.title}></img>
+                <span className='App-Action-Element'>{action.title}</span>
+                <span className='App-Action-Element'>{action.method}</span>
+                <Icon 
+                    className='App-Action-Info' 
+                    iconName='Info' 
+                    onClick={() => showActionDetails(action)}
+                    title="Show Action Details"
+                ></Icon>
+                {props.toggleFavoriteFunc && (
+                    <Icon 
+                        className='App-Action-Favorite' 
+                        iconName={action.isFavorite ? 'FavoriteStarFill' : 'FavoriteStar'} 
+                        onClick={() => { props.toggleFavoriteFunc!(action) }} 
+                        title={action.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                    ></Icon>
+                )}
+                <div style={{ width: '30px' }}></div>
+            </div>
+        );
+    }, [props, showActionDetails]);
+
+    const filteredActions = useCallback(() => {
+        if (!props.searchTerm || props.searchTerm.trim() === '') {
+            return props.actions;
+        }
+        return props.actions.filter(action =>
+            action.title.toLowerCase().includes(props.searchTerm.toLowerCase())
+        );
+    }, [props.actions, props.searchTerm])();
+
+    const renderHeader = useCallback(() => {
+        return (
+            <div className='App-Action-Header' style={{ gridTemplateColumns: props.toggleFavoriteFunc ? '80px 30px 200px 60px 30px 30px 30px' : '80px 30px 200px 60px 30px 30px' }}>
+                <span>Select</span>
+                <span></span>
+                <span>Title</span>
+                <span>Method</span>
+                <span>Info</span>
+                {props.toggleFavoriteFunc && <span>Fav</span>}
+                <span></span>
+            </div>
+        );
+    }, [props.toggleFavoriteFunc]);
+
+    const renderSearch = useCallback(() => {
+        return (
+            <div style={{ padding: '10px 20px', backgroundColor: '#f3f2f1' }}>
+                <TextField
+                    placeholder="Search actions by title..."
+                    value={props.searchTerm}
+                    onChange={(event, newValue) => props.onSearchChange(newValue || '')}
+                    styles={{
+                        root: { width: '100%' },
+                        field: { fontSize: '14px' }
+                    }}
+                    iconProps={{ iconName: 'Search' }}
+                />
+            </div>
+        );
+    }, [props.searchTerm, props.onSearchChange]);
 
     if (props.isLoading) {
         return (
@@ -144,68 +214,19 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
         );
     }
 
-    if (props.actions.length === 0) {
-        return (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#605e5c' }}>
-                <Icon iconName="Info" style={{ fontSize: '24px', marginBottom: '10px' }} />
-                <div>No predefined actions available</div>
-                <div style={{ fontSize: '12px', marginTop: '5px' }}>
-                    Configure the GitHub JSON URL in Settings
-                </div>
-            </div>
-        );
-    }
-
     return (
         <>
-            <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 10px' }}>
-                <span style={{ fontWeight: 600, fontSize: '14px' }}>
-                    Predefined Actions ({props.actions.length})
-                </span>
-                {props.onRefresh && (
-                    <DefaultButton
-                        iconProps={{ iconName: 'Refresh' }}
-                        onClick={props.onRefresh}
-                        title="Refresh predefined actions"
-                        styles={{ root: { minWidth: '32px', padding: '4px 8px' } }}
-                    />
-                )}
-            </div>
-            <div className="actions-list">
-                {props.actions.map((action) => (
-                    <div 
-                        key={action.id} 
-                        className="action-item"
-                        style={{ 
-                            borderLeft: '3px solid #0078d4',
-                            backgroundColor: '#f3f2f1'
-                        }}
-                    >
-                        <div className="action-content">
-                            <div className="action-header">
-                                <span className="action-title">{action.title}</span>
-                                <div className="action-buttons">
-                                    <Icon 
-                                        iconName="Info" 
-                                        className="action-icon" 
-                                        onClick={() => showActionDetails(action)}
-                                        title="View details"
-                                    />
-                                    <Icon 
-                                        iconName="Copy" 
-                                        className="action-icon" 
-                                        onClick={() => copyActionToClipboard(action)}
-                                        title="Copy to clipboard"
-                                    />
-                                </div>
-                            </div>
-                            <div className="action-details">
-                                <span className="method-badge">{action.method}</span>
-                                <span className="url-text">{action.url}</span>
-                            </div>
-                        </div>
+            <div>{renderHeader()}</div>
+            <div>{renderSearch()}</div>
+            <div className="App-Actions">
+                {filteredActions.length === 0 ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#605e5c' }}>
+                        <Icon iconName="Info" style={{ fontSize: '24px', marginBottom: '10px' }} />
+                        <div>No predefined actions available</div>
                     </div>
-                ))}
+                ) : (
+                    filteredActions.map((action) => renderAction(action))
+                )}
             </div>
             {renderActionDetails()}
         </>

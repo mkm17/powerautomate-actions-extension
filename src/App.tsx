@@ -363,6 +363,12 @@ function App(initialState?: IInitialState | undefined) {
         action.id === actionId ? { ...action, isFavorite } : action
       )
     );
+
+    setPredefinedActions(prevActions =>
+      (prevActions ?? []).map(action =>
+        action.id === actionId ? { ...action, isFavorite } : action
+      )
+    );
   }, [])
 
   const deleteFavoriteAction = useCallback((action: IActionModel) => {
@@ -413,6 +419,10 @@ function App(initialState?: IInitialState | undefined) {
   const changeFavoriteActionSelection = useCallback((action: IActionModel) => {
     changeSelection(action, favoriteActions, setFavoriteActions);
   }, [changeSelection, favoriteActions])
+
+  const changePredefinedActionSelection = useCallback((action: IActionModel) => {
+    changeSelection(action, predefinedActions, setPredefinedActions);
+  }, [changeSelection, predefinedActions])
 
   const insertSelectedActionsToClipboard = useCallback(() => {
     const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) :
@@ -667,6 +677,10 @@ function App(initialState?: IInitialState | undefined) {
                 actions={predefinedActions}
                 isLoading={predefinedActionsLoading}
                 onRefresh={refreshPredefinedActions}
+                changeSelectionFunc={changePredefinedActionSelection}
+                toggleFavoriteFunc={toggleFavorite}
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
               />
             </PivotItem>
           )}
