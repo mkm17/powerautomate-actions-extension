@@ -191,20 +191,28 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
 
     const renderSearch = useCallback(() => {
         return (
-            <div style={{ padding: '10px 20px', backgroundColor: '#f3f2f1' }}>
+            <div style={{ padding: '10px 20px', backgroundColor: '#f3f2f1', display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <TextField
                     placeholder="Search actions by title..."
                     value={props.searchTerm}
                     onChange={(event, newValue) => props.onSearchChange(newValue || '')}
                     styles={{
-                        root: { width: '100%' },
+                        root: { flex: 1 },
                         field: { fontSize: '14px' }
                     }}
                     iconProps={{ iconName: 'Search' }}
                 />
+                {props.onRefresh && (
+                    <Icon
+                        iconName="Refresh"
+                        onClick={props.onRefresh}
+                        title="Refresh predefined actions"
+                        style={{ cursor: 'pointer', fontSize: '16px', color: '#107c10' }}
+                    />
+                )}
             </div>
         );
-    }, [props.searchTerm, props.onSearchChange]);
+    }, [props.searchTerm, props.onSearchChange, props.onRefresh]);
 
     if (props.isLoading) {
         return (
