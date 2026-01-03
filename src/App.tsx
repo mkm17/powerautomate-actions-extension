@@ -307,6 +307,9 @@ function App(initialState?: IInitialState | undefined) {
         storageService.clearFavoriteActions();
         setFavoriteActions([]);
         break;
+      case Mode.PredefinedActions:
+        setPredefinedActions([]);
+        break;
     }
   }, [currentMode, storageService])
 
@@ -314,7 +317,8 @@ function App(initialState?: IInitialState | undefined) {
     const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) :
       currentMode === Mode.CopiedActions ? myClipboardActions?.filter(a => a.isSelected) :
         currentMode === Mode.Favorites ? favoriteActions?.filter(a => a.isSelected) :
-          [];
+          currentMode === Mode.PredefinedActions ? predefinedActions?.filter(a => a.isSelected) :
+            [];
 
     if (!selectedActions || selectedActions.length === 0) {
       setNotificationMessage("No actions selected");
@@ -327,7 +331,7 @@ function App(initialState?: IInitialState | undefined) {
       message: selectedActions,
     }
     communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Content);
-  }, [actions, myClipboardActions, favoriteActions, currentMode, communicationService])
+  }, [actions, myClipboardActions, favoriteActions, predefinedActions, currentMode, communicationService])
 
   const deleteAction = useCallback((action: IActionModel, oldActions: IActionModel[], setActionsFunc: (value: React.SetStateAction<IActionModel[]>)
     => void, actionType: ActionType) => {
@@ -428,7 +432,8 @@ function App(initialState?: IInitialState | undefined) {
     const selectedActions = currentMode === Mode.Requests ? actions?.filter(a => a.isSelected) :
       currentMode === Mode.CopiedActions ? myClipboardActions?.filter(a => a.isSelected) :
         currentMode === Mode.Favorites ? favoriteActions?.filter(a => a.isSelected) :
-          [];
+          currentMode === Mode.PredefinedActions ? predefinedActions?.filter(a => a.isSelected) :
+            [];
 
     if (!selectedActions || selectedActions.length === 0) {
       setNotificationMessage("No actions selected");
@@ -441,7 +446,7 @@ function App(initialState?: IInitialState | undefined) {
       setNotificationMessage("Actions have been copied - now you can paste them in the Power Automate editor");
       setIsSuccessNotification(true);
     });
-  }, [actions, myClipboardActions, favoriteActions, currentMode, communicationService])
+  }, [actions, myClipboardActions, favoriteActions, predefinedActions, currentMode, communicationService])
 
   const filterActionsBySearch = useCallback((actionsToFilter: IActionModel[]) => {
     if (!searchTerm || searchTerm.trim() === '') {
@@ -627,6 +632,9 @@ function App(initialState?: IInitialState | undefined) {
               break;
             case "Favorites":
               setCurrentMode(Mode.Favorites);
+              break;
+            case "Predefined Actions":
+              setCurrentMode(Mode.PredefinedActions);
               break;
           }
         }}>

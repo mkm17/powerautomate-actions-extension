@@ -31,8 +31,9 @@ export class PredefinedActionsService {
                 return [];
             }
 
-            await this.cacheActions(data);
-            return data;
+            const normalizedData = this.normalizeActions(data);
+            await this.cacheActions(normalizedData);
+            return normalizedData;
         } catch (error) {
             console.error('Error fetching predefined actions:', error);
             const cachedData = await this.getCachedActionsIgnoreExpiry();
@@ -43,6 +44,14 @@ export class PredefinedActionsService {
     public async refreshPredefinedActions(url: string): Promise<IActionModel[]> {
         await this.clearCache();
         return await this.fetchPredefinedActions(url);
+    }
+
+    private normalizeActions(actions: IActionModel[]): IActionModel[] {
+        return actions.map(action => ({
+            ...action,
+            isFavorite: false,
+            isSelected: false
+        }));
     }
 
     private async getCachedActions(): Promise<IActionModel[] | null> {

@@ -3,5 +3,6 @@ export const enum Mode {
     CopiedActions,
     Requests,
     Favorites,
+    PredefinedActions,
     Settings,
 }
