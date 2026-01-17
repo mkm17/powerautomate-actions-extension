@@ -16,5 +16,45 @@
     "method": "",
     "title": "Try-Catch-Finally",
     "url": ""
+  },
+  {
+    "actionJson": "{\n        \"id\": \"7a3955e0-f505-4f9f-ae7f-d805943ff04d\",\n        \"brandColor\": \"#036C70\",\n        \"connectorDisplayName\": \"SharePoint\",\n        \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png\",\n        \"isTrigger\": false,\n        \"operationName\": \"SP.UserFirstRun.SetExperiences\",\n        \"operationDefinition\": {\n          \"type\": \"OpenApiConnection\",\n          \"inputs\": {\n            \"host\": {\n              \"connectionName\": \"shared_sharepointonline\",\n              \"operationId\": \"HttpRequest\",\n              \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n            },\n            \"parameters\": {\n              \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n              \"parameters/method\": \"POST\",\n              \"parameters/uri\": \"_api/SP.UserFirstRun.SetExperiences\",\n              \"parameters/headers\": {\"sec-ch-ua-platform\":\"\\\"Windows\\\"\",\"Authorization\":\"Bearer\",\"CollectSPPerfMetrics\":\"SPSQLQueryCount\",\"sec-ch-ua\":\"\\\"Google Chrome\\\";v=\\\"143\\\", \\\"Chromium\\\";v=\\\"143\\\", \\\"Not A(Brand\\\";v=\\\"24\\\"\",\"sec-ch-ua-mobile\":\"?0\",\"x-requestdigest\":\"0xB8F15F01E6F048BC2579D695928AECFC041890F9F3B6E49D236AC64AD7AA2058FE3DB77ED8BC12FDC3818D712F494ED4B886C138D3AF6BEE72724630DB699184,16 Jan 2026 22:05:07 -0000\",\"User-Agent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\",\"accept\":\"application/json;odata=verbose\",\"Content-Type\":\"application/json;odata=verbose\"}\n              ,\"parameters/body\": {\"experiences\":\"{\\\"17\\\":false,\\\"18\\\":true}\"}\n            },\n            \"authentication\": \"@parameters('$authentication')\"\n          }\n        }\n      }",
+    "body": {
+      "experiences": "{\"17\":false,\"18\":true}"
+    },
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/releases/v1.0.1723/1.0.1723.3986/sharepointonline/icon.png",
+    "id": "9621",
+    "isFavorite": true,
+    "method": "POST",
+    "title": "SP.UserFirstRun.SetExperiences",
+    "url": "https://contoso.sharepoint.com/sites/SITE_NAME/_api/SP.UserFirstRun.SetExperiences"
+  },
+  {
+    "actionJson": "{\n                \"id\": \"a9abf920-e736-4b15-ae5e-463c366da02b\",\n                \"brandColor\": \"#007ee5\",\n                \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n                \"isTrigger\": false,\n                \"operationName\": \"breakroleinheritance\",\n                \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n        \"host\": {\n            \"connectionName\": \"shared_sharepointonline\",\n            \"operationId\": \"HttpRequest\",\n            \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n        },\n        \"parameters\": {\n            \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n            \"parameters/method\": \"POST\",\n            \"parameters/uri\": \"_api/web/lists/getByTitle('LIST_TITLE')/items(ITEM_ID)/breakroleinheritance(copyroleassignments=true,clearsubscopes=true)\",\n            \"parameters/headers\": {\n                \"Accept\": \"application/json\",\n                \"Content-Type\": \"application/json;charset=utf-8\"\n            }\n        },\n        \"authentication\": {\n            \"type\": \"Raw\",\n            \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n        }\n    },\n    \"runAfter\": {\n        \"ensureuser\": [\n            \"Succeeded\"\n        ]\n    },\n    \"description\": \"copyRoleAssignments: true = copy permissions from parent, false = remove all inherited permissions  clearSubscopes: true = remove unique permissions from child items, false = keep child item permissions\"\n} \n            }",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "19bcbd12798-e83ed",
+    "isFavorite": true,
+    "method": "",
+    "title": "breakroleinheritance",
+    "url": ""
+  },
+  {
+    "actionJson": "{\n                \"id\": \"a9abf920-e736-4b15-ae5e-463c366da02b\",\n                \"brandColor\": \"#007ee5\",\n                \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n                \"isTrigger\": false,\n                \"operationName\": \"ensureuser\",\n                \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n        \"host\": {\n            \"connectionName\": \"shared_sharepointonline\",\n            \"operationId\": \"HttpRequest\",\n            \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n        },\n        \"parameters\": {\n            \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n            \"parameters/method\": \"POST\",\n            \"parameters/uri\": \"_api/web/ensureuser\",\n            \"parameters/headers\": {\n                \"Accept\": \"application/json\",\n                \"Content-Type\": \"application/json;charset=utf-8\"\n            },\n            \"parameters/body\": \"{\\n  \\\"logonName\\\": \\\"i:0#.f|membership|user@tenant.com\\\"\\n}\"\n        },\n        \"authentication\": {\n            \"type\": \"Raw\",\n            \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n        }\n    },\n    \"runAfter\": {\n        \"addroleassignment\": [\n            \"Succeeded\"\n        ]\n    }\n} \n            }",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "19bcbd12798-6896e",
+    "isFavorite": true,
+    "method": "",
+    "title": "ensureuser",
+    "url": ""
+  },
+  {
+    "actionJson": "{\n                \"id\": \"a9abf920-e736-4b15-ae5e-463c366da02b\",\n                \"brandColor\": \"#007ee5\",\n                \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n                \"isTrigger\": false,\n                \"operationName\": \"addroleassignment\",\n                \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n        \"host\": {\n            \"connectionName\": \"shared_sharepointonline\",\n            \"operationId\": \"HttpRequest\",\n            \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n        },\n        \"parameters\": {\n            \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n            \"parameters/method\": \"POST\",\n            \"parameters/uri\": \"_api/web/lists/getByTitle('LIST_TITLE')/items(ITEM_ID)/roleAssignments/addroleassignment(principalid=PRINCIPAL_ID, roledefid=ROLE_DEF_ID)\",\n            \"parameters/headers\": {\n                \"Accept\": \"application/json\",\n                \"Content-Type\": \"application/json;charset=utf-8\"\n            }\n        },\n        \"authentication\": {\n            \"type\": \"Raw\",\n            \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n        }\n    },\n    \"runAfter\": {\n        \"Try-Catch-Finally\": [\n            \"Succeeded\"\n        ]\n    },\n    \"description\": \"roledefid Read:1073741826 Contribute:1073741827 Edit:1073741830 Full Control:1073741829\"\n} \n            }",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "19bcbd12798-edf8e",
+    "isFavorite": true,
+    "method": "",
+    "title": "addroleassignment",
+    "url": ""
   }
+
 ]
