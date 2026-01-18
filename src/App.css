@@ -7,6 +7,13 @@
   flex-direction: column;
 }
 
+@media (min-width: 601px) {
+  .App {
+    height: 100%;
+    overflow-y: hidden;
+  }
+}
+
 .App-header {
   background-color: #282c34;
   width: 100%;
@@ -26,9 +33,39 @@
   color: #fff;
 }
 
+.App-Action-Header--with-favorite {
+  grid-template-columns: 80px 30px 200px 60px 30px 30px 30px;
+}
+
+.App-Action-Header--without-favorite {
+  grid-template-columns: 80px 30px 200px 60px 30px 30px;
+}
+
+@media (min-width: 601px) {
+  .App-Action-Header {
+    grid-template-columns: 80px 30px 1fr 60px 75px 75px;
+  }
+
+  .App-Action-Header--with-favorite {
+    grid-template-columns: 80px 30px 1fr 60px 30px 30px 30px;
+  }
+
+  .App-Action-Header--without-favorite {
+    grid-template-columns: 80px 30px 1fr 60px 30px 30px;
+  }
+}
+
 .App-Actions {
   height: 350px;
-  overflow-y: scroll;
+  overflow-y: auto;
+}
+
+@media (min-width: 601px) {
+  .App-Actions {
+    flex: 1;
+    min-height: 300px;
+    overflow-y: auto;
+  }
 }
 
 .App-Action-Icon {
@@ -78,6 +115,16 @@
   grid-template-columns: 80px 30px 200px 60px 30px 30px 30px;
 }
 
+@media (min-width: 601px) {
+  .App-Action-Row {
+    grid-template-columns: 80px 30px 1fr 60px 30px 30px 30px;
+  }
+
+  .App-Action-Row:has(.App-Action-Favorite) {
+    grid-template-columns: 80px 30px 1fr 60px 30px 30px 30px;
+  }
+}
+
 .App-Action-Element {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -108,6 +155,12 @@
   padding: 10px 20px;
   background-color: #282c34;
   color: #fff;
+}
+
+@media (min-width: 601px) {
+  .App-Action-Header {
+    grid-template-columns: 80px 30px 1fr 60px 30px 30px 30px;
+  }
 }
 
 .Current-Action-Icon {
@@ -147,4 +200,11 @@
   padding: 4px 0px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   white-space: nowrap;
+}
+
+@media (min-width: 601px) {
+  .Hover-message {
+    width: 98%;
+    max-width: calc(100% - 4px);
+  }
 }
