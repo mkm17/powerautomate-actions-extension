@@ -176,7 +176,9 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
     }, [props.actions, renderAction])
 
     const renderHeader = useCallback(() => {
-        return <div className='App-Action-Header' style={{ gridTemplateColumns: props.toggleFavoriteFunc ? '80px 30px 200px 60px 30px 30px 30px' : '80px 30px 200px 60px 30px 30px' }}>
+        const headerClassName = `App-Action-Header ${props.toggleFavoriteFunc ? 'App-Action-Header--with-favorite' : 'App-Action-Header--without-favorite'}`;
+        return (
+            <div className={headerClassName}>
             <span>Select</span>
             <span></span>
             <span>Title</span>
@@ -184,7 +186,7 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
             <span>Info</span>
             {props.toggleFavoriteFunc && <span>Fav</span>}
             <span></span>
-        </div>;
+        </div>);
     }, [props.toggleFavoriteFunc])
 
     const renderSearch = useCallback(() => {
