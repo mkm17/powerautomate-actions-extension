@@ -1,0 +1,11 @@
+[
+    {
+        "actionJson": "{\n                \"id\": \"a9abf920-e736-4b15-ae5e-463c366da02b\",\n                \"brandColor\": \"#007ee5\",\n                \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n                \"isTrigger\": false,\n                \"operationName\": \"ensureuser\",\n                \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n        \"host\": {\n            \"connectionName\": \"shared_sharepointonline\",\n            \"operationId\": \"HttpRequest\",\n            \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n        },\n        \"parameters\": {\n            \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n            \"parameters/method\": \"POST\",\n            \"parameters/uri\": \"_api/web/ensureuser\",\n            \"parameters/headers\": {\n                \"Accept\": \"application/json\",\n                \"Content-Type\": \"application/json;charset=utf-8\"\n            },\n            \"parameters/body\": \"{\\n  \\\"logonName\\\": \\\"i:0#.f|membership|user@tenant.com\\\"\\n}\"\n        },\n        \"authentication\": {\n            \"type\": \"Raw\",\n            \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n        }\n    },\n    \"runAfter\": {\n        \"addroleassignment\": [\n            \"Succeeded\"\n        ]\n    }\n} \n            }",
+        "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+        "id": "19bcbd12798-6896e",
+        "isFavorite": true,
+        "method": "",
+        "title": "ensureuser",
+        "url": ""
+    }
+]
