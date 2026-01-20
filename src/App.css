@@ -101,15 +101,6 @@
   color: #61dafb;
 }
 
-.App-Action-Header {
-  display: grid;
-  grid-template-columns: 80px 30px 200px 60px 30px 30px 30px;
-  grid-gap: 10px;
-  padding: 10px 20px;
-  background-color: #282c34;
-  color: #fff;
-}
-
 .Current-Action-Icon {
   width: 30px;
   height: 30px;

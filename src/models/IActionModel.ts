@@ -8,4 +8,5 @@ export interface IActionModel {
     isSelected?: boolean;
     body?: any;
     isFavorite?: boolean;
+    category?: string;
 }

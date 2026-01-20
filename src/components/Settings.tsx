@@ -81,6 +81,15 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
     }
   }, [storageService, onSettingsChange]);
 
+  const handleLoadDefaultPredefinedActionsChange = useCallback(async (event: React.MouseEvent<HTMLElement>, checked?: boolean) => {
+    const newValue = checked ?? true;
+    const updatedSettings = await storageService.updateSettings({ loadDefaultPredefinedActions: newValue });
+    setSettings(updatedSettings);
+    if (onSettingsChange) {
+      onSettingsChange(updatedSettings);
+    }
+  }, [storageService, onSettingsChange]);
+
   const handleExport = useCallback(async () => {
     try {
       const favorites = await storageService.getFavoriteActions();
@@ -329,6 +338,30 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
           <Toggle
             checked={settings.showPredefinedActions ?? true}
             onChange={handleShowPredefinedActionsChange}
+          />
+        </Stack>
+
+        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
+          <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }} styles={{ root: { flex: 1 } }}>
+            <Text>Load Default Actions</Text>
+            <TooltipHost
+              content="Load default predefined actions from the extension's built-in collection."
+              styles={{ root: { display: 'inline-block' } }}
+            >
+              <span
+                style={{
+                  fontSize: 14,
+                  color: '#0078d4',
+                  cursor: 'help'
+                }}
+              >
+                ℹ️
+              </span>
+            </TooltipHost>
+          </Stack>
+          <Toggle
+            checked={settings.loadDefaultPredefinedActions ?? true}
+            onChange={handleLoadDefaultPredefinedActionsChange}
           />
         </Stack>
 

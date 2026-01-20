@@ -24,4 +24,8 @@ export class Constants {
     public static readonly GraphExplorerUrl = 'https://developer.microsoft.com/en-us/graph/graph-explorer';
     public static readonly SharePointAdminUrl = 'layouts/15/online/AdminHome.aspx';
     public static readonly SPIframeFixUrl = 'https://webshell.suite.office.com/iframe/TokenFactoryIframe';
+
+    // Predefined Actions
+    public static readonly PredefinedActionsGitHubApiUrl = 'https://api.github.com/repos/mkm17/powerautomate-actions-extension/contents/predefined-actions';
+    public static readonly PredefinedActionsBaseUrl = 'https://raw.githubusercontent.com/mkm17/powerautomate-actions-extension/refs/heads/main/predefined-actions';
 }

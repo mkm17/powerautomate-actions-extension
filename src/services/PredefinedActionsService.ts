@@ -1,4 +1,5 @@
 import { IActionModel } from "../models";
+import { Constants } from "../constants/Constants";
 
 export class PredefinedActionsService {
     private CACHE_DURATION_MS = 60 * 60 * 1000;
@@ -31,7 +32,7 @@ export class PredefinedActionsService {
                 return [];
             }
 
-            const normalizedData = this.normalizeActions(data);
+            const normalizedData = this.normalizeActions(data, 'Custom');
             await this.cacheActions(normalizedData);
             return normalizedData;
         } catch (error) {
@@ -46,11 +47,12 @@ export class PredefinedActionsService {
         return await this.fetchPredefinedActions(url);
     }
 
-    private normalizeActions(actions: IActionModel[]): IActionModel[] {
+    private normalizeActions(actions: IActionModel[], defaultCategory?: string): IActionModel[] {
         return actions.map(action => ({
             ...action,
             isFavorite: false,
-            isSelected: false
+            isSelected: false,
+            category: action.category ?? defaultCategory
         }));
     }
 
@@ -103,5 +105,46 @@ export class PredefinedActionsService {
         } catch (error) {
             console.error('Error clearing cache:', error);
         }
+    }
+
+    public async fetchDefaultPredefinedActions(): Promise<IActionModel[]> {
+        const allActions: IActionModel[] = [];
+
+        try {
+            const listResponse = await fetch(Constants.PredefinedActionsGitHubApiUrl);
+            if (!listResponse.ok) {
+                console.error(`Failed to fetch file list from GitHub: ${listResponse.status}`);
+                return [];
+            }
+
+            const fileList = await listResponse.json();
+            const jsonFiles = fileList
+                .filter((file: any) => file.name.endsWith('.json') && file.type === 'file')
+                .map((file: any) => file.name);
+
+            for (const fileName of jsonFiles) {
+                try {
+                    const url = `${Constants.PredefinedActionsBaseUrl}/${fileName}`;
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        console.error(`Failed to load ${fileName} from GitHub: ${response.status}`);
+                        continue;
+                    }
+
+                    const data = await response.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        const category = fileName.replace(/\.json$/i, '');
+                        const normalized = this.normalizeActions(data, category);
+                        allActions.push(...normalized);
+                    }
+                } catch (error) {
+                    console.error(`Error loading ${fileName} from GitHub:`, error);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching default predefined actions:', error);
+        }
+
+        return allActions;
     }
 }

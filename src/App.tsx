@@ -187,34 +187,56 @@ function App(initialState?: IInitialState | undefined) {
     }
   }, [predefinedActionsService]);
 
+  const loadAllPredefinedFromSettings = useCallback(async (s: ISettingsModel) => {
+    if (!s?.showPredefinedActions) {
+      setPredefinedActions([]);
+      return;
+    }
+
+    setPredefinedActionsLoading(true);
+    try {
+      const parts: IActionModel[][] = [];
+      if (s.loadDefaultPredefinedActions) {
+        const defaults = await predefinedActionsService.fetchDefaultPredefinedActions();
+        parts.push(defaults);
+      }
+      if (s.predefinedActionsUrl && s.predefinedActionsUrl.trim() !== '') {
+        const fromUrl = await predefinedActionsService.fetchPredefinedActions(s.predefinedActionsUrl);
+        parts.push(fromUrl);
+      }
+      const combined = ([] as IActionModel[]).concat(...parts);
+      setPredefinedActions(combined);
+    } catch (error) {
+      console.error('Failed to load predefined actions (defaults/custom):', error);
+      setPredefinedActions([]);
+    } finally {
+      setPredefinedActionsLoading(false);
+    }
+  }, [predefinedActionsService]);
+
   const handleSettingsChange = useCallback(async (updatedSettings: ISettingsModel) => {
     setSettings(updatedSettings);
     
-    // Reload predefined actions if URL changed or visibility toggled
-    if (updatedSettings.showPredefinedActions && updatedSettings.predefinedActionsUrl) {
-      loadPredefinedActions(updatedSettings.predefinedActionsUrl);
-    } else {
-      setPredefinedActions([]);
-    }
-  }, [loadPredefinedActions]);
+    // Reload predefined actions from defaults and/or custom URL
+    await loadAllPredefinedFromSettings(updatedSettings);
+  }, [loadAllPredefinedFromSettings]);
 
   const refreshPredefinedActions = useCallback(async () => {
-    if (settings?.predefinedActionsUrl) {
-      setPredefinedActionsLoading(true);
-      try {
-        const actions = await predefinedActionsService.refreshPredefinedActions(settings.predefinedActionsUrl);
-        setPredefinedActions(actions);
-        setNotificationMessage('Predefined actions refreshed successfully');
-        setIsSuccessNotification(true);
-      } catch (error) {
-        console.error('Failed to refresh predefined actions:', error);
-        setNotificationMessage('Failed to refresh predefined actions');
-        setIsSuccessNotification(false);
-      } finally {
-        setPredefinedActionsLoading(false);
-      }
+    if (!settings) return;
+    setPredefinedActionsLoading(true);
+    try {
+      await predefinedActionsService.clearCache();
+      await loadAllPredefinedFromSettings(settings);
+      setNotificationMessage('Predefined actions refreshed successfully');
+      setIsSuccessNotification(true);
+    } catch (error) {
+      console.error('Failed to refresh predefined actions:', error);
+      setNotificationMessage('Failed to refresh predefined actions');
+      setIsSuccessNotification(false);
+    } finally {
+      setPredefinedActionsLoading(false);
     }
-  }, [settings, predefinedActionsService]);
+  }, [settings, predefinedActionsService, loadAllPredefinedFromSettings]);
 
   const initData = useCallback(async () => {
     const settings = await storageService.getSettings();
@@ -240,10 +262,8 @@ function App(initialState?: IInitialState | undefined) {
       setFavoriteActions(actions);
     });
 
-    // Load predefined actions
-    if (settings.showPredefinedActions && settings.predefinedActionsUrl) {
-      loadPredefinedActions(settings.predefinedActionsUrl);
-    }
+    // Load predefined actions (defaults/custom)
+    await loadAllPredefinedFromSettings(settings);
 
     storageService.getIsRecordingValue().then((isRecording) => {
       setIsRecording(isRecording);
@@ -273,7 +293,7 @@ function App(initialState?: IInitialState | undefined) {
     });
 
     chrome.runtime.onMessage.addListener(listenToMessage);
-  }, [communicationService, storageService, getRecordingPageSetting, getClassicPASetting, getNewPASetting, startRecordingTimer, stopRecordingTimer, loadPredefinedActions]);
+  }, [communicationService, storageService, getRecordingPageSetting, getClassicPASetting, getNewPASetting, startRecordingTimer, stopRecordingTimer, loadAllPredefinedFromSettings]);
 
   useEffect(() => {
     initData();
