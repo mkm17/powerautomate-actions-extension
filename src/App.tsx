@@ -205,7 +205,8 @@ function App(initialState?: IInitialState | undefined) {
         parts.push(fromUrl);
       }
       const combined = ([] as IActionModel[]).concat(...parts);
-      setPredefinedActions(combined);
+      const deduplicated = predefinedActionsService.deduplicateActions(combined);
+      setPredefinedActions(deduplicated);
     } catch (error) {
       console.error('Failed to load predefined actions (defaults/custom):', error);
       setPredefinedActions([]);

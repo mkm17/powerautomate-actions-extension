@@ -18,7 +18,7 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
     const categoryOptions: IDropdownOption[] = useMemo(() => {
-        const categories = Array.from(new Set((props.actions || []).map(a => a.category || 'Unknown')));
+        const categories = Array.from(new Set((props.actions || []).map(a => a.category || 'Unknown'))).sort((a, b) => a.localeCompare(b));
         const opts: IDropdownOption[] = [{ key: 'All', text: 'All' }, ...categories.map(c => ({ key: c, text: c }))];
         return opts;
     }, [props.actions]);
