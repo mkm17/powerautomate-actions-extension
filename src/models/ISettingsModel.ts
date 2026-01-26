@@ -7,6 +7,8 @@ export interface ISettingsModel {
   recordingStartTime?: number | null;
   showPredefinedActions?: boolean;
   predefinedActionsUrl?: string;
+  enableOpenAiIntegration?: boolean;
+  openAiApiKey?: string;
 }
 
 export const defaultSettings: ISettingsModel = {
@@ -18,4 +20,6 @@ export const defaultSettings: ISettingsModel = {
   recordingStartTime: null,
   showPredefinedActions: true,
   predefinedActionsUrl: '',
+  enableOpenAiIntegration: false,
+  openAiApiKey: '',
 };

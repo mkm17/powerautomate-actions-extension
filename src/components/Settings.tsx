@@ -81,6 +81,24 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
     }
   }, [storageService, onSettingsChange]);
 
+  const handleEnableOpenAiIntegrationChange = useCallback(async (event: React.MouseEvent<HTMLElement>, checked?: boolean) => {
+    const newValue = checked ?? false;
+    const updatedSettings = await storageService.updateSettings({ enableOpenAiIntegration: newValue });
+    setSettings(updatedSettings);
+    if (onSettingsChange) {
+      onSettingsChange(updatedSettings);
+    }
+  }, [storageService, onSettingsChange]);
+
+  const handleOpenAiApiKeyChange = useCallback(async (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+    const apiKey = newValue || '';
+    const updatedSettings = await storageService.updateSettings({ openAiApiKey: apiKey });
+    setSettings(updatedSettings);
+    if (onSettingsChange) {
+      onSettingsChange(updatedSettings);
+    }
+  }, [storageService, onSettingsChange]);
+
   const handleExport = useCallback(async () => {
     try {
       const favorites = await storageService.getFavoriteActions();
@@ -345,6 +363,59 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
             Tip: Use GitHub Gist for easy editing. Actions are cached for 1 hour.
           </Text>
         </Stack>
+      </Stack>
+
+      <Separator />
+
+      <Stack tokens={{ childrenGap: 12 }}>
+        <Text variant="medium" styles={{ root: { fontWeight: 600 } }}>
+          OpenAI Integration
+        </Text>
+        <Text variant="small" styles={{ root: { color: '#605e5c' } }}>
+          Connect to OpenAI to generate action descriptions or get AI assistance
+        </Text>
+
+        <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }}>
+          <Stack horizontal verticalAlign="center" tokens={{ childrenGap: 8 }} styles={{ root: { flex: 1 } }}>
+            <Text>Enable OpenAI Integration</Text>
+            <TooltipHost
+              content="Enable AI-powered features using OpenAI's GPT models."
+              styles={{ root: { display: 'inline-block' } }}
+            >
+              <span
+                style={{
+                  fontSize: 14,
+                  color: '#0078d4',
+                  cursor: 'help'
+                }}
+              >
+                ℹ️
+              </span>
+            </TooltipHost>
+          </Stack>
+          <Toggle
+            checked={settings.enableOpenAiIntegration ?? false}
+            onChange={handleEnableOpenAiIntegrationChange}
+          />
+        </Stack>
+
+        {settings.enableOpenAiIntegration && (
+          <Stack tokens={{ childrenGap: 8 }}>
+            <Text variant="small">OpenAI API Key</Text>
+            <TextField
+              value={settings.openAiApiKey || ''}
+              onChange={handleOpenAiApiKeyChange}
+              placeholder="sk-..."
+              description="Enter your OpenAI API key from https://platform.openai.com/api-keys"
+              type="password"
+              canRevealPassword
+              revealPasswordAriaLabel="Show API key"
+            />
+            <Text variant="small" styles={{ root: { color: '#605e5c', fontStyle: 'italic' } }}>
+              Your API key is stored securely in your browser and never shared.
+            </Text>
+          </Stack>
+        )}
       </Stack>
     </Stack>
   );

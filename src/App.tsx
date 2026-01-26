@@ -4,16 +4,18 @@ import { ActionType, IDataChromeMessage, AppElement, ICommunicationChromeMessage
 import { IActionModel } from './models/IActionModel';
 import { ISettingsModel } from './models/ISettingsModel';
 import { StorageService } from './services/StorageService';
-import { ExtensionCommunicationService, PredefinedActionsService } from './services';
+import { ExtensionCommunicationService, PredefinedActionsService, OpenAIService } from './services';
 import { Icon, MessageBar, MessageBarType, Pivot, PivotItem } from '@fluentui/react';
 import ActionsList from './components/ActionsList';
 import Settings from './components/Settings';
 import PredefinedActionsList from './components/PredefinedActionsList';
+import OpenAIPrompt from './components/OpenAIPrompt';
 
 function App(initialState?: IInitialState | undefined) {
   const storageService = useMemo(() => { return new StorageService(); }, []);
   const communicationService = useMemo(() => { return new ExtensionCommunicationService(); }, []);
   const predefinedActionsService = useMemo(() => { return new PredefinedActionsService(); }, []);
+  const openAIService = useMemo(() => { return new OpenAIService(); }, []);
   const [isRecording, setIsRecording] = useState<boolean>(initialState?.isRecording || false);
   const [isPowerAutomatePage, setIsPowerAutomatePage] = useState<boolean>(initialState?.isPowerAutomatePage || false);
   const [isRecordingPage, setIsRecordingPage] = useState<boolean>(initialState?.isRecordingPage || false);
@@ -636,6 +638,8 @@ function App(initialState?: IInitialState | undefined) {
             case "Predefined Actions":
               setCurrentMode(Mode.PredefinedActions);
               break;
+            case "AI":
+              break;
           }
         }}>
           {<PivotItem
@@ -690,6 +694,20 @@ function App(initialState?: IInitialState | undefined) {
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
               />
+            </PivotItem>
+          )}
+          {settings?.enableOpenAiIntegration && (
+            <PivotItem headerText="AI">
+              <div style={{ padding: '20px' }}>
+                <OpenAIPrompt 
+                  openAIService={openAIService}
+                  storageService={storageService}
+                  onFavoritesUpdated={async () => {
+                    const updated = await storageService.getFavoriteActions();
+                    setFavoriteActions(updated);
+                  }}
+                />
+              </div>
             </PivotItem>
           )}
         </Pivot>
