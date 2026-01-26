@@ -40,7 +40,7 @@ describe('ActionsService', () => {
               "parameters/headers": {"Content-Type":"application/json","Authorization":"Bearer token"}
               
             },
-            "authentication": "@parameters('${'$'}authentication')"
+            "authentication": {"type":"Raw","value":"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']"}
           }
         }
       }`,
@@ -105,9 +105,9 @@ describe('ActionsService', () => {
               "parameters/method": "POST",
               "parameters/uri": "_api/data",
               "parameters/headers": [{"name":"Content-Type","value":"application/json"},{"name":"Authorization","value":"Bearer token"}]
-              ,"parameters/body": {"key":"value"}
+              ,"parameters/body": "{\"key\":\"value\"}"
             },
-            "authentication": "@parameters('${'$'}authentication')"
+            "authentication": {"type":"Raw","value":"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']"}
           }
         }
       }`,
@@ -151,7 +151,7 @@ describe('ActionsService', () => {
               "parameters/headers": [{"name":"Content-Type","value":"application/json"},{"name":"Authorization","value":"Bearer token"}]
               
             },
-            "authentication": "@parameters('${'$'}authentication')"
+            "authentication": {"type":"Raw","value":"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']"}
           }
         }
       }`,
@@ -523,6 +523,41 @@ describe('ActionsService', () => {
       const result = actionsService['tryParseJson']("Incorrect JSON");
 
       expect(result).toEqual("Incorrect JSON");
+    });
+  });
+
+  describe('new behavior - AI templating parity', () => {
+    it('should stringify SharePoint body and use Raw authentication', () => {
+      const method = 'POST';
+      const requestUrl = 'https://example.com/sites/demo/_api/web/ensureuser';
+      const headers = { 'Content-Type': 'application/json;charset=utf-8', 'Accept': 'application/json' };
+      const requestBody = { logonName: 'i:0#.f|membership|user@tenant.com' };
+
+      const result = actionsService.getHttpSharePointActionTemplate(method, requestUrl, headers, 'ensureuser', requestBody);
+      const parsed = JSON.parse(result.actionJson);
+
+      expect(parsed.operationDefinition.inputs.parameters['parameters/body']).toEqual(JSON.stringify(requestBody));
+      expect(parsed.operationDefinition.inputs.authentication).toEqual({
+        type: 'Raw',
+        value: "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']"
+      });
+      expect(parsed.operationDefinition.inputs.parameters['parameters/headers']).toEqual(headers);
+    });
+
+    it('should stringify Graph body in Teams template and keep Raw auth', () => {
+      const method = 'POST';
+      const requestUrl = 'https://graph.microsoft.com/v1.0/teams/team-id/send';
+      const headers = { 'Content-Type': 'application/json' };
+      const requestBody = { message: 'hello' };
+
+      const result = (actionsService as any).teamsGraphActionTemplate(method, requestUrl, headers, 'send', requestBody);
+      const parsed = JSON.parse(result.actionJson);
+
+      expect(parsed.operationDefinition.inputs.parameters['Body']).toEqual(JSON.stringify(requestBody));
+      expect(parsed.operationDefinition.inputs.authentication).toEqual({
+        type: 'Raw',
+        value: "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']"
+      });
     });
   });
 });
