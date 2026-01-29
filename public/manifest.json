@@ -18,8 +18,12 @@
     "background",
     "storage",
     "clipboardRead",
-    "clipboardWrite"
+    "clipboardWrite",
+    "sidePanel"
   ],
+  "side_panel": {
+    "default_path": "index.html"
+  },
   "background": {
     "service_worker": "./static/js/background.js"
   },
