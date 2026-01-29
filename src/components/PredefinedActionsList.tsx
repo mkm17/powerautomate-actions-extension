@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { Icon, TextField, Panel, PanelType, Spinner, SpinnerSize, Checkbox } from "@fluentui/react";
+import { useCallback, useMemo, useState } from "react";
+import { Icon, TextField, Panel, PanelType, Spinner, SpinnerSize, Checkbox, Dropdown, IDropdownOption } from "@fluentui/react";
 import { IActionModel } from "../models";
 
 export interface IPredefinedActionsListProps {
@@ -15,6 +15,13 @@ export interface IPredefinedActionsListProps {
 const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => {
     const [selectedActionForDetails, setSelectedActionForDetails] = useState<IActionModel | null>(null);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+    const categoryOptions: IDropdownOption[] = useMemo(() => {
+        const categories = Array.from(new Set((props.actions || []).map(a => a.category || 'Unknown'))).sort((a, b) => a.localeCompare(b));
+        const opts: IDropdownOption[] = [{ key: 'All', text: 'All' }, ...categories.map(c => ({ key: c, text: c }))];
+        return opts;
+    }, [props.actions]);
 
     const showActionDetails = useCallback((action: IActionModel) => {
         setSelectedActionForDetails(action);
@@ -167,13 +174,15 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
     }, [props, showActionDetails]);
 
     const filteredActions = useCallback(() => {
-        if (!props.searchTerm || props.searchTerm.trim() === '') {
-            return props.actions;
+        let list = props.actions;
+        if (selectedCategory && selectedCategory !== 'All') {
+            list = list.filter(a => (a.category || 'Unknown') === selectedCategory);
         }
-        return props.actions.filter(action =>
-            action.title.toLowerCase().includes(props.searchTerm.toLowerCase())
-        );
-    }, [props.actions, props.searchTerm])();
+        if (!props.searchTerm || props.searchTerm.trim() === '') {
+            return list;
+        }
+        return list.filter(action => action.title.toLowerCase().includes(props.searchTerm.toLowerCase()));
+    }, [props.actions, props.searchTerm, selectedCategory])();
 
     const renderHeader = useCallback(() => {
         const headerClassName = `App-Action-Header ${props.toggleFavoriteFunc ? 'App-Action-Header--with-favorite' : 'App-Action-Header--without-favorite'}`;
@@ -203,6 +212,13 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
                     }}
                     iconProps={{ iconName: 'Search' }}
                 />
+                <Dropdown
+                    selectedKey={selectedCategory}
+                    options={categoryOptions}
+                    onChange={(e, option) => setSelectedCategory((option?.key as string) || 'All')}
+                    styles={{ dropdown: { width: 220 } }}
+                    ariaLabel="Filter by category"
+                />
                 {props.onRefresh && (
                     <Icon
                         iconName="Refresh"
@@ -213,7 +229,7 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
                 )}
             </div>
         );
-    }, [props.searchTerm, props.onSearchChange, props.onRefresh]);
+    }, [props.searchTerm, props.onSearchChange, props.onRefresh, selectedCategory, categoryOptions]);
 
     if (props.isLoading) {
         return (
