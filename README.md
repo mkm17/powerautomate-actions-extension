@@ -90,6 +90,10 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
+**1.0.16**
+- Adds default predefined actions functionality.
+- Adds side panel handler
+
 **1.0.15**
 - Adds predefined actions functionality.
 
