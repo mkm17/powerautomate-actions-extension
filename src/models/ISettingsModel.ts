@@ -9,6 +9,7 @@ export interface ISettingsModel {
   predefinedActionsUrl?: string;
   enableOpenAiIntegration?: boolean;
   openAiApiKey?: string;
+  loadDefaultPredefinedActions?: boolean;
 }
 
 export const defaultSettings: ISettingsModel = {
@@ -22,4 +23,5 @@ export const defaultSettings: ISettingsModel = {
   predefinedActionsUrl: '',
   enableOpenAiIntegration: false,
   openAiApiKey: '',
+  loadDefaultPredefinedActions: true,
 };
