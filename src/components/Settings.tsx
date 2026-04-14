@@ -167,8 +167,11 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
         return;
       }
 
-      await storageService.setFavoriteActions(importedActions);
-      setMessage({ text: `Successfully imported ${importedActions.length} favorite action(s)`, type: MessageBarType.success });
+      const existingFavorites = await storageService.getFavoriteActions();
+      const existingIds = new Set(existingFavorites.map(a => a.id));
+      const newActions = importedActions.filter(a => !existingIds.has(a.id));
+      await storageService.setFavoriteActions([...existingFavorites, ...newActions]);
+      setMessage({ text: `Successfully imported ${newActions.length} new favorite action(s) (${importedActions.length - newActions.length} duplicate(s) skipped)`, type: MessageBarType.success });
       
       // Trigger favorites list refresh
       if (onFavoritesImported) {
