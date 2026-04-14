@@ -293,12 +293,18 @@ function App(initialState?: IInitialState | undefined) {
       }
     });
 
-    chrome.runtime.onMessage.addListener(listenToMessage);
   }, [communicationService, storageService, getRecordingPageSetting, getClassicPASetting, getNewPASetting, startRecordingTimer, stopRecordingTimer, loadAllPredefinedFromSettings]);
 
   useEffect(() => {
     initData();
   }, [initData]);
+
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener(listenToMessage);
+    return () => {
+      chrome.runtime.onMessage.removeListener(listenToMessage);
+    };
+  }, []);
 
   useEffect(() => {
     return () => {

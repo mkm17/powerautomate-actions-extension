@@ -1,0 +1,65 @@
+[
+  {
+    "actionJson": "{\n  \"id\": \"c1a2b3d4-e5f6-7890-abcd-ef1234567801\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"getSiteInfo\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/web?$select=Title,Url,Id,Description,Created,LastItemModifiedDate,WebTemplate,Language,ServerRelativeUrl\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0001-4000-8000-000000000001\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-site-001-getinfo",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "getSiteInfo",
+    "url": "_api/web?$select=Title,Url,Id,Description,Created,LastItemModifiedDate,WebTemplate,Language,ServerRelativeUrl"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"c1a2b3d4-e5f6-7890-abcd-ef1234567802\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"getSiteUsers\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/web/siteusers?$select=Id,Title,Email,LoginName,IsSiteAdmin\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0001-4000-8000-000000000002\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-site-002-getusers",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "getSiteUsers",
+    "url": "_api/web/siteusers?$select=Id,Title,Email,LoginName,IsSiteAdmin"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"c1a2b3d4-e5f6-7890-abcd-ef1234567803\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"getSiteAdmins\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/web/siteusers?$filter=IsSiteAdmin eq true&$select=Id,Title,Email,LoginName\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0001-4000-8000-000000000003\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-site-003-getadmins",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "getSiteAdmins",
+    "url": "_api/web/siteusers?$filter=IsSiteAdmin eq true&$select=Id,Title,Email,LoginName"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"c1a2b3d4-e5f6-7890-abcd-ef1234567804\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"getSiteGroups\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/web/sitegroups?$select=Id,Title,Description,LoginName,OwnerTitle,AllowMembersEditMembership\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0001-4000-8000-000000000004\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-site-004-getgroups",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "getSiteGroups",
+    "url": "_api/web/sitegroups?$select=Id,Title,Description,LoginName,OwnerTitle,AllowMembersEditMembership"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"c1a2b3d4-e5f6-7890-abcd-ef1234567805\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"getSiteGroupUsers\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/web/sitegroups/getByName('GROUP_NAME')/users?$select=Id,Title,Email,LoginName\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"description\": \"Replace GROUP_NAME with the exact SharePoint group name, e.g. 'Contoso Members'\",\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0001-4000-8000-000000000005\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-site-005-getgroupusers",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "getSiteGroupUsers",
+    "url": "_api/web/sitegroups/getByName('GROUP_NAME')/users?$select=Id,Title,Email,LoginName"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"c1a2b3d4-e5f6-7890-abcd-ef1234567807\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"getSiteDetails\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/site?$select=Id,Url,Owner,Classification,AllowSelfServiceUpgrade,CompatibilityLevel\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"description\": \"Returns site collection level properties (Id, Url, Owner, Classification). Use getSiteInfo (_api/web) for web-level properties like Title.\",\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0001-4000-8000-000000000007\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-site-007-getdetails",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "getSiteDetails",
+    "url": "_api/site?$select=Id,Url,Owner,Classification,AllowSelfServiceUpgrade,CompatibilityLevel"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"c1a2b3d4-e5f6-7890-abcd-ef1234567806\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"getRecycleBinItems\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/web/recyclebin?$select=Id,Title,DirName,LeafName,DeletedDate,DeletedByName,Size,ItemType\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0001-4000-8000-000000000006\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-site-006-getrecyclebin",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "getRecycleBinItems",
+    "url": "_api/web/recyclebin?$select=Id,Title,DirName,LeafName,DeletedDate,DeletedByName,Size,ItemType"
+  }
+]

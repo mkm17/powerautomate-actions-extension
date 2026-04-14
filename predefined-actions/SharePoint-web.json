@@ -1,0 +1,11 @@
+[
+  {
+    "actionJson": "{\n  \"id\": \"d2b3c4e5-f6a7-8901-bcde-f01234567801\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"getRegionalSettings\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"https://contoso.sharepoint.com/sites/SITE_NAME\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/web/regionalsettings?$select=LocaleId,DateFormat,TimeFormat,CalendarType,WorkDays,WorkDayStartHour,WorkDayEndHour,FirstDayOfWeek,ShowWeeks,Time24\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"description\": \"Returns locale and regional settings for the web: locale ID, date/time format, calendar type, work days and hours. Useful for date-aware flows.\",\n    \"metadata\": {\n      \"operationMetadataId\": \"d2b3c4e5-0001-4000-8000-000000000001\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-web-001-getregionalsettings",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "getRegionalSettings",
+    "url": "_api/web/regionalsettings?$select=LocaleId,DateFormat,TimeFormat,CalendarType,WorkDays,WorkDayStartHour,WorkDayEndHour,FirstDayOfWeek,ShowWeeks,Time24"
+  }
+]
