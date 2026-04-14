@@ -39,6 +39,29 @@ export class ActionsService implements IActionService {
     }
   }
 
+  public getActionTemplateForDetails(
+    method: string,
+    url: string,
+    headersJson: any,
+    name?: string,
+    requestBody?: any
+  ): { icon: string; actionJson: string } {
+    const isSharePointRequest = url.indexOf('_api') > -1 || url.indexOf('_vti_bin') > -1;
+    const isGraphRequest = url.indexOf(Constants.MSGraphUrl) > -1;
+    const title = name || this.getTitleFromUrl(url);
+
+    let action = this.getHttpRequestActionTemplate(method, url, headersJson, title, requestBody);
+
+    if (isSharePointRequest) {
+      action = this.getHttpSharePointActionTemplate(method, url, headersJson, title, requestBody);
+    } else if (isGraphRequest) {
+      const req: any = { method, url };
+      action = this.getCorrectGraphActionJson(req as chrome.webRequest.WebRequestHeadersDetails, requestBody, headersJson, title);
+    }
+
+    return action;
+  }
+
   private getCorrectGraphActionJson(req: chrome.webRequest.WebRequestHeadersDetails, requestBody: any, headersJson: any, title: string): { icon: string, actionJson: string } {
     const graph1stSegment = req.url.split('/')[4];
     const graph2ndSegment = req.url.split('/')[5];
@@ -89,7 +112,7 @@ export class ActionsService implements IActionService {
     name: string,
     requestBody: any) {
 
-    const bodyParameter = `,"parameters/body": ${JSON.stringify(requestBody)}`;
+    const bodyParameter = requestBody ? `,"parameters/body": ${JSON.stringify(JSON.stringify(requestBody))}` : '';
     const isVti = requestUrl.indexOf('_vti_bin') > -1;
     const urlSplitted = isVti ? requestUrl.split('/_vti_bin') : requestUrl.split('/_api');
     const jsonString = `{
@@ -112,9 +135,12 @@ export class ActionsService implements IActionService {
               "parameters/method": "${method}",
               "parameters/uri": "${isVti ? '_vti_bin' : '_api'}${urlSplitted[1]}",
               "parameters/headers": ${JSON.stringify(headersJson)}
-              ${requestBody && bodyParameter ? bodyParameter : ''}
+              ${bodyParameter}
             },
-            "authentication": "@parameters('${'$'}authentication')"
+            "authentication": {
+              "type": "Raw",
+              "value": "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['${'$'}ConnectionKey']"
+            }
           }
         }
       }`;
@@ -131,7 +157,7 @@ export class ActionsService implements IActionService {
     name: string,
     requestBody: any) {
 
-    const bodyParameter = `,"Body": ${JSON.stringify(requestBody)}`;
+    const bodyParameter = requestBody ? `,"Body": ${JSON.stringify(JSON.stringify(requestBody))}` : '';
     const jsonString = `{
       "id":"b172c361-e70a-49df-ad72-5be8c0e48a6f",
       "brandColor":"#EB3C00",
@@ -149,11 +175,11 @@ export class ActionsService implements IActionService {
             "Uri": "${requestUrl}",
             "Method": "${method}",
             "ContentType": "application/json"
-            ${requestBody && bodyParameter ? bodyParameter : ''}
+            ${bodyParameter}
           },
           "authentication": {
             "type": "Raw",
-            "value": "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']"
+            "value": "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['${'$'}ConnectionKey']"
           }
         }, "runAfter": {}
       }
@@ -171,7 +197,7 @@ export class ActionsService implements IActionService {
     name: string,
     requestBody: any) {
     //CustomHeader1
-    const bodyParameter = `,"Body": ${JSON.stringify(requestBody)}`;
+    const bodyParameter = requestBody ? `,"Body": ${JSON.stringify(JSON.stringify(requestBody))}` : '';
     const jsonString = `{
       "id": "c63ac87d-3625-4926-a709-48be9789f3bc",
       "brandColor": "#4B53BC",
@@ -190,11 +216,11 @@ export class ActionsService implements IActionService {
             "Uri": "${requestUrl}",
             "Method": "${method}",
             "ContentType": "application/json"
-            ${requestBody && bodyParameter ? bodyParameter : ''}
+            ${bodyParameter}
           },
           "authentication": {
             "type": "Raw",
-            "value": "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']"
+            "value": "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['${'$'}ConnectionKey']"
           }
         },
         "runAfter": {}
@@ -212,7 +238,7 @@ export class ActionsService implements IActionService {
     headersJson: any,
     name: string,
     requestBody: any) {
-    const bodyParameter = `,"Body": ${JSON.stringify(requestBody)}`;
+    const bodyParameter = requestBody ? `,"Body": ${JSON.stringify(JSON.stringify(requestBody))}` : '';
     const jsonString = `{
       "id": "37a2e863-6b96-4a08-ae7c-1f721154ba7a",
       "brandColor": "#0078D4",
@@ -230,11 +256,11 @@ export class ActionsService implements IActionService {
             "Uri": "${requestUrl}",
             "Method": "${method}",
             "ContentType": "application/json"
-            ${requestBody && bodyParameter ? bodyParameter : ''}
+            ${bodyParameter}
           },
           "authentication": {
             "type": "Raw",
-            "value": "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']"
+            "value": "@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['${'$'}ConnectionKey']"
           }
         }, "runAfter": {}
       }
