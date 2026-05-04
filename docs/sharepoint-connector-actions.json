@@ -1,0 +1,524 @@
+{
+    "value": [
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CreateAttachment",
+            "name": "CreateAttachment",
+            "properties": {
+                "summary": "Add attachment",
+                "description": "Adds a new attachment to the specified list item.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListTableAttachments"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/ApproveHubSiteJoin",
+            "name": "ApproveHubSiteJoin",
+            "properties": {
+                "summary": "Approve hub site join request",
+                "description": "Approve hub site join request.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointSite"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CancelHubSiteJoinApproval",
+            "name": "CancelHubSiteJoinApproval",
+            "properties": {
+                "summary": "Cancel hub site join request",
+                "description": "Cancel hub join request.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointSite"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CheckInFile",
+            "name": "CheckInFile",
+            "properties": {
+                "summary": "Check in file",
+                "description": "Check in a checked out file in a document library.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CheckOutFile",
+            "name": "CheckOutFile",
+            "properties": {
+                "summary": "Check out file",
+                "description": "Check out a file in a document library.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CopyFileAsync",
+            "name": "CopyFileAsync",
+            "properties": {
+                "summary": "Copy file",
+                "description": "Copies a file.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointCustomActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CopyFolderAsync",
+            "name": "CopyFolderAsync",
+            "properties": {
+                "summary": "Copy folder",
+                "description": "Copies a folder.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointCustomActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CreateApprovalRequest",
+            "name": "CreateApprovalRequest",
+            "properties": {
+                "summary": "Create an approval request for an item or file",
+                "description": "Creates an approval request for an item or file.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CreateFile",
+            "name": "CreateFile",
+            "properties": {
+                "summary": "Create file",
+                "description": "Uploads a file to a SharePoint site.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/PostItem",
+            "name": "PostItem",
+            "properties": {
+                "summary": "Create item",
+                "description": "Creates a new item in a SharePoint list.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListTableData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CreateNewDocumentSet",
+            "name": "CreateNewDocumentSet",
+            "properties": {
+                "summary": "Create new document set",
+                "description": "Creates a new document set list item.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CreateNewFolder",
+            "name": "CreateNewFolder",
+            "properties": {
+                "summary": "Create new folder",
+                "description": "Creates a new folder or folder path.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CreateSharingLink",
+            "name": "CreateSharingLink",
+            "properties": {
+                "summary": "Create sharing link for a file or folder",
+                "description": "Create sharing link for a file or folder.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointCodeless"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/DiscardFileCheckOut",
+            "name": "DiscardFileCheckOut",
+            "properties": {
+                "summary": "Discard check out",
+                "description": "Discard the checkout of a file.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetItemAttachments",
+            "name": "GetItemAttachments",
+            "properties": {
+                "summary": "Get attachments",
+                "description": "Returns the list of attachments for the specified list item.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListTableAttachments"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetItemChanges",
+            "name": "GetItemChanges",
+            "properties": {
+                "summary": "Get changes for an item or a file (properties only)",
+                "description": "Returns information about columns that have changed within a given time window.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetFileItem",
+            "name": "GetFileItem",
+            "properties": {
+                "summary": "Get file properties",
+                "description": "Gets the properties saved in the columns in the library for the item specified by the item id.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListTableData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetFileItems",
+            "name": "GetFileItems",
+            "properties": {
+                "summary": "Get files (properties only)",
+                "description": "Gets the properties saved in the columns in the library for all folders and files.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListTableData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetItems",
+            "name": "GetItems",
+            "properties": {
+                "summary": "Get items",
+                "description": "Gets items from a SharePoint list.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListTableData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GrantAccess",
+            "name": "GrantAccess",
+            "properties": {
+                "summary": "Grant access to an item or a folder",
+                "description": "Grant access to an item or a folder in SharePoint to specific people.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/JoinHubSite",
+            "name": "JoinHubSite",
+            "properties": {
+                "summary": "Join hub site",
+                "description": "Join the requested site to the hub site.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointSite"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/ListFolder",
+            "name": "ListFolder",
+            "properties": {
+                "summary": "List folder",
+                "description": "Returns files contained in a SharePoint folder.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointFolderData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/MoveFileAsync",
+            "name": "MoveFileAsync",
+            "properties": {
+                "summary": "Move file",
+                "description": "Moves a file.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointCustomActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/MoveFolderAsync",
+            "name": "MoveFolderAsync",
+            "properties": {
+                "summary": "Move folder",
+                "description": "Moves a folder.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointCustomActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/SearchForUser",
+            "name": "SearchForUser",
+            "properties": {
+                "summary": "Resolve person",
+                "description": "Returns a single matching user value so it can be assigned to a column of type person.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListEntity"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/HttpRequest",
+            "name": "HttpRequest",
+            "properties": {
+                "summary": "Send an HTTP request to SharePoint",
+                "description": "Construct a SharePoint REST API to invoke.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointSite"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/SetApprovalStatus",
+            "name": "SetApprovalStatus",
+            "properties": {
+                "summary": "Set content approval status",
+                "description": "Sets the content approval status for an item in a list or library.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/NotifyHubSiteJoinApprovalStarted",
+            "name": "NotifyHubSiteJoinApprovalStarted",
+            "properties": {
+                "summary": "Set hub site join status to pending",
+                "description": "Set the requested site's hub join request status to pending.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointSite"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/UnshareItem",
+            "name": "UnshareItem",
+            "properties": {
+                "summary": "Stop sharing an item or a file",
+                "description": "Delete all links giving access to an item or a file and remove all people with direct access except for owners.",
+                "visibility": "important",
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CreateAgreementsSolutionDocument",
+            "name": "CreateAgreementsSolutionDocument",
+            "properties": {
+                "summary": "Agreements Solution - Generate document within Agreements Solution workspace",
+                "description": "Use this action to create documents based on modern templates in a Agreements Solution workspace.",
+                "swaggerTags": ["SharePointCustomActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CopyFile",
+            "name": "CopyFile",
+            "properties": {
+                "summary": "Copy file (deprecated)",
+                "description": "Copies a file to a SharePoint site.",
+                "visibility": "advanced",
+                "deprecated": true,
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/DeleteAttachment",
+            "name": "DeleteAttachment",
+            "properties": {
+                "summary": "Delete attachment",
+                "description": "Deletes the specified attachment.",
+                "swaggerTags": ["SharePointListTableAttachments"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/DeleteFile",
+            "name": "DeleteFile",
+            "properties": {
+                "summary": "Delete file",
+                "description": "Deletes the file specified by the file identifier.",
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/DeleteItem",
+            "name": "DeleteItem",
+            "properties": {
+                "summary": "Delete item",
+                "description": "Deletes an item from a SharePoint list.",
+                "swaggerTags": ["SharePointListTableData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/ExtractFolderV2",
+            "name": "ExtractFolderV2",
+            "properties": {
+                "summary": "Extract folder",
+                "description": "Extracts an archive file into a SharePoint folder (example: .zip).",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointFolderData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/CreateContentAssemblyDocument",
+            "name": "CreateContentAssemblyDocument",
+            "properties": {
+                "summary": "Generate document using Microsoft Syntex (preview)",
+                "description": "Use this action to create documents based on modern templates from Microsoft Syntex.",
+                "swaggerTags": ["SharePointCustomActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetAllTables",
+            "name": "GetAllTables",
+            "properties": {
+                "summary": "Get all lists and libraries",
+                "description": "Get all lists and libraries.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointCustomActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetAttachmentContent",
+            "name": "GetAttachmentContent",
+            "properties": {
+                "summary": "Get attachment content",
+                "description": "Returns file contents using the file identifier.",
+                "swaggerTags": ["SharePointListTableAttachments"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetFileContent",
+            "name": "GetFileContent",
+            "properties": {
+                "summary": "Get file content",
+                "description": "Gets file contents using the file identifier.",
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetFileContentByPath",
+            "name": "GetFileContentByPath",
+            "properties": {
+                "summary": "Get file content using path",
+                "description": "Gets file contents using the file path.",
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetFileMetadata",
+            "name": "GetFileMetadata",
+            "properties": {
+                "summary": "Get file metadata",
+                "description": "Gets information about the file such as size, etag, created date, etc.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetFileMetadataByPath",
+            "name": "GetFileMetadataByPath",
+            "properties": {
+                "summary": "Get file metadata using path",
+                "description": "Gets information about the file such as size, etag, created date, etc. Uses a file path.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetFolderMetadata",
+            "name": "GetFolderMetadata",
+            "properties": {
+                "summary": "Get folder metadata",
+                "description": "Gets information about the folder. Uses a file identifier.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetFolderMetadataByPath",
+            "name": "GetFolderMetadataByPath",
+            "properties": {
+                "summary": "Get folder metadata using path",
+                "description": "Gets information about the folder. Uses a folder path.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetItem",
+            "name": "GetItem",
+            "properties": {
+                "summary": "Get item",
+                "description": "Gets a single item by its id from a SharePoint list.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointListTableData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetTableViews",
+            "name": "GetTableViews",
+            "properties": {
+                "summary": "Get list views",
+                "description": "Gets views from a SharePoint list.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointCustomActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/GetTables",
+            "name": "GetTables",
+            "properties": {
+                "summary": "Get lists",
+                "description": "Gets SharePoint lists from a site.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointListTable"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/ListRootFolder",
+            "name": "ListRootFolder",
+            "properties": {
+                "summary": "List root folder",
+                "description": "Returns files in the root SharePoint folder.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointFolderData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/UpdateFile",
+            "name": "UpdateFile",
+            "properties": {
+                "summary": "Update file",
+                "description": "Updates the contents of the file specified by the file identifier.",
+                "swaggerTags": ["SharePointFileData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/PatchFileItem",
+            "name": "PatchFileItem",
+            "properties": {
+                "summary": "Update file properties",
+                "description": "Updates the properties stored in columns in a library for the item specified by the item id.",
+                "swaggerTags": ["SharePointListTableData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/PatchFileItemWithPredictedValues",
+            "name": "PatchFileItemWithPredictedValues",
+            "properties": {
+                "summary": "Update file properties using AI Builder model results",
+                "description": "Updates the values stored in library columns for a file analyzed by the model.",
+                "visibility": "advanced",
+                "swaggerTags": ["SharePointCustomActions"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/PatchItem",
+            "name": "PatchItem",
+            "properties": {
+                "summary": "Update item",
+                "description": "Updates an item in a SharePoint list.",
+                "swaggerTags": ["SharePointListTableData"]
+            }
+        },
+        {
+            "id": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline/apiOperations/IsScheduledVersionPublished",
+            "name": "IsScheduledVersionPublished",
+            "properties": {
+                "summary": "Check if the scheduled version of the item is published",
+                "description": "Checks if a scheduled version of the item is published.",
+                "deprecated": true,
+                "swaggerTags": ["SharePointListItemActions"]
+            }
+        }
+    ]
+}

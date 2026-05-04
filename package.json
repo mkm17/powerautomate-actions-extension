@@ -9,8 +9,6 @@
   "dependencies": {
     "@craco/craco": "^7.0.0-alpha.3",
     "@fluentui/react": "^8.108.2",
-    "@pnp/graph": "^3.14.0",
-    "@pnp/sp": "^3.14.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

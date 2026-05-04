@@ -301,3 +301,146 @@ describe('Settings component', () => {
     });
   });
 });
+describe('Settings handleFileChange (favorites import)', () => {
+  const getHiddenFileInput = (container: HTMLElement) => {
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement | null;
+    expect(input).toBeInTheDocument();
+    return input as HTMLInputElement;
+  };
+
+  test('imports favorites by merging with existing favorites and skipping duplicates (existing + within file)', async () => {
+    const onFavoritesImported = jest.fn();
+
+    const existingFavorite = { id: 'existing-1', title: 'Existing', actionJson: '{"a":1}' };
+    const newFavorite1 = { id: 'new-1', title: 'New 1', actionJson: '{"b":1}' };
+    const newFavorite1Duplicate = { id: 'new-1', title: 'New 1 Duplicate', actionJson: '{"b":2}' };
+    const newFavorite2 = { id: 'new-2', title: 'New 2', actionJson: '{"c":1}' };
+    const existingDuplicateFromFile = { id: 'existing-1', title: 'Existing Duplicate', actionJson: '{"a":2}' };
+
+    (mockStorageService.getFavoriteActions as jest.Mock).mockResolvedValue([existingFavorite]);
+    (mockStorageService.setFavoriteActions as jest.Mock).mockResolvedValue(undefined);
+
+    const { container } = render(
+      <Settings storageService={mockStorageService} onFavoritesImported={onFavoritesImported} />
+    );
+
+    const fileInput = getHiddenFileInput(container);
+    const file = new File(
+      [
+        JSON.stringify([
+          existingDuplicateFromFile,
+          newFavorite1,
+          newFavorite1Duplicate,
+          newFavorite2,
+        ]),
+      ],
+      'favorites.json',
+      { type: 'application/json' }
+    );
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(mockStorageService.setFavoriteActions).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mockStorageService.setFavoriteActions).toHaveBeenCalledWith([
+      existingFavorite,
+      newFavorite1,
+      newFavorite2,
+    ]);
+
+    expect(
+      screen.getByText('Successfully imported 2 new favorite action(s) (2 duplicate(s) skipped)')
+    ).toBeInTheDocument();
+
+    expect(onFavoritesImported).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows error when selected file is not JSON', async () => {
+    (mockStorageService.getFavoriteActions as jest.Mock).mockResolvedValue([]);
+    (mockStorageService.setFavoriteActions as jest.Mock).mockResolvedValue(undefined);
+
+    const { container } = render(<Settings storageService={mockStorageService} />);
+    const fileInput = getHiddenFileInput(container);
+    const file = new File(['[]'], 'favorites.txt', { type: 'text/plain' });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    expect(screen.getByText('Please select a valid JSON file')).toBeInTheDocument();
+    expect(mockStorageService.getFavoriteActions).not.toHaveBeenCalled();
+    expect(mockStorageService.setFavoriteActions).not.toHaveBeenCalled();
+  });
+
+  test('shows error for invalid JSON format', async () => {
+    const onFavoritesImported = jest.fn();
+    (mockStorageService.getFavoriteActions as jest.Mock).mockResolvedValue([]);
+    (mockStorageService.setFavoriteActions as jest.Mock).mockResolvedValue(undefined);
+
+    const { container } = render(
+      <Settings storageService={mockStorageService} onFavoritesImported={onFavoritesImported} />
+    );
+    const fileInput = getHiddenFileInput(container);
+    const file = new File(['{invalid json'], 'favorites.json', { type: 'application/json' });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Failed to import favorites: Invalid JSON format')
+      ).toBeInTheDocument();
+    });
+
+    expect(mockStorageService.setFavoriteActions).not.toHaveBeenCalled();
+    expect(onFavoritesImported).not.toHaveBeenCalled();
+  });
+
+  test('shows error when JSON is not an array of actions', async () => {
+    (mockStorageService.getFavoriteActions as jest.Mock).mockResolvedValue([]);
+    (mockStorageService.setFavoriteActions as jest.Mock).mockResolvedValue(undefined);
+
+    const { container } = render(<Settings storageService={mockStorageService} />);
+    const fileInput = getHiddenFileInput(container);
+    const file = new File([JSON.stringify({ id: 'x' })], 'favorites.json', {
+      type: 'application/json',
+    });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Invalid file format: Expected an array of actions')
+      ).toBeInTheDocument();
+    });
+
+    expect(mockStorageService.setFavoriteActions).not.toHaveBeenCalled();
+  });
+
+  test('shows error when any imported action is missing required properties', async () => {
+    (mockStorageService.getFavoriteActions as jest.Mock).mockResolvedValue([]);
+    (mockStorageService.setFavoriteActions as jest.Mock).mockResolvedValue(undefined);
+
+    const { container } = render(<Settings storageService={mockStorageService} />);
+    const fileInput = getHiddenFileInput(container);
+    const file = new File(
+      [
+        JSON.stringify([
+          { id: '1', title: 'Valid', actionJson: '{}' },
+          { id: '2', title: 'Missing Action Json' },
+        ]),
+      ],
+      'favorites.json',
+      { type: 'application/json' }
+    );
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Invalid file format: Missing required action properties')
+      ).toBeInTheDocument();
+    });
+
+    expect(mockStorageService.setFavoriteActions).not.toHaveBeenCalled();
+  });
+});
