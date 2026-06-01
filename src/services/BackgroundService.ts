@@ -23,9 +23,19 @@ export class BackgroundService implements IBackgroundService {
             case ActionType.DeleteAction:
                 this.storageService.deleteRecordedAction(message.message);
                 break;
+            case ActionType.UpdateAction:
+                this.storageService.updateRecordedAction(message.message).then((updatedActions) => {
+                    sendResponse(updatedActions);
+                });
+                return true;
             case ActionType.DeleteMyClipboardAction:
                 this.storageService.deleteMyClipboardAction(message.message);
                 break;
+            case ActionType.UpdateMyClipboardAction:
+                this.storageService.updateMyClipboardAction(message.message).then((updatedActions) => {
+                    sendResponse(updatedActions);
+                });
+                return true;
             default:
                 console.log('Incorrect Action Type')
         }

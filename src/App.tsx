@@ -382,6 +382,33 @@ function App(initialState?: IInitialState | undefined) {
     deleteAction(action, myClipboardActions, setMyClipboardActions, ActionType.DeleteMyClipboardAction);
   }, [myClipboardActions, setMyClipboardActions, deleteAction])
 
+  const editAction = useCallback((action: IActionModel, setActionsFunc: (value: React.SetStateAction<IActionModel[]>)
+    => void, actionType: ActionType) => {
+    const message: IDataChromeMessage = {
+      actionType: actionType,
+      message: action,
+    }
+    communicationService.sendRequest(message, AppElement.ReactApp, AppElement.Background, (response) => {
+      if (response) {
+        setActionsFunc(response);
+      }
+    });
+  }, [communicationService])
+
+  const editRecordedAction = useCallback((action: IActionModel) => {
+    editAction(action, setActions, ActionType.UpdateAction);
+  }, [setActions, editAction])
+
+  const editMyClipboardAction = useCallback((action: IActionModel) => {
+    editAction(action, setMyClipboardActions, ActionType.UpdateMyClipboardAction);
+  }, [setMyClipboardActions, editAction])
+
+  const editFavoriteAction = useCallback((action: IActionModel) => {
+    storageService.updateFavoriteAction(action).then((updatedFavorites) => {
+      setFavoriteActions(updatedFavorites);
+    });
+  }, [storageService])
+
   const updateFavoriteStatusInLists = useCallback((actionId: string, isFavorite: boolean) => {
     setActions(prevActions =>
       (prevActions ?? []).map(action =>
@@ -673,6 +700,7 @@ function App(initialState?: IInitialState | undefined) {
               mode={Mode.Requests}
               changeSelectionFunc={changeSelectionRecordedAction}
               deleteActionFunc={deleteRecordedAction}
+              editActionFunc={editRecordedAction}
               showButton={false}
               toggleFavoriteFunc={toggleFavorite}
               searchTerm={searchTerm}
@@ -687,6 +715,7 @@ function App(initialState?: IInitialState | undefined) {
               mode={Mode.CopiedActions}
               changeSelectionFunc={changeCopiedActionSelection}
               deleteActionFunc={deleteMyClipboardAction}
+              editActionFunc={editMyClipboardAction}
               showButton={false}
               toggleFavoriteFunc={toggleFavorite}
               searchTerm={searchTerm}
@@ -701,6 +730,7 @@ function App(initialState?: IInitialState | undefined) {
               mode={Mode.Favorites}
               changeSelectionFunc={changeFavoriteActionSelection}
               deleteActionFunc={deleteFavoriteAction}
+              editActionFunc={editFavoriteAction}
               showButton={false}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}

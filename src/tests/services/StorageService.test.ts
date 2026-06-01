@@ -108,6 +108,35 @@ describe("StorageService", () => {
       });
     });
 
+    describe("updateRecordedAction", () => {
+      test("should update action in recorded list", async () => {
+        const updatedAction = { ...mockAction, url: "https://updated.example.com" };
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: [mockAction, mockAction2] });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.updateRecordedAction(updatedAction);
+
+        expect(result).toEqual([updatedAction, mockAction2]);
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'recordedActions': [updatedAction, mockAction2] });
+      });
+
+      test("should return the same list when action id is not found", async () => {
+        const missingAction = { ...mockAction, id: "missing" };
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: [mockAction, mockAction2] });
+        });
+
+        const result = await storageService.updateRecordedAction(missingAction);
+
+        expect(result).toEqual([mockAction, mockAction2]);
+        expect(mockChrome.storage.local.set).not.toHaveBeenCalled();
+      });
+    });
+
     describe("clearRecordedActions", () => {
       test("should clear actions in local storage", async () => {
         mockChrome.storage.local.set.mockImplementation((data, callback) => {
@@ -177,6 +206,23 @@ describe("StorageService", () => {
         const result = await storageService.deleteMyClipboardAction(mockAction);
         
         expect(result).toEqual([mockAction2]);
+      });
+    });
+
+    describe("updateMyClipboardAction", () => {
+      test("should update action in clipboard list", async () => {
+        const updatedAction = { ...mockAction, title: "Updated Title" };
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: [mockAction, mockAction2] });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.updateMyClipboardAction(updatedAction);
+
+        expect(result).toEqual([updatedAction, mockAction2]);
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'myClipboardActions': [updatedAction, mockAction2] });
       });
     });
 
@@ -612,6 +658,23 @@ describe("StorageService", () => {
 
         expect(result).toEqual([mockAction2]);
         expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'favoriteActions': [mockAction2] });
+      });
+    });
+
+    describe("updateFavoriteAction", () => {
+      test("should update action in favorites", async () => {
+        const updatedAction = { ...mockAction, actionJson: '{"updated":true}' };
+        mockChrome.storage.local.get.mockImplementation((key, callback) => {
+          callback({ [key]: [mockAction, mockAction2] });
+        });
+        mockChrome.storage.local.set.mockImplementation((data, callback) => {
+          callback && callback();
+        });
+
+        const result = await storageService.updateFavoriteAction(updatedAction);
+
+        expect(result).toEqual([updatedAction, mockAction2]);
+        expect(mockChrome.storage.local.set).toHaveBeenCalledWith({ 'favoriteActions': [updatedAction, mockAction2] });
       });
     });
 
