@@ -34,6 +34,17 @@ jest.mock('@fluentui/react', () => ({
       data-testid="mock-textfield"
     />
   ),
+  IconButton: ({ iconProps, title, onClick }: any) => (
+    <button
+      onClick={onClick}
+      title={title}
+      data-testid={`mock-iconbutton-${iconProps?.iconName}`}
+    />
+  ),
+  MessageBar: ({ children }: any) => <div data-testid="mock-messagebar">{children}</div>,
+  MessageBarType: { error: 'error' },
+  PanelType: { custom: 'custom' },
+  Panel: ({ isOpen, children }: any) => isOpen ? <div data-testid="mock-panel">{children}</div> : null,
 }));
 
 describe('ActionsList', () => {
@@ -65,6 +76,7 @@ describe('ActionsList', () => {
     mode: Mode.CopiedActionsV3,
     changeSelectionFunc: jest.fn(),
     deleteActionFunc: jest.fn(),
+    editActionFunc: jest.fn(),
     showButton: false,
     searchTerm: '',
     onSearchChange: jest.fn()
@@ -200,6 +212,43 @@ describe('ActionsList', () => {
       fireEvent.change(searchField, { target: { value: 'test search' } });
       
       expect(onSearchChange).toHaveBeenCalledWith('test search');
+    });
+
+    test('should enter edit mode and call editActionFunc on save', () => {
+      const editActionFunc = jest.fn();
+      render(<ActionsList {...defaultProps} editActionFunc={editActionFunc} />);
+
+      fireEvent.click(screen.getAllByTestId('mock-icon-Info')[0]);
+      fireEvent.click(screen.getAllByTestId('mock-iconbutton-Edit')[0]);
+
+      const textFields = screen.getAllByTestId('mock-textfield');
+      const [urlField, headersField, bodyField] = textFields.slice(-3);
+      fireEvent.change(urlField, { target: { value: 'https://edited.example.com' } });
+      fireEvent.change(headersField, { target: { value: '{"Authorization":"Bearer token"}' } });
+      fireEvent.change(bodyField, { target: { value: '{"hello":"world"}' } });
+
+      fireEvent.click(screen.getAllByTestId('mock-iconbutton-CheckMark')[0]);
+
+      expect(editActionFunc).toHaveBeenCalledTimes(1);
+      const editedAction = editActionFunc.mock.calls[0][0];
+      expect(editedAction.url).toBe('https://edited.example.com');
+      expect(editedAction.body).toEqual({ hello: 'world' });
+    });
+
+    test('should show validation error for invalid JSON during save', () => {
+      const editActionFunc = jest.fn();
+      render(<ActionsList {...defaultProps} editActionFunc={editActionFunc} />);
+
+      fireEvent.click(screen.getAllByTestId('mock-icon-Info')[0]);
+      fireEvent.click(screen.getAllByTestId('mock-iconbutton-Edit')[0]);
+
+      const textFields = screen.getAllByTestId('mock-textfield');
+      const bodyField = textFields[textFields.length - 1];
+      fireEvent.change(bodyField, { target: { value: '{invalid-json}' } });
+      fireEvent.click(screen.getAllByTestId('mock-iconbutton-CheckMark')[0]);
+
+      expect(screen.getByTestId('mock-messagebar')).toBeInTheDocument();
+      expect(editActionFunc).not.toHaveBeenCalled();
     });
   });
 

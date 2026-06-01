@@ -90,6 +90,9 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
+**1.0.18**
+- Added the ability to edit details of stored actions.
+
 **1.0.17**
 - Improved favorites import to merge with existing favorites, skip duplicates, and refresh favorites via runtime live updates.
 
