@@ -12,9 +12,11 @@ export enum ActionType {
     CheckPowerAutomatePage,
     ActionUpdated,
     DeleteAction,
+    UpdateAction,
     GetElementsFromMyClipboard,
     MyClipboardActionsUpdated,
     DeleteMyClipboardAction,
+    UpdateMyClipboardAction,
     CheckIfPageHasActionsToCopy,
     CopyAllActionsFromPage,
     

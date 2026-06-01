@@ -13,7 +13,9 @@ describe("BackgroundService", () => {
             getIsRecordingValue: jest.fn().mockImplementation(() => { return true; }),
             setIsRecordingValue: jest.fn().mockImplementation((value) => { return value; }),
             deleteRecordedAction: jest.fn().mockImplementation((message) => { }),
+            updateRecordedAction: jest.fn().mockResolvedValue([]),
             deleteMyClipboardAction: jest.fn().mockImplementation((message) => { }),
+            updateMyClipboardAction: jest.fn().mockResolvedValue([]),
             addNewRecordedAction: jest.fn().mockImplementation((value) => { return value; }),
             getRecordedActions: jest.fn().mockImplementation(() => { return []; }),
         }
@@ -109,6 +111,48 @@ describe("BackgroundService", () => {
             );
 
             expect(storageServiceMock.deleteMyClipboardAction).toHaveBeenCalledWith(message.message);
+        });
+
+        test("should update action when ActionType is UpdateAction", async () => {
+            const sendResponseMock = jest.fn();
+            const message: ICommunicationChromeMessage = {
+                actionType: ActionType.UpdateAction,
+                message: {} as IActionModel,
+                from: AppElement.Content,
+                to: AppElement.Background,
+            };
+
+            backgroundService.handleBackgroundAction(
+                message,
+                null,
+                sendResponseMock
+            );
+
+            await Promise.resolve();
+
+            expect(storageServiceMock.updateRecordedAction).toHaveBeenCalledWith(message.message);
+            expect(sendResponseMock).toHaveBeenCalledWith([]);
+        });
+
+        test("should update clipboard action when ActionType is UpdateMyClipboardAction", async () => {
+            const sendResponseMock = jest.fn();
+            const message: ICommunicationChromeMessage = {
+                actionType: ActionType.UpdateMyClipboardAction,
+                message: {} as IActionModel,
+                from: AppElement.Content,
+                to: AppElement.Background,
+            };
+
+            backgroundService.handleBackgroundAction(
+                message,
+                null,
+                sendResponseMock
+            );
+
+            await Promise.resolve();
+
+            expect(storageServiceMock.updateMyClipboardAction).toHaveBeenCalledWith(message.message);
+            expect(sendResponseMock).toHaveBeenCalledWith([]);
         });
 
         test("should do nothing when AppElement is incorrect", () => {
