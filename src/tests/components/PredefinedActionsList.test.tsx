@@ -3,6 +3,21 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import PredefinedActionsList from '../../components/PredefinedActionsList';
 import { IActionModel } from '../../models';
+import { PlaceholderService } from '../../services/PlaceholderService';
+
+const mockPlaceholderService = {
+  hasPlaceholders: jest.fn().mockReturnValue(false),
+  extractPlaceholders: jest.fn().mockReturnValue([]),
+  substitutePlaceholders: jest.fn((json) => json),
+  extractExpressions: jest.fn().mockReturnValue([]),
+  hasExpressions: jest.fn().mockReturnValue(false),
+  substituteExpressions: jest.fn((json) => json),
+  getGlobalPlaceholders: jest.fn().mockResolvedValue({}),
+  setGlobalPlaceholder: jest.fn().mockResolvedValue({}),
+  deleteGlobalPlaceholder: jest.fn().mockResolvedValue({}),
+  clearGlobalPlaceholders: jest.fn().mockResolvedValue(undefined),
+  getDefaultValues: jest.fn().mockReturnValue({}),
+} as unknown as PlaceholderService;
 
 describe('PredefinedActionsList', () => {
   const mockActions: IActionModel[] = [
@@ -37,6 +52,7 @@ describe('PredefinedActionsList', () => {
         isLoading={true}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     expect(screen.getByText('Loading predefined actions...')).toBeInTheDocument();
@@ -49,6 +65,7 @@ describe('PredefinedActionsList', () => {
         isLoading={false}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     expect(screen.getByText('No predefined actions available')).toBeInTheDocument();
@@ -61,6 +78,7 @@ describe('PredefinedActionsList', () => {
         isLoading={false}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     expect(screen.getByText('Get User Profile')).toBeInTheDocument();
@@ -74,6 +92,7 @@ describe('PredefinedActionsList', () => {
         isLoading={false}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     expect(screen.getByText('GET')).toBeInTheDocument();
@@ -89,6 +108,7 @@ describe('PredefinedActionsList', () => {
         changeSelectionFunc={mockChangeSelection}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     
@@ -106,6 +126,7 @@ describe('PredefinedActionsList', () => {
         toggleFavoriteFunc={mockToggleFavorite}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     
@@ -121,6 +142,7 @@ describe('PredefinedActionsList', () => {
         isLoading={false}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     
@@ -139,6 +161,7 @@ describe('PredefinedActionsList', () => {
         isLoading={false}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     expect(screen.getByText('Get User Profile')).toBeInTheDocument();
@@ -150,6 +173,7 @@ describe('PredefinedActionsList', () => {
         isLoading={false}
         searchTerm="Email"
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     expect(screen.queryByText('Get User Profile')).not.toBeInTheDocument();
@@ -163,6 +187,7 @@ describe('PredefinedActionsList', () => {
         isLoading={false}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     expect(screen.getByText('Select')).toBeInTheDocument();
@@ -179,6 +204,7 @@ describe('PredefinedActionsList', () => {
         toggleFavoriteFunc={() => {}}
         searchTerm=""
         onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
       />
     );
     expect(screen.getByText('Fav')).toBeInTheDocument();

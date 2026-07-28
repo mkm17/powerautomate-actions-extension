@@ -4,7 +4,7 @@ import { ActionType, IDataChromeMessage, AppElement, ICommunicationChromeMessage
 import { IActionModel } from './models/IActionModel';
 import { ISettingsModel } from './models/ISettingsModel';
 import { StorageService } from './services/StorageService';
-import { ExtensionCommunicationService, PredefinedActionsService } from './services';
+import { ExtensionCommunicationService, PredefinedActionsService, PlaceholderService } from './services';
 import { Icon, MessageBar, MessageBarType, Pivot, PivotItem } from '@fluentui/react';
 import ActionsList from './components/ActionsList';
 import Settings from './components/Settings';
@@ -14,6 +14,7 @@ function App(initialState?: IInitialState | undefined) {
   const storageService = useMemo(() => { return new StorageService(); }, []);
   const communicationService = useMemo(() => { return new ExtensionCommunicationService(); }, []);
   const predefinedActionsService = useMemo(() => { return new PredefinedActionsService(); }, []);
+  const placeholderService = useMemo(() => new PlaceholderService(), []);
   const [isRecording, setIsRecording] = useState<boolean>(initialState?.isRecording || false);
   const [isPowerAutomatePage, setIsPowerAutomatePage] = useState<boolean>(initialState?.isPowerAutomatePage || false);
   const [isRecordingPage, setIsRecordingPage] = useState<boolean>(initialState?.isRecordingPage || false);
@@ -221,6 +222,19 @@ function App(initialState?: IInitialState | undefined) {
     // Reload predefined actions from defaults and/or custom URL
     await loadAllPredefinedFromSettings(updatedSettings);
   }, [loadAllPredefinedFromSettings]);
+
+  const handleCopyPredefinedAction = useCallback((action: IActionModel) => {
+    communicationService.sendRequest(
+      { actionType: ActionType.SetSelectedActionsIntoClipboardV3, message: [action] },
+      AppElement.ReactApp,
+      AppElement.Content,
+      (response) => {
+        navigator.clipboard.writeText(response);
+        setNotificationMessage("Action copied — paste it in the Power Automate editor");
+        setIsSuccessNotification(true);
+      }
+    );
+  }, [communicationService]);
 
   const refreshPredefinedActions = useCallback(async () => {
     if (!settings) return;
@@ -663,9 +677,10 @@ function App(initialState?: IInitialState | undefined) {
           overflowY: 'auto',
           padding: '20px'
         }}>
-          <Settings 
-            storageService={storageService} 
+          <Settings
+            storageService={storageService}
             onSettingsChange={onSettingsChanged}
+            placeholderService={placeholderService}
             onFavoritesImported={async () => {
               const favorites = await storageService.getFavoriteActions();
               setFavoriteActions(favorites);
@@ -705,6 +720,7 @@ function App(initialState?: IInitialState | undefined) {
               toggleFavoriteFunc={toggleFavorite}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
+              placeholderService={placeholderService}
             />
           </PivotItem>}
           {<PivotItem
@@ -720,6 +736,7 @@ function App(initialState?: IInitialState | undefined) {
               toggleFavoriteFunc={toggleFavorite}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
+              placeholderService={placeholderService}
             />
           </PivotItem>}
           {<PivotItem
@@ -734,16 +751,19 @@ function App(initialState?: IInitialState | undefined) {
               showButton={false}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
+              placeholderService={placeholderService}
             />
           </PivotItem>}
           {settings?.showPredefinedActions && (
             <PivotItem headerText="Predefined Actions">
-              <PredefinedActionsList 
+              <PredefinedActionsList
                 actions={predefinedActions}
                 isLoading={predefinedActionsLoading}
                 onRefresh={refreshPredefinedActions}
                 changeSelectionFunc={changePredefinedActionSelection}
                 toggleFavoriteFunc={toggleFavorite}
+                onCopyAction={handleCopyPredefinedAction}
+                placeholderService={placeholderService}
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
               />

@@ -3,21 +3,22 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ActionsList from '../../components/ActionsList';
 import { IActionModel, Mode } from '../../models';
+import { PlaceholderService } from '../../services/PlaceholderService';
 
 // Mock Fluent UI components
 jest.mock('@fluentui/react', () => ({
   Checkbox: ({ checked, onChange, className, defaultChecked }: any) => (
-    <input 
-      type="checkbox" 
-      checked={checked || defaultChecked} 
-      onChange={onChange} 
+    <input
+      type="checkbox"
+      checked={checked || defaultChecked}
+      onChange={onChange}
       className={className}
       data-testid="mock-checkbox"
     />
   ),
   Icon: ({ iconName, onClick, className, title }: any) => (
-    <button 
-      onClick={onClick} 
+    <button
+      onClick={onClick}
       className={className}
       title={title}
       data-testid={`mock-icon-${iconName}`}
@@ -25,6 +26,7 @@ jest.mock('@fluentui/react', () => ({
       {iconName}
     </button>
   ),
+  Text: ({ children }: any) => <span>{children}</span>,
   TextField: ({ value, onChange, placeholder, iconProps }: any) => (
     <input
       type="text"
@@ -79,7 +81,8 @@ describe('ActionsList', () => {
     editActionFunc: jest.fn(),
     showButton: false,
     searchTerm: '',
-    onSearchChange: jest.fn()
+    onSearchChange: jest.fn(),
+    placeholderService: new PlaceholderService()
   };
 
   beforeEach(() => {
@@ -214,6 +217,13 @@ describe('ActionsList', () => {
       expect(onSearchChange).toHaveBeenCalledWith('test search');
     });
 
+    const setContentEditableValue = (element: HTMLElement, value: string) => {
+      // eslint-disable-next-line testing-library/no-node-access
+      element.textContent = value;
+      fireEvent.input(element);
+      fireEvent.blur(element);
+    };
+
     test('should enter edit mode and call editActionFunc on save', () => {
       const editActionFunc = jest.fn();
       render(<ActionsList {...defaultProps} editActionFunc={editActionFunc} />);
@@ -221,11 +231,11 @@ describe('ActionsList', () => {
       fireEvent.click(screen.getAllByTestId('mock-icon-Info')[0]);
       fireEvent.click(screen.getAllByTestId('mock-iconbutton-Edit')[0]);
 
-      const textFields = screen.getAllByTestId('mock-textfield');
-      const [urlField, headersField, bodyField] = textFields.slice(-3);
-      fireEvent.change(urlField, { target: { value: 'https://edited.example.com' } });
-      fireEvent.change(headersField, { target: { value: '{"Authorization":"Bearer token"}' } });
-      fireEvent.change(bodyField, { target: { value: '{"hello":"world"}' } });
+      const editableFields = screen.getAllByRole('textbox').filter(el => el.getAttribute('contenteditable') === 'true');
+      const [urlField, headersField, bodyField] = editableFields;
+      setContentEditableValue(urlField, 'https://edited.example.com');
+      setContentEditableValue(headersField, '{"Authorization":"Bearer token"}');
+      setContentEditableValue(bodyField, '{"hello":"world"}');
 
       fireEvent.click(screen.getAllByTestId('mock-iconbutton-CheckMark')[0]);
 
@@ -242,9 +252,9 @@ describe('ActionsList', () => {
       fireEvent.click(screen.getAllByTestId('mock-icon-Info')[0]);
       fireEvent.click(screen.getAllByTestId('mock-iconbutton-Edit')[0]);
 
-      const textFields = screen.getAllByTestId('mock-textfield');
-      const bodyField = textFields[textFields.length - 1];
-      fireEvent.change(bodyField, { target: { value: '{invalid-json}' } });
+      const editableFields = screen.getAllByRole('textbox').filter(el => el.getAttribute('contenteditable') === 'true');
+      const bodyField = editableFields[editableFields.length - 1];
+      setContentEditableValue(bodyField, '{invalid-json}');
       fireEvent.click(screen.getAllByTestId('mock-iconbutton-CheckMark')[0]);
 
       expect(screen.getByTestId('mock-messagebar')).toBeInTheDocument();
