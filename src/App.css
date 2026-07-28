@@ -208,3 +208,9 @@
     max-width: calc(100% - 4px);
   }
 }
+
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: #a19f9d;
+  pointer-events: none;
+}

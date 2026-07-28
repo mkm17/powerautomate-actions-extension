@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { Icon, TextField, Panel, PanelType, Spinner, SpinnerSize, Checkbox, Dropdown, IDropdownOption } from "@fluentui/react";
 import { IActionModel } from "../models";
+import { PlaceholderService } from "../services/PlaceholderService";
+import CopyWithOptionsModal from "./CopyWithOptionsModal";
 
 export interface IPredefinedActionsListProps {
     actions: IActionModel[];
@@ -8,6 +10,8 @@ export interface IPredefinedActionsListProps {
     onRefresh?: () => void;
     changeSelectionFunc?: (action: IActionModel) => void;
     toggleFavoriteFunc?: (action: IActionModel) => void;
+    onCopyAction?: (action: IActionModel) => void;
+    placeholderService: PlaceholderService;
     searchTerm: string;
     onSearchChange: (searchTerm: string) => void;
 }
@@ -16,6 +20,7 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
     const [selectedActionForDetails, setSelectedActionForDetails] = useState<IActionModel | null>(null);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
+    const [actionForCopyWithOptions, setActionForCopyWithOptions] = useState<IActionModel | null>(null);
 
     const categoryOptions: IDropdownOption[] = useMemo(() => {
         const categories = Array.from(new Set((props.actions || []).map(a => a.category || 'Unknown'))).sort((a, b) => a.localeCompare(b));
@@ -147,24 +152,43 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
         );
     }, [selectedActionForDetails, isPanelOpen, hideActionDetails]);
 
+    const handleCopyWithOptions = useCallback((filled: IActionModel) => {
+        setActionForCopyWithOptions(null);
+        props.onCopyAction?.(filled);
+    }, [props]);
+
+    const handleSaveAsFavorite = useCallback((filled: IActionModel) => {
+        props.toggleFavoriteFunc?.({ ...filled, isFavorite: false });
+    }, [props]);
+
     const renderAction = useCallback((action: IActionModel) => {
+        const hasPlaceholders = props.placeholderService.hasPlaceholders(action.actionJson);
         return (
             <div className='App-Action-Row' key={action.id} title={action.url}>
                 <Checkbox className='App-Action-Checkbox' checked={action.isSelected} defaultChecked={action.isSelected} onChange={() => { props.changeSelectionFunc?.(action) }}></Checkbox>
                 <img src={action.icon} className='App-Action-Icon' alt={action.title}></img>
                 <span className='App-Action-Element'>{action.title}</span>
                 <span className='App-Action-Element'>{action.method}</span>
-                <Icon 
-                    className='App-Action-Info' 
-                    iconName='Info' 
+                <Icon
+                    className='App-Action-Info'
+                    iconName='Info'
                     onClick={() => showActionDetails(action)}
                     title="Show Action Details"
                 ></Icon>
+                {hasPlaceholders && (
+                    <Icon
+                        className='App-Action-Info'
+                        iconName='VariableGroup'
+                        onClick={() => setActionForCopyWithOptions(action)}
+                        title="Copy with options (fill placeholders)"
+                        style={{ color: '#0078d4' }}
+                    ></Icon>
+                )}
                 {props.toggleFavoriteFunc && (
-                    <Icon 
-                        className='App-Action-Favorite' 
-                        iconName={action.isFavorite ? 'FavoriteStarFill' : 'FavoriteStar'} 
-                        onClick={() => { props.toggleFavoriteFunc!(action) }} 
+                    <Icon
+                        className='App-Action-Favorite'
+                        iconName={action.isFavorite ? 'FavoriteStarFill' : 'FavoriteStar'}
+                        onClick={() => { props.toggleFavoriteFunc!(action) }}
                         title={action.isFavorite ? "Remove from Favorites" : "Add to Favorites"}
                     ></Icon>
                 )}
@@ -205,7 +229,7 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
                 <TextField
                     placeholder="Search actions by title..."
                     value={props.searchTerm}
-                    onChange={(event, newValue) => props.onSearchChange(newValue || '')}
+                    onChange={(_event, newValue) => props.onSearchChange(newValue || '')}
                     styles={{
                         root: { flex: 1 },
                         field: { fontSize: '14px' }
@@ -215,7 +239,7 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
                 <Dropdown
                     selectedKey={selectedCategory}
                     options={categoryOptions}
-                    onChange={(e, option) => setSelectedCategory((option?.key as string) || 'All')}
+                    onChange={(_e, option) => setSelectedCategory((option?.key as string) || 'All')}
                     styles={{ dropdown: { width: 220 } }}
                     ariaLabel="Filter by category"
                 />
@@ -253,6 +277,15 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
                     filteredActions.map((action) => renderAction(action))
                 )}
             </div>
+            {actionForCopyWithOptions && (
+                <CopyWithOptionsModal
+                    action={actionForCopyWithOptions}
+                    placeholderService={props.placeholderService}
+                    onCopy={handleCopyWithOptions}
+                    onSaveAsFavorite={handleSaveAsFavorite}
+                    onDismiss={() => setActionForCopyWithOptions(null)}
+                />
+            )}
             {renderActionDetails()}
         </>
     );

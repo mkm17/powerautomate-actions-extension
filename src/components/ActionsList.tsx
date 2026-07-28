@@ -1,6 +1,8 @@
 import { useCallback, useState } from "react";
 import { Checkbox, Icon, IconButton, TextField, Panel, PanelType, MessageBar, MessageBarType } from "@fluentui/react";
 import { IActionModel, Mode } from "../models";
+import { PlaceholderService } from "../services/PlaceholderService";
+import ExpressionAwareTextField from "./ExpressionAwareTextField";
 
 export interface IActionsListProps {
     actions: IActionModel[];
@@ -12,6 +14,7 @@ export interface IActionsListProps {
     toggleFavoriteFunc?: (action: IActionModel) => void;
     searchTerm: string;
     onSearchChange: (searchTerm: string) => void;
+    placeholderService: PlaceholderService;
 }
 
 const ActionsList: React.FC<IActionsListProps> = (props) => {
@@ -235,25 +238,14 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
 
                     <div style={{ marginBottom: '15px' }}>
                         <strong>URL:</strong>
-                        {isEditingDetails ? (
-                            <TextField
-                                value={editedUrl}
-                                onChange={(event, newValue) => setEditedUrl(newValue || '')}
-                                styles={{ root: { marginTop: '5px' } }}
+                        <div style={{ marginTop: '5px' }}>
+                            <ExpressionAwareTextField
+                                value={isEditingDetails ? editedUrl : selectedActionForDetails.url}
+                                placeholderService={props.placeholderService}
+                                onChange={isEditingDetails ? setEditedUrl : undefined}
+                                ariaLabel="URL"
                             />
-                        ) : (
-                            <div style={{
-                                backgroundColor: '#f5f5f5',
-                                padding: '8px',
-                                marginTop: '5px',
-                                borderRadius: '4px',
-                                wordBreak: 'break-all',
-                                fontFamily: 'monospace',
-                                fontSize: '12px'
-                            }}>
-                                {selectedActionForDetails.url}
-                            </div>
-                        )}
+                        </div>
                     </div>
 
                     <div style={{ marginBottom: '15px' }}>
@@ -273,56 +265,32 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
                     {(isEditingDetails || parsedHeaders) && (
                         <div style={{ marginBottom: '15px' }}>
                             <strong>Headers:</strong>
-                            {isEditingDetails ? (
-                                <TextField
-                                    value={editedHeaders}
+                            <div style={{ marginTop: '5px', maxHeight: '300px', overflowY: 'auto' }}>
+                                <ExpressionAwareTextField
+                                    value={isEditingDetails ? editedHeaders : JSON.stringify(parsedHeaders, null, 2)}
+                                    placeholderService={props.placeholderService}
+                                    onChange={isEditingDetails ? setEditedHeaders : undefined}
                                     multiline={true}
                                     rows={8}
-                                    onChange={(event, newValue) => setEditedHeaders(newValue || '')}
-                                    styles={{ root: { marginTop: '5px' } }}
+                                    ariaLabel="Headers"
                                 />
-                            ) : (
-                                <div style={{
-                                    backgroundColor: '#f5f5f5',
-                                    padding: '8px',
-                                    marginTop: '5px',
-                                    borderRadius: '4px',
-                                    fontFamily: 'monospace',
-                                    fontSize: '12px',
-                                    whiteSpace: 'pre-wrap'
-                                }}>
-                                    {JSON.stringify(parsedHeaders, null, 2)}
-                                </div>
-                            )}
+                            </div>
                         </div>
                     )}
 
                     {(isEditingDetails || typeof parsedBody !== 'undefined') && (
                         <div style={{ marginBottom: '15px' }}>
                             <strong>Body:</strong>
-                            {isEditingDetails ? (
-                                <TextField
-                                    value={editedBody}
+                            <div style={{ marginTop: '5px', maxHeight: '300px', overflowY: 'auto' }}>
+                                <ExpressionAwareTextField
+                                    value={isEditingDetails ? editedBody : (typeof parsedBody === 'string' ? parsedBody : JSON.stringify(parsedBody, null, 2))}
+                                    placeholderService={props.placeholderService}
+                                    onChange={isEditingDetails ? setEditedBody : undefined}
                                     multiline={true}
                                     rows={10}
-                                    onChange={(event, newValue) => setEditedBody(newValue || '')}
-                                    styles={{ root: { marginTop: '5px' } }}
+                                    ariaLabel="Body"
                                 />
-                            ) : (
-                                <div style={{
-                                    backgroundColor: '#f5f5f5',
-                                    padding: '8px',
-                                    marginTop: '5px',
-                                    borderRadius: '4px',
-                                    fontFamily: 'monospace',
-                                    fontSize: '12px',
-                                    whiteSpace: 'pre-wrap',
-                                    maxHeight: '300px',
-                                    overflowY: 'auto'
-                                }}>
-                                    {typeof parsedBody === 'string' ? parsedBody : JSON.stringify(parsedBody, null, 2)}
-                                </div>
-                            )}
+                            </div>
                         </div>
                     )}
 
@@ -358,7 +326,7 @@ const ActionsList: React.FC<IActionsListProps> = (props) => {
                 </div>
             </Panel>
         );
-    }, [selectedActionForDetails, isPanelOpen, hideActionDetails, parseActionDetails, validationError, isEditingDetails, editedUrl, editedHeaders, editedBody, props.editActionFunc, saveEditedAction, startEditingDetails]);
+    }, [selectedActionForDetails, isPanelOpen, hideActionDetails, parseActionDetails, validationError, isEditingDetails, editedUrl, editedHeaders, editedBody, props.editActionFunc, props.placeholderService, saveEditedAction, startEditingDetails]);
     const renderAction = useCallback((action: IActionModel) => {
         return <div className='App-Action-Row' title={action.url}>
             {props.showButton ?
