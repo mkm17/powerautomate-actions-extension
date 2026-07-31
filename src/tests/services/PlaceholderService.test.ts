@@ -45,8 +45,20 @@ describe("PlaceholderService", () => {
       expect(result).toContain("@{parameters('$authentication')}");
     });
 
-    it("does not extract an expression missing braces, e.g. @outputs(...) without { }", () => {
+    it("extracts an expression with no braces at all, e.g. the real Power Automate export format for a standalone expression", () => {
       const json = `"value": "@triggerOutputs()['headers']['x-ms-user-name-encoded']"`;
+      expect(placeholderService.extractExpressions(json)).toEqual([
+        "@triggerOutputs()['headers']['x-ms-user-name-encoded']",
+      ]);
+    });
+
+    it("extracts a bare @outputs(...) expression exactly as Power Automate exports it", () => {
+      const json = `"Inputs": "@outputs('Compose_CLI_Test')"`;
+      expect(placeholderService.extractExpressions(json)).toEqual(["@outputs('Compose_CLI_Test')"]);
+    });
+
+    it("does not extract an expression with mismatched/partial braces, e.g. missing the closing }", () => {
+      const json = `"value": "@{outputs('Compose')"`;
       expect(placeholderService.extractExpressions(json)).toEqual([]);
     });
 
@@ -354,6 +366,49 @@ describe("PlaceholderService", () => {
       const options = placeholderService.getPlaceholderOptions("ROLE_DEF_ID", { ROLE_DEF_ID: ["1073741999"] });
       const custom = options.find(o => o.value === "1073741999");
       expect(custom).toEqual({ label: "1073741999", value: "1073741999" });
+    });
+
+    it("returns the built-in navigation location options for NAV_LOCATION", () => {
+      const options = placeholderService.getPlaceholderOptions("NAV_LOCATION", {});
+      expect(options.map(o => o.label)).toEqual(["Quick Launch", "Top Navigation Bar"]);
+      expect(options.find(o => o.label === "Quick Launch")?.value).toBe("quicklaunch");
+      expect(options.find(o => o.label === "Top Navigation Bar")?.value).toBe("topnavigationbar");
+      expect(options.every(o => !!o.tooltip)).toBe(true);
+    });
+  });
+
+  describe("boolean placeholders", () => {
+    it("returns onLabel/offLabel for a known boolean placeholder", () => {
+      const info = placeholderService.getBooleanPlaceholderInfo("COPY_ROLE_ASSIGNMENTS");
+      expect(info).toEqual({
+        onLabel: "Copy permissions from parent",
+        offLabel: "Remove all inherited permissions",
+      });
+    });
+
+    it("returns onLabel/offLabel for IS_EXTERNAL", () => {
+      const info = placeholderService.getBooleanPlaceholderInfo("IS_EXTERNAL");
+      expect(info).toEqual({
+        onLabel: "External link (points outside this site)",
+        offLabel: "Internal link (points within this site)",
+      });
+    });
+
+    it("returns null for a key that isn't a known boolean placeholder", () => {
+      expect(placeholderService.getBooleanPlaceholderInfo("SITE_URL")).toBeNull();
+    });
+
+    it("isKnownBooleanPlaceholder is true only for registered boolean keys", () => {
+      expect(placeholderService.isKnownBooleanPlaceholder("COPY_ROLE_ASSIGNMENTS")).toBe(true);
+      expect(placeholderService.isKnownBooleanPlaceholder("IS_EXTERNAL")).toBe(true);
+      expect(placeholderService.isKnownBooleanPlaceholder("ROLE_DEF_ID")).toBe(false);
+      expect(placeholderService.isKnownBooleanPlaceholder("SITE_URL")).toBe(false);
+    });
+
+    it("getKnownBooleanPlaceholderKeys lists all registered boolean placeholder keys", () => {
+      expect(placeholderService.getKnownBooleanPlaceholderKeys()).toEqual(
+        expect.arrayContaining(["COPY_ROLE_ASSIGNMENTS", "IS_EXTERNAL"])
+      );
     });
   });
 });
