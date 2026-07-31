@@ -3,7 +3,7 @@ import {
     Dialog, DialogType, DialogFooter,
     PrimaryButton, DefaultButton,
     TextField, ComboBox, IComboBox, IComboBoxOption, Checkbox, IconButton,
-    Label, Stack, Text, Separator, Icon, TooltipHost
+    Label, Stack, Text, Separator, Icon, TooltipHost, Toggle
 } from '@fluentui/react';
 import { IActionModel } from '../models';
 import { GlobalPlaceholders, PlaceholderService } from '../services/PlaceholderService';
@@ -120,6 +120,7 @@ const CopyWithOptionsModal: React.FC<ICopyWithOptionsModalProps> = ({
                     const hasKnownOptions = knownOptions.length > 0;
                     const currentValue = values[key] ?? '';
                     const matchedOption = knownOptions.find(o => o.key === currentValue);
+                    const booleanInfo = placeholderService.getBooleanPlaceholderInfo(key);
                     return (
                         <Stack key={key} tokens={{ childrenGap: 4 }}>
                             <Stack horizontal verticalAlign="center" horizontalAlign="space-between">
@@ -137,7 +138,15 @@ const CopyWithOptionsModal: React.FC<ICopyWithOptionsModalProps> = ({
                                     styles={{ root: { height: 24, width: 24 } }}
                                 />
                             </Stack>
-                            {hasKnownOptions ? (
+                            {booleanInfo ? (
+                                <Toggle
+                                    checked={currentValue === 'true'}
+                                    onChange={(_e, checked) => handleChange(key, checked ? 'true' : 'false')}
+                                    onText={booleanInfo.onLabel}
+                                    offText={booleanInfo.offLabel}
+                                    styles={{ root: { marginBottom: 0 } }}
+                                />
+                            ) : hasKnownOptions ? (
                                 <ComboBox
                                     allowFreeInput
                                     autoComplete="off"

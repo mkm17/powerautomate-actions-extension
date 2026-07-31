@@ -224,17 +224,27 @@ function App(initialState?: IInitialState | undefined) {
   }, [loadAllPredefinedFromSettings]);
 
   const handleCopyPredefinedAction = useCallback((action: IActionModel) => {
-    communicationService.sendRequest(
-      { actionType: ActionType.SetSelectedActionsIntoClipboardV3, message: [action] },
-      AppElement.ReactApp,
-      AppElement.Content,
-      (response) => {
-        navigator.clipboard.writeText(response);
-        setNotificationMessage("Action copied — paste it in the Power Automate editor");
-        setIsSuccessNotification(true);
-      }
-    );
-  }, [communicationService]);
+    if (isV3PowerAutomateEditor) {
+      communicationService.sendRequest(
+        { actionType: ActionType.SetSelectedActionsIntoClipboardV3, message: [action] },
+        AppElement.ReactApp,
+        AppElement.Content,
+        (response) => {
+          navigator.clipboard.writeText(response);
+          setNotificationMessage("Action copied — paste it in the Power Automate editor");
+          setIsSuccessNotification(true);
+        }
+      );
+    } else {
+      communicationService.sendRequest(
+        { actionType: ActionType.CopyAction, message: [action] },
+        AppElement.ReactApp,
+        AppElement.Content
+      );
+      setNotificationMessage("Action copied — paste it in the Power Automate editor");
+      setIsSuccessNotification(true);
+    }
+  }, [communicationService, isV3PowerAutomateEditor]);
 
   const refreshPredefinedActions = useCallback(async () => {
     if (!settings) return;

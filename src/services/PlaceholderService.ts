@@ -7,7 +7,13 @@ export type Segment =
 
 const GLOBAL_PLACEHOLDERS_KEY = 'globalPlaceholders';
 const PLACEHOLDER_REGEX = /\{\{([A-Z][A-Z0-9_]*)\}\}/g;
-const EXPRESSION_REGEX = /@\{(outputs|triggerOutputs|parameters|variables|body|triggerBody)\([^)]*\)[^,"\s}]*\}/g;
+// Power Automate emits dynamic content expressions in two forms depending on
+// context: fully braced (@{outputs('X')}) when interpolated inside a larger
+// string, or bare (@outputs('X')) when the expression is the entire field
+// value. Both are matched as one clean alternative each — never a mix of one
+// brace with the other — so a single missing brace doesn't silently pass as
+// valid.
+const EXPRESSION_REGEX = /@\{(?:outputs|triggerOutputs|parameters|variables|body|triggerBody)\([^)]*\)[^,"\s}]*\}|@(?:outputs|triggerOutputs|parameters|variables|body|triggerBody)\([^)]*\)[^,"\s]*/g;
 const TOKEN_REGEX = new RegExp(`${PLACEHOLDER_REGEX.source}|${EXPRESSION_REGEX.source}`, 'g');
 
 export interface PlaceholderOption {
@@ -26,6 +32,29 @@ const KNOWN_PLACEHOLDER_OPTIONS: Record<string, PlaceholderOption[]> = {
         { label: 'Edit', value: '1073741830', tooltip: 'Add, edit, and delete lists; view, add, update, and delete list items and documents' },
         { label: 'Full Control', value: '1073741829', tooltip: 'Has full control' },
     ],
+    NAV_LOCATION: [
+        { label: 'Quick Launch', value: 'quicklaunch', tooltip: 'The left-hand side navigation menu' },
+        { label: 'Top Navigation Bar', value: 'topnavigationbar', tooltip: 'The horizontal menu bar at the top of the site' },
+    ],
+};
+
+export interface PlaceholderBooleanInfo {
+    onLabel: string;
+    offLabel: string;
+}
+
+// Placeholder keys that represent a true/false REST API parameter, shown in
+// the UI as a Toggle with descriptive labels for each state instead of a
+// free-text field.
+const KNOWN_BOOLEAN_PLACEHOLDERS: Record<string, PlaceholderBooleanInfo> = {
+    COPY_ROLE_ASSIGNMENTS: {
+        onLabel: 'Copy permissions from parent',
+        offLabel: 'Remove all inherited permissions',
+    },
+    IS_EXTERNAL: {
+        onLabel: 'External link (points outside this site)',
+        offLabel: 'Internal link (points within this site)',
+    },
 };
 
 export class PlaceholderService {
@@ -191,6 +220,18 @@ export class PlaceholderService {
 
     hasKnownPlaceholderOptions(key: string): boolean {
         return (KNOWN_PLACEHOLDER_OPTIONS[key] ?? []).length > 0;
+    }
+
+    getBooleanPlaceholderInfo(key: string): PlaceholderBooleanInfo | null {
+        return KNOWN_BOOLEAN_PLACEHOLDERS[key] ?? null;
+    }
+
+    isKnownBooleanPlaceholder(key: string): boolean {
+        return key in KNOWN_BOOLEAN_PLACEHOLDERS;
+    }
+
+    getKnownBooleanPlaceholderKeys(): string[] {
+        return Object.keys(KNOWN_BOOLEAN_PLACEHOLDERS);
     }
 
     getDefaultValues(keys: string[], globalPlaceholders: GlobalPlaceholders): Record<string, string> {
