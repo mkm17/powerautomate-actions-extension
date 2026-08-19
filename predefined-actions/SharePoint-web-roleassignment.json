@@ -1,0 +1,38 @@
+[
+  {
+    "actionJson": "{\n  \"id\": \"20spo-webra-001-add\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"web-roleassignment-add\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"POST\",\n        \"parameters/uri\": \"_api/web/roleassignments/addroleassignment(principalid='{{PRINCIPAL_ID}}',roledefid='{{ROLE_DEF_ID}}')\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"description\": \"roledefid: Read=1073741826 Contribute=1073741827 Edit=1073741830 Full Control=1073741829\",\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0040-4000-8000-000000000001\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-webra-001-add",
+    "isFavorite": false,
+    "method": "POST",
+    "title": "web-roleassignment-add",
+    "url": "_api/web/roleassignments/addroleassignment(principalid='{{PRINCIPAL_ID}}',roledefid='{{ROLE_DEF_ID}}')"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-webra-002-remove\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"web-roleassignment-remove\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"POST\",\n        \"parameters/uri\": \"_api/web/roleassignments/removeroleassignment(principalid='{{PRINCIPAL_ID}}',roledefid='{{ROLE_DEF_ID}}')\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0040-4000-8000-000000000002\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-webra-002-remove",
+    "isFavorite": false,
+    "method": "POST",
+    "title": "web-roleassignment-remove",
+    "url": "_api/web/roleassignments/removeroleassignment(principalid='{{PRINCIPAL_ID}}',roledefid='{{ROLE_DEF_ID}}')"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-webra-003-break\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"web-roleinheritance-break\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"POST\",\n        \"parameters/uri\": \"_api/web/breakroleinheritance({{COPY_ROLE_ASSIGNMENTS}})\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"description\": \"Parameter: true = copy existing permissions from parent, false = clear all permissions\",\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0040-4000-8000-000000000003\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-webra-003-break",
+    "isFavorite": false,
+    "method": "POST",
+    "title": "web-roleinheritance-break",
+    "url": "_api/web/breakroleinheritance({{COPY_ROLE_ASSIGNMENTS}})"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-webra-004-reset\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"web-roleinheritance-reset\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"POST\",\n        \"parameters/uri\": \"_api/web/resetroleinheritance\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0040-4000-8000-000000000004\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-webra-004-reset",
+    "isFavorite": false,
+    "method": "POST",
+    "title": "web-roleinheritance-reset",
+    "url": "_api/web/resetroleinheritance"
+  }
+]
