@@ -36,6 +36,19 @@ const KNOWN_PLACEHOLDER_OPTIONS: Record<string, PlaceholderOption[]> = {
         { label: 'Quick Launch', value: 'quicklaunch', tooltip: 'The left-hand side navigation menu' },
         { label: 'Top Navigation Bar', value: 'topnavigationbar', tooltip: 'The horizontal menu bar at the top of the site' },
     ],
+    FIELD_TYPE: [
+        { label: 'Single line of text', value: 'Text', tooltip: 'A single line of plain text' },
+        { label: 'Multiple lines of text', value: 'Note', tooltip: 'Plain or rich text spanning multiple lines' },
+        { label: 'Number', value: 'Number', tooltip: 'A numeric value' },
+        { label: 'Date and Time', value: 'DateTime', tooltip: 'A date, optionally with time' },
+        { label: 'Yes/No', value: 'Boolean', tooltip: 'A checkbox (true/false) value' },
+        { label: 'Choice', value: 'Choice', tooltip: 'A value picked from a fixed set of choices' },
+        { label: 'Hyperlink or Picture', value: 'URL', tooltip: 'A URL pointing to a link or image' },
+    ],
+    ADD_TO_DEFAULT_VIEW: [
+        { label: 'Yes', value: '8', tooltip: 'Add this field to the default list view' },
+        { label: 'No', value: '0', tooltip: 'Do not add this field to the default list view' },
+    ],
 };
 
 export interface PlaceholderBooleanInfo {
