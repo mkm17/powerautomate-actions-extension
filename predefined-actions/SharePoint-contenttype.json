@@ -7,5 +7,14 @@
     "method": "GET",
     "title": "contenttype-list",
     "url": "_api/web/ContentTypes?$select=Name,StringId,Group"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-ctype-002-remove\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"contenttype-remove\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"POST\",\n        \"parameters/uri\": \"_api/web/contenttypes('{{CONTENT_TYPE_ID}}')\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json;odata=nometadata\",\n          \"Content-Type\": \"application/json;charset=utf-8\",\n          \"X-HTTP-Method\": \"DELETE\",\n          \"If-Match\": \"*\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"description\": \"Removes a content type from the site by its StringId (get it from contenttype-list).\",\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0071-4000-8000-000000000002\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-ctype-002-remove",
+    "isFavorite": false,
+    "method": "POST",
+    "title": "contenttype-remove",
+    "url": "_api/web/contenttypes('{{CONTENT_TYPE_ID}}')"
   }
 ]
