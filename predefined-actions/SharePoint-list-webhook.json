@@ -1,0 +1,47 @@
+[
+  {
+    "actionJson": "{\n  \"id\": \"20spo-webhook-001-add\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"list-webhook-add\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"POST\",\n        \"parameters/uri\": \"_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        },\n        \"parameters/body\": \"{\\\"resource\\\": \\\"{{LIST_TITLE}}\\\", \\\"notificationUrl\\\": \\\"{{NOTIFICATION_URL}}\\\", \\\"expirationDateTime\\\": \\\"{{EXPIRATION_DATE}}\\\", \\\"clientState\\\": \\\"{{CLIENT_STATE}}\\\"}\"\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0020-4000-8000-000000000001\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-webhook-001-add",
+    "isFavorite": false,
+    "method": "POST",
+    "title": "list-webhook-add",
+    "url": "_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-webhook-002-get\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"list-webhook-get\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions('{{WEBHOOK_ID}}')\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0020-4000-8000-000000000002\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-webhook-002-get",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "list-webhook-get",
+    "url": "_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions('{{WEBHOOK_ID}}')"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-webhook-003-list\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"list-webhook-list\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"GET\",\n        \"parameters/uri\": \"_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0020-4000-8000-000000000003\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-webhook-003-list",
+    "isFavorite": false,
+    "method": "GET",
+    "title": "list-webhook-list",
+    "url": "_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-webhook-004-remove\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"list-webhook-remove\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"DELETE\",\n        \"parameters/uri\": \"_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions('{{WEBHOOK_ID}}')\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0020-4000-8000-000000000004\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-webhook-004-remove",
+    "isFavorite": false,
+    "method": "DELETE",
+    "title": "list-webhook-remove",
+    "url": "_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions('{{WEBHOOK_ID}}')"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-webhook-005-set\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"list-webhook-set\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"PATCH\",\n        \"parameters/uri\": \"_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions('{{WEBHOOK_ID}}')\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        },\n        \"parameters/body\": \"{\\\"notificationUrl\\\": \\\"{{NOTIFICATION_URL}}\\\", \\\"expirationDateTime\\\": \\\"{{EXPIRATION_DATE}}\\\", \\\"clientState\\\": \\\"{{CLIENT_STATE}}\\\"}\"\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0020-4000-8000-000000000005\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-webhook-005-set",
+    "isFavorite": false,
+    "method": "PATCH",
+    "title": "list-webhook-set",
+    "url": "_api/web/lists/getByTitle('{{LIST_TITLE}}')/Subscriptions('{{WEBHOOK_ID}}')"
+  }
+]
