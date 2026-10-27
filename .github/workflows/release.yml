@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags: [ "v*" ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check the tag matches the extension version
+        run: |
+          version=$(node -p "require('./public/manifest.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match manifest.json version $version"
+            exit 1
+          fi
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # Keeps the build/ folder inside the zip, matching the ApplicationBuild.zip layout used so far.
+      - name: Package
+        run: zip -r ApplicationBuild.zip build
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: ApplicationBuild.zip
+          generate_release_notes: true
