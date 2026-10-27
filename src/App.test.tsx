@@ -29,7 +29,8 @@ describe('App', () => {
     runtime: {
       sendMessage: jest.fn(),
       onMessage: {
-        addListener: jest.fn()
+        addListener: jest.fn(),
+        removeListener: jest.fn()
       }
     },
   };
@@ -195,16 +196,15 @@ describe('App', () => {
       favoriteActions={[]}
       />);
 
-    const settingsTab = screen.getByText('Settings');
-    expect(settingsTab).toBeInTheDocument();
+    const settingsButton = screen.getByTitle('Settings');
+    expect(settingsButton).toBeInTheDocument();
 
     act(() => {
-      settingsTab.click();
+      settingsButton.click();
     });
 
     await waitFor(() => {
-      const settingsContent = screen.getByText('SharePoint Page Override');
-      expect(settingsContent).toBeInTheDocument();
+      expect(screen.getByText('Extension Settings')).toBeInTheDocument();
     });
   });
 
