@@ -73,7 +73,7 @@ export class ContentService implements IContentService {
     }
 
     public isPowerAutomatePage = (): boolean => {
-        return window && window.location.href.indexOf(Constants.PowerAutomateUrl) > -1 || window.location.href.indexOf(Constants.PowerAppsUrl) > -1;
+        return (window && window.location.href.indexOf(Constants.PowerAutomateUrl) > -1) || window.location.href.indexOf(Constants.PowerAppsUrl) > -1;
     }
 
     public isNewPowerAutomateEditor = (): boolean => {
@@ -259,7 +259,7 @@ export class ContentService implements IContentService {
         const guid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
             const r = (d + Math.random() * 16) % 16 | 0;
             d = Math.floor(d / 16);
-            return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
+            return (c === "x" ? r : ((r & 0x3) | 0x8)).toString(16);
         });
         return guid;
     }

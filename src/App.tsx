@@ -170,24 +170,6 @@ function App(initialState?: IInitialState | undefined) {
     }
   }, [communicationService, isRecording, storageService, stopRecordingTimer, startRecordingTimer]);
 
-  const loadPredefinedActions = useCallback(async (url: string) => {
-    if (!url || url.trim() === '') {
-      setPredefinedActions([]);
-      return;
-    }
-
-    setPredefinedActionsLoading(true);
-    try {
-      const actions = await predefinedActionsService.fetchPredefinedActions(url);
-      setPredefinedActions(actions);
-    } catch (error) {
-      console.error('Failed to load predefined actions:', error);
-      setPredefinedActions([]);
-    } finally {
-      setPredefinedActionsLoading(false);
-    }
-  }, [predefinedActionsService]);
-
   const loadAllPredefinedFromSettings = useCallback(async (s: ISettingsModel) => {
     if (!s?.showPredefinedActions) {
       setPredefinedActions([]);
