@@ -80,27 +80,15 @@ To do so please unpack *[ApplicationBuild](https://github.com/mkm17/powerautomat
 
 ### `npm test`
 
-Runs the test suite with [Jest](https://jestjs.io/). Use `npm run test:coverage` for a coverage report.
-
-### `npm run lint`
-
-Runs ESLint over the extension source.
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
 ### `npm run build`
 
-Type-checks the project and builds it with [Vite](https://vitejs.dev/): the popup/side panel, plus the background service worker and content script as standalone scripts in `build/static/js/`. The build artifacts will be stored in the `build/` directory.
+The solution uses [craco](https://www.npmjs.com/package/@craco/craco) package to override webpack configuration. To build the solution use `npm run build` command. The build artifacts will be stored in the `build/` directory.
 The build can be directly uploaded to local Chrome browser [guideline](https://support.google.com/chrome/a/answer/2714278?hl=en).
 
-### Releases
-
-Pushing a tag such as `v1.0.21` runs the release workflow, which builds the extension and attaches `ApplicationBuild.zip` to a GitHub release.
-
 ## New Features
-
-**1.0.20**
-- Fixed copying predefined actions whose placeholder values contain quotes, XML or JSON
-- Toggle and dropdown placeholders now have valid default values
-- Fixed duplicate favorites when importing a file with repeated actions
 
 **1.0.19**
 - Added variables handling
