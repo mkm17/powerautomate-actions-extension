@@ -42,12 +42,14 @@ describe('predefined-actions', () => {
 
                 const parsed = JSON.parse(action.actionJson);
                 expect({ label, type: typeof parsed.operationDefinition?.type }).toEqual({ label, type: 'string' });
-
-                if (action.minExtensionVersion !== undefined) {
-                    expect({ label, minExtensionVersion: action.minExtensionVersion })
-                        .toEqual({ label, minExtensionVersion: expect.stringMatching(/^\d+(\.\d+)*$/) });
-                }
             }
+        });
+
+        it('uses a valid minExtensionVersion where set', () => {
+            const invalid = actions
+                .filter(action => action.minExtensionVersion !== undefined && !/^\d+(\.\d+)*$/.test(String(action.minExtensionVersion)))
+                .map(action => action.title);
+            expect(invalid).toEqual([]);
         });
 
         it('uses valid placeholder names', () => {
