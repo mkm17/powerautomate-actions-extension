@@ -180,6 +180,33 @@ describe('PredefinedActionsList', () => {
     expect(screen.getByText('Send Email')).toBeInTheDocument();
   });
 
+  it('should filter actions by URL and description', () => {
+    const actionWithDescription: IActionModel = {
+      ...mockActions[0],
+      id: 'action-3',
+      title: 'Break inheritance',
+      url: '_api/web/breakroleinheritance(true)',
+      actionJson: JSON.stringify({ operationDefinition: { description: 'Stops permissions from being inherited' } }),
+    };
+    const renderWithSearch = (searchTerm: string) => (
+      <PredefinedActionsList
+        actions={[...mockActions, actionWithDescription]}
+        isLoading={false}
+        searchTerm={searchTerm}
+        onSearchChange={() => {}}
+        placeholderService={mockPlaceholderService}
+      />
+    );
+
+    const { rerender } = render(renderWithSearch('sendmail'));
+    expect(screen.getByText('Send Email')).toBeInTheDocument();
+    expect(screen.queryByText('Get User Profile')).not.toBeInTheDocument();
+
+    rerender(renderWithSearch('inherited'));
+    expect(screen.getByText('Break inheritance')).toBeInTheDocument();
+    expect(screen.queryByText('Send Email')).not.toBeInTheDocument();
+  });
+
   it('should display column headers', () => {
     render(
       <PredefinedActionsList
