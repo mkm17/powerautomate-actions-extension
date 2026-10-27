@@ -95,6 +95,36 @@ export class PlaceholderService {
         return JSON.stringify(this.substituteDeep(parsed, values), null, 2);
     }
 
+    validateFilledAction(actionJson: string): string | null {
+        let parsed: unknown;
+        try {
+            parsed = JSON.parse(actionJson);
+        } catch {
+            return 'The filled action is not valid JSON. Check the values you entered.';
+        }
+        for (const body of this.collectRequestBodies(parsed)) {
+            // Bodies with Power Automate expressions are resolved at run time and need not be JSON yet.
+            if (!/^\s*[[{]/.test(body) || body.includes('@')) { continue; }
+            try {
+                JSON.parse(body);
+            } catch {
+                return 'The request body is not valid JSON. Check values that should be JSON objects or arrays.';
+            }
+        }
+        return null;
+    }
+
+    private collectRequestBodies(node: unknown): string[] {
+        if (Array.isArray(node)) {
+            return node.flatMap(item => this.collectRequestBodies(item));
+        }
+        if (node && typeof node === 'object') {
+            return Object.entries(node).flatMap(([key, value]) =>
+                key === 'parameters/body' && typeof value === 'string' ? [value] : this.collectRequestBodies(value));
+        }
+        return [];
+    }
+
     private substituteDeep(node: unknown, values: Record<string, string>): unknown {
         if (typeof node === 'string') {
             return this.substituteInString(node, values);

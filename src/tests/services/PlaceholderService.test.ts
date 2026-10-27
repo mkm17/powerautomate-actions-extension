@@ -345,6 +345,36 @@ describe("PlaceholderService", () => {
     });
   });
 
+  describe("validateFilledAction", () => {
+    const withBody = (body: string) => JSON.stringify({
+      operationDefinition: { inputs: { parameters: { "parameters/body": body } } },
+    });
+
+    it("accepts a valid action with a valid JSON body", () => {
+      expect(placeholderService.validateFilledAction(withBody('{"formValues":[{"FieldName":"Title"}]}'))).toBeNull();
+    });
+
+    it("rejects an action that is not valid JSON", () => {
+      expect(placeholderService.validateFilledAction('{"operationDefinition":')).toMatch(/not valid JSON/);
+    });
+
+    it("rejects a JSON body made invalid by an entered value", () => {
+      expect(placeholderService.validateFilledAction(withBody('{"formValues":[{FieldName:Title}]}'))).toMatch(/request body/);
+    });
+
+    it("checks bodies of nested Scope actions", () => {
+      const scope = JSON.stringify({
+        operationDefinition: { type: "Scope", actions: { Step: { inputs: { parameters: { "parameters/body": '{"IsExternal": }' } } } } },
+      });
+      expect(placeholderService.validateFilledAction(scope)).toMatch(/request body/);
+    });
+
+    it("skips bodies containing Power Automate expressions and non-JSON bodies", () => {
+      expect(placeholderService.validateFilledAction(withBody("{\"Id\": @{outputs('Get_user')?['body/Id']}}"))).toBeNull();
+      expect(placeholderService.validateFilledAction(withBody("plain text body"))).toBeNull();
+    });
+  });
+
   describe("substitutePlaceholders", () => {
     const buildAction = (parameters: Record<string, unknown>, description?: string) => JSON.stringify({
       operationName: "test",
