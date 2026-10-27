@@ -90,6 +90,11 @@ The build can be directly uploaded to local Chrome browser [guideline](https://s
 
 ## New Features
 
+**1.0.20**
+- Fixed copying predefined actions whose placeholder values contain quotes, XML or JSON
+- Toggle and dropdown placeholders now have valid default values
+- Fixed duplicate favorites when importing a file with repeated actions
+
 **1.0.19**
 - Added variables handling
 
