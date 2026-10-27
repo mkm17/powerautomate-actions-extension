@@ -9,4 +9,5 @@ export interface IActionModel {
     body?: any;
     isFavorite?: boolean;
     category?: string;
+    minExtensionVersion?: string;
 }
