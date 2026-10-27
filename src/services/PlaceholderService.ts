@@ -135,7 +135,8 @@ export class PlaceholderService {
         if (node && typeof node === 'object') {
             const result: Record<string, unknown> = {};
             for (const [key, value] of Object.entries(node)) {
-                result[key] = this.substituteDeep(value, values);
+                // Descriptions are documentation, and Power Automate rejects ones longer than 256 characters.
+                result[key] = key === 'description' ? value : this.substituteDeep(value, values);
             }
             return result;
         }

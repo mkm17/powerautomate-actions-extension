@@ -52,6 +52,28 @@ describe('predefined-actions', () => {
             expect(invalid).toEqual([]);
         });
 
+        it('keeps descriptions within the Power Automate limit and free of placeholders', () => {
+            const problems: string[] = [];
+            const check = (node: unknown, title: string) => {
+                if (Array.isArray(node)) {
+                    node.forEach(item => check(item, title));
+                } else if (node && typeof node === 'object') {
+                    for (const [key, value] of Object.entries(node)) {
+                        if (key === 'description' && typeof value === 'string') {
+                            if (value.length > 256) problems.push(`${title}: ${value.length} characters`);
+                            if (/\{\{[A-Z][A-Z0-9_]*\}\}/.test(value)) problems.push(`${title}: contains a placeholder`);
+                        } else {
+                            check(value, title);
+                        }
+                    }
+                }
+            };
+            for (const action of actions) {
+                check(JSON.parse(action.actionJson), action.title);
+            }
+            expect(problems).toEqual([]);
+        });
+
         it('uses valid placeholder names', () => {
             for (const action of actions) {
                 const names = Array.from(action.actionJson.matchAll(/\{\{([^}]*)\}\}/g), (match: RegExpMatchArray) => match[1]);
