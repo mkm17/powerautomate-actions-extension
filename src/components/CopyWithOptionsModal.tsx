@@ -3,7 +3,7 @@ import {
     Dialog, DialogType, DialogFooter,
     PrimaryButton, DefaultButton,
     TextField, ComboBox, IComboBox, IComboBoxOption, Checkbox, IconButton,
-    Label, Stack, Text, Separator, Icon, TooltipHost, Toggle
+    Label, Stack, Text, Separator, Icon, TooltipHost, Toggle, MessageBar, MessageBarType
 } from '@fluentui/react';
 import { IActionModel } from '../models';
 import { GlobalPlaceholders, PlaceholderService } from '../services/PlaceholderService';
@@ -27,6 +27,7 @@ const CopyWithOptionsModal: React.FC<ICopyWithOptionsModalProps> = ({
     const [values, setValues] = useState<Record<string, string>>({});
     const [expressionValues, setExpressionValues] = useState<Record<string, string>>({});
     const [saveAsFavorite, setSaveAsFavorite] = useState(false);
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     const placeholders = placeholderService.extractPlaceholders(action.actionJson);
     const expressions = placeholderService.extractExpressions(action.actionJson);
@@ -95,11 +96,16 @@ const CopyWithOptionsModal: React.FC<ICopyWithOptionsModalProps> = ({
 
     const handleCopy = useCallback(() => {
         const filled = buildFilledAction();
+        const error = placeholderService.validateFilledAction(filled.actionJson);
+        setValidationError(error);
+        if (error) {
+            return;
+        }
         if (saveAsFavorite) {
             onSaveAsFavorite(filled);
         }
         onCopy(filled);
-    }, [saveAsFavorite, buildFilledAction, onCopy, onSaveAsFavorite]);
+    }, [saveAsFavorite, buildFilledAction, placeholderService, onCopy, onSaveAsFavorite]);
 
     return (
         <Dialog
@@ -246,6 +252,12 @@ const CopyWithOptionsModal: React.FC<ICopyWithOptionsModalProps> = ({
                     checked={saveAsFavorite}
                     onChange={(_, checked) => setSaveAsFavorite(!!checked)}
                 />
+
+                {validationError && (
+                    <MessageBar messageBarType={MessageBarType.error} onDismiss={() => setValidationError(null)}>
+                        {validationError}
+                    </MessageBar>
+                )}
             </Stack>
 
             <DialogFooter>
