@@ -400,14 +400,14 @@ describe("PlaceholderService", () => {
       expect(JSON.parse(bodyOf(result)).formValues).toEqual([{ FieldName: "Title", FieldValue: "Example" }]);
     });
 
-    it("substitutes a whole-body object placeholder and its description mention", () => {
+    it("substitutes a whole-body object placeholder but leaves the description untouched", () => {
       const action = buildAction({ "parameters/body": "{{LIST_BODY}}" }, "Provide {{LIST_BODY}} as a JSON object");
       const listBody = '{"__metadata":{"type":"SP.List"},"BaseTemplate":100,"Title":"Projects"}';
 
       const result = placeholderService.substitutePlaceholders(action, { LIST_BODY: listBody });
 
       expect(JSON.parse(bodyOf(result)).Title).toBe("Projects");
-      expect(JSON.parse(result).operationDefinition.description).toBe(`Provide ${listBody} as a JSON object`);
+      expect(JSON.parse(result).operationDefinition.description).toBe("Provide {{LIST_BODY}} as a JSON object");
     });
 
     it("produces a valid boolean body for the default IS_EXTERNAL value", () => {
