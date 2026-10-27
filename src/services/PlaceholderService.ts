@@ -312,9 +312,17 @@ export class PlaceholderService {
     getDefaultValues(keys: string[], globalPlaceholders: GlobalPlaceholders): Record<string, string> {
         const result: Record<string, string> = {};
         for (const key of keys) {
-            result[key] = globalPlaceholders[key]?.[0] ?? (this.isKnownBooleanPlaceholder(key) ? 'false' : '');
+            result[key] = globalPlaceholders[key]?.[0] ?? this.getBuiltInDefault(key);
         }
         return result;
+    }
+
+    // An empty value would leave bare placeholders such as "Options": {{ADD_TO_DEFAULT_VIEW}} as invalid JSON.
+    private getBuiltInDefault(key: string): string {
+        if (this.isKnownBooleanPlaceholder(key)) {
+            return 'false';
+        }
+        return KNOWN_PLACEHOLDER_OPTIONS[key]?.[0]?.value ?? '';
     }
 
     tokenize(text: string): Segment[] {

@@ -338,6 +338,11 @@ describe("PlaceholderService", () => {
       const result = placeholderService.getDefaultValues(["IS_EXTERNAL", "COPY_ROLE_ASSIGNMENTS"], { COPY_ROLE_ASSIGNMENTS: ["true"] });
       expect(result).toEqual({ IS_EXTERNAL: "false", COPY_ROLE_ASSIGNMENTS: "true" });
     });
+
+    it("defaults placeholders with built-in options to the first option", () => {
+      const result = placeholderService.getDefaultValues(["ADD_TO_DEFAULT_VIEW", "FIELD_TYPE", "ROLE_DEF_ID"], { ROLE_DEF_ID: ["1073741829"] });
+      expect(result).toEqual({ ADD_TO_DEFAULT_VIEW: "8", FIELD_TYPE: "Text", ROLE_DEF_ID: "1073741829" });
+    });
   });
 
   describe("substitutePlaceholders", () => {
