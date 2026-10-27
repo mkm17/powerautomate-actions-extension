@@ -12,6 +12,18 @@ interface IGitHubFile {
     download_url?: string;
 }
 
+export const compareVersions = (a: string, b: string): number => {
+    const left = a.split('.').map(Number);
+    const right = b.split('.').map(Number);
+    for (let i = 0; i < Math.max(left.length, right.length); i++) {
+        const diff = (left[i] || 0) - (right[i] || 0);
+        if (diff !== 0) {
+            return diff;
+        }
+    }
+    return 0;
+};
+
 export class PredefinedActionsService {
     private CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
     private RATE_LIMIT_CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours (when rate limited)
@@ -23,6 +35,10 @@ export class PredefinedActionsService {
     private RATE_LIMIT_RESET_TIME_KEY = "gitHubRateLimitResetTime";
 
     public async fetchPredefinedActions(url: string): Promise<IActionModel[]> {
+        return this.filterSupportedActions(await this.loadPredefinedActions(url));
+    }
+
+    private async loadPredefinedActions(url: string): Promise<IActionModel[]> {
         if (!url || url.trim() === '') {
             return [];
         }
@@ -144,6 +160,27 @@ export class PredefinedActionsService {
     }
 
     public async fetchDefaultPredefinedActions(): Promise<IActionModel[]> {
+        return this.filterSupportedActions(await this.loadDefaultPredefinedActions());
+    }
+
+    // Filtered on every read, not when caching, so an extension update reveals newly supported actions immediately.
+    private filterSupportedActions(actions: IActionModel[]): IActionModel[] {
+        const currentVersion = this.getExtensionVersion();
+        if (!currentVersion) {
+            return actions;
+        }
+        return actions.filter(action => !action.minExtensionVersion || compareVersions(currentVersion, action.minExtensionVersion) >= 0);
+    }
+
+    private getExtensionVersion(): string | null {
+        try {
+            return chrome.runtime?.getManifest?.()?.version ?? null;
+        } catch {
+            return null;
+        }
+    }
+
+    private async loadDefaultPredefinedActions(): Promise<IActionModel[]> {
         try {
             const isRateLimited = await this.isGitHubRateLimited();
             if (isRateLimited) {
