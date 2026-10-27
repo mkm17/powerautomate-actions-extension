@@ -1,0 +1,29 @@
+[
+  {
+    "actionJson": "{\n  \"id\": \"20spo-list-001-add\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"list-add\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"POST\",\n        \"parameters/uri\": \"_api/web/lists\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json;odata=nometadata\",\n          \"Content-Type\": \"application/json;charset=utf-8\"\n        },\n        \"parameters/body\": \"{{LIST_BODY}}\"\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"description\": \"Creates a SharePoint list. Provide {{LIST_BODY}} as a JSON object, for example {\\\"__metadata\\\":{\\\"type\\\":\\\"SP.List\\\"},\\\"BaseTemplate\\\":100,\\\"Title\\\":\\\"Projects\\\"}.\",\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0065-4000-0000-000000000001\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-list-001-add",
+    "isFavorite": false,
+    "method": "POST",
+    "title": "list-add",
+    "url": "_api/web/lists"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-list-002-update\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"list-update\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"POST\",\n        \"parameters/uri\": \"_api/web/lists/getByTitle('{{LIST_TITLE}}')\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json;odata=nometadata\",\n          \"Content-Type\": \"application/json;charset=utf-8\",\n          \"X-HTTP-Method\": \"MERGE\",\n          \"IF-MATCH\": \"*\"\n        },\n        \"parameters/body\": \"{{LIST_BODY}}\"\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"description\": \"Updates list settings. Provide {{LIST_BODY}} with properties such as Description, EnableVersioning, or Hidden.\",\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0065-4000-0000-000000000002\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-list-002-update",
+    "isFavorite": false,
+    "method": "POST",
+    "title": "list-update",
+    "url": "_api/web/lists/getByTitle('{{LIST_TITLE}}')"
+  },
+  {
+    "actionJson": "{\n  \"id\": \"20spo-list-003-remove\",\n  \"brandColor\": \"#007ee5\",\n  \"icon\": \"https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png\",\n  \"isTrigger\": false,\n  \"operationName\": \"list-remove\",\n  \"operationDefinition\": {\n    \"type\": \"OpenApiConnection\",\n    \"inputs\": {\n      \"host\": {\n        \"connectionName\": \"shared_sharepointonline\",\n        \"operationId\": \"HttpRequest\",\n        \"apiId\": \"/providers/Microsoft.PowerApps/apis/shared_sharepointonline\"\n      },\n      \"parameters\": {\n        \"dataset\": \"{{SITE_URL}}\",\n        \"parameters/method\": \"POST\",\n        \"parameters/uri\": \"_api/web/lists/getByTitle('{{LIST_TITLE}}')\",\n        \"parameters/headers\": {\n          \"Accept\": \"application/json;odata=nometadata\",\n          \"Content-Type\": \"application/json;charset=utf-8\",\n          \"X-HTTP-Method\": \"DELETE\",\n          \"IF-MATCH\": \"*\"\n        }\n      },\n      \"authentication\": {\n        \"type\": \"Raw\",\n        \"value\": \"@json(decodeBase64(triggerOutputs().headers['X-MS-APIM-Tokens']))['$ConnectionKey']\"\n      }\n    },\n    \"runAfter\": {},\n    \"metadata\": {\n      \"operationMetadataId\": \"a1b2c3d4-0065-4000-0000-000000000003\"\n    }\n  }\n}",
+    "icon": "https://conn-afd-prod-endpoint-bmc9bqahasf3grgk.b01.azurefd.net/v1.0.1769/1.0.1769.4352/sharepointonline/icon.png",
+    "id": "20spo-list-003-remove",
+    "isFavorite": false,
+    "method": "POST",
+    "title": "list-remove",
+    "url": "_api/web/lists/getByTitle('{{LIST_TITLE}}')"
+  }
+]
