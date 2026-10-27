@@ -86,69 +86,7 @@ export class PlaceholderService {
     }
 
     substitutePlaceholders(actionJson: string, values: Record<string, string>): string {
-        let parsed: unknown;
-        try {
-            parsed = JSON.parse(actionJson);
-        } catch {
-            return this.substituteInString(actionJson, values);
-        }
-        return JSON.stringify(this.substituteDeep(parsed, values), null, 2);
-    }
-
-    private substituteDeep(node: unknown, values: Record<string, string>): unknown {
-        if (typeof node === 'string') {
-            return this.substituteInString(node, values);
-        }
-        if (Array.isArray(node)) {
-            return node.map(item => this.substituteDeep(item, values));
-        }
-        if (node && typeof node === 'object') {
-            const result: Record<string, unknown> = {};
-            for (const [key, value] of Object.entries(node)) {
-                result[key] = this.substituteDeep(value, values);
-            }
-            return result;
-        }
-        return node;
-    }
-
-    // Strings such as a request body are JSON templates themselves: a placeholder inside one
-    // of their string literals needs JSON escaping (e.g. CAML with quotes), while one in a
-    // value position (e.g. "formValues": {{FORM_VALUES}}) is a structured value inserted as-is.
-    private substituteInString(text: string, values: Record<string, string>): string {
-        const isJsonTemplate = /^\s*[[{]/.test(text);
-        const placeholderAt = new RegExp(PLACEHOLDER_REGEX.source, 'y');
-        let result = '';
-        let inString = false;
-        let i = 0;
-        while (i < text.length) {
-            placeholderAt.lastIndex = i;
-            const match = placeholderAt.exec(text);
-            if (match) {
-                const value = values[match[1]];
-                if (value === undefined) {
-                    result += match[0];
-                } else {
-                    result += isJsonTemplate && inString ? JSON.stringify(value).slice(1, -1) : value;
-                }
-                i += match[0].length;
-                continue;
-            }
-            const char = text[i];
-            if (isJsonTemplate) {
-                if (inString && char === '\\') {
-                    result += text.slice(i, i + 2);
-                    i += 2;
-                    continue;
-                }
-                if (char === '"') {
-                    inString = !inString;
-                }
-            }
-            result += char;
-            i++;
-        }
-        return result;
+        return actionJson.replace(new RegExp(PLACEHOLDER_REGEX.source, 'g'), (_, key) => values[key] ?? `{{${key}}}`);
     }
 
     extractExpressions(actionJson: string): string[] {
@@ -312,7 +250,7 @@ export class PlaceholderService {
     getDefaultValues(keys: string[], globalPlaceholders: GlobalPlaceholders): Record<string, string> {
         const result: Record<string, string> = {};
         for (const key of keys) {
-            result[key] = globalPlaceholders[key]?.[0] ?? (this.isKnownBooleanPlaceholder(key) ? 'false' : '');
+            result[key] = globalPlaceholders[key]?.[0] ?? '';
         }
         return result;
     }

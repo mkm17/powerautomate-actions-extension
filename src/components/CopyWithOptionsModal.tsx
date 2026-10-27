@@ -57,8 +57,8 @@ const CopyWithOptionsModal: React.FC<ICopyWithOptionsModalProps> = ({
     }, []);
 
     const handleReset = useCallback((key: string) => {
-        setValues((prev) => ({ ...prev, ...placeholderService.getDefaultValues([key], globalPlaceholders) }));
-    }, [globalPlaceholders, placeholderService]);
+        setValues((prev) => ({ ...prev, [key]: globalPlaceholders[key]?.[0] ?? '' }));
+    }, [globalPlaceholders]);
 
     const getVariantOptions = useCallback((key: string): IComboBoxOption[] => {
         return (globalPlaceholders[key] || []).map((v) => ({ key: v, text: v }));
