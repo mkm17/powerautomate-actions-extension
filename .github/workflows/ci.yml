@@ -22,12 +22,10 @@ jobs:
 
       - run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
       # Also validates the predefined-actions JSON files, which the extension reads live from main.
       - name: Test
         run: npm test
 
+      # With CI=true, Create React App fails the build on lint warnings, so this also gates linting.
       - name: Build
         run: npm run build

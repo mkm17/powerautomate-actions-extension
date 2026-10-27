@@ -255,13 +255,15 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
         );
     }, [props.toggleFavoriteFunc]);
 
+    const { searchTerm, onSearchChange, onRefresh } = props;
+
     const renderSearch = useCallback(() => {
         return (
             <div style={{ padding: '10px 20px', backgroundColor: '#f3f2f1', display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <TextField
                     placeholder="Search actions by title, URL or description..."
-                    value={props.searchTerm}
-                    onChange={(_event, newValue) => props.onSearchChange(newValue || '')}
+                    value={searchTerm}
+                    onChange={(_event, newValue) => onSearchChange(newValue || '')}
                     styles={{
                         root: { flex: 1 },
                         field: { fontSize: '14px' }
@@ -275,17 +277,17 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
                     styles={{ dropdown: { width: 220 } }}
                     ariaLabel="Filter by category"
                 />
-                {props.onRefresh && (
+                {onRefresh && (
                     <Icon
                         iconName="Refresh"
-                        onClick={props.onRefresh}
+                        onClick={onRefresh}
                         title="Refresh predefined actions"
                         style={{ cursor: 'pointer', fontSize: '16px', color: '#107c10' }}
                     />
                 )}
             </div>
         );
-    }, [props.searchTerm, props.onSearchChange, props.onRefresh, selectedCategory, categoryOptions]);
+    }, [searchTerm, onSearchChange, onRefresh, selectedCategory, categoryOptions]);
 
     if (props.isLoading) {
         return (

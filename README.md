@@ -88,6 +88,10 @@ See the section about [running tests](https://facebook.github.io/create-react-ap
 The solution uses [craco](https://www.npmjs.com/package/@craco/craco) package to override webpack configuration. To build the solution use `npm run build` command. The build artifacts will be stored in the `build/` directory.
 The build can be directly uploaded to local Chrome browser [guideline](https://support.google.com/chrome/a/answer/2714278?hl=en).
 
+### Releases
+
+Pushing a tag such as `v1.0.21` runs the release workflow, which builds the extension and attaches `ApplicationBuild.zip` to a GitHub release.
+
 ## New Features
 
 **1.0.20**
