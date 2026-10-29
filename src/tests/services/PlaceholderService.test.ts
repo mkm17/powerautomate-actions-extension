@@ -333,6 +333,100 @@ describe("PlaceholderService", () => {
       const result = placeholderService.getDefaultValues(["TEAM_NAME", "LIST_ID"], { TEAM_NAME: ["AcceleratorComm", "Dev"] });
       expect(result).toEqual({ TEAM_NAME: "AcceleratorComm", LIST_ID: "" });
     });
+
+    it("defaults boolean placeholders without a saved value to false", () => {
+      const result = placeholderService.getDefaultValues(["IS_EXTERNAL", "COPY_ROLE_ASSIGNMENTS"], { COPY_ROLE_ASSIGNMENTS: ["true"] });
+      expect(result).toEqual({ IS_EXTERNAL: "false", COPY_ROLE_ASSIGNMENTS: "true" });
+    });
+
+    it("defaults placeholders with built-in options to the first option", () => {
+      const result = placeholderService.getDefaultValues(["ADD_TO_DEFAULT_VIEW", "FIELD_TYPE", "ROLE_DEF_ID"], { ROLE_DEF_ID: ["1073741829"] });
+      expect(result).toEqual({ ADD_TO_DEFAULT_VIEW: "8", FIELD_TYPE: "Text", ROLE_DEF_ID: "1073741829" });
+    });
+  });
+
+  describe("validateFilledAction", () => {
+    const withBody = (body: string) => JSON.stringify({
+      operationDefinition: { inputs: { parameters: { "parameters/body": body } } },
+    });
+
+    it("accepts a valid action with a valid JSON body", () => {
+      expect(placeholderService.validateFilledAction(withBody('{"formValues":[{"FieldName":"Title"}]}'))).toBeNull();
+    });
+
+    it("rejects an action that is not valid JSON", () => {
+      expect(placeholderService.validateFilledAction('{"operationDefinition":')).toMatch(/not valid JSON/);
+    });
+
+    it("rejects a JSON body made invalid by an entered value", () => {
+      expect(placeholderService.validateFilledAction(withBody('{"formValues":[{FieldName:Title}]}'))).toMatch(/request body/);
+    });
+
+    it("checks bodies of nested Scope actions", () => {
+      const scope = JSON.stringify({
+        operationDefinition: { type: "Scope", actions: { Step: { inputs: { parameters: { "parameters/body": '{"IsExternal": }' } } } } },
+      });
+      expect(placeholderService.validateFilledAction(scope)).toMatch(/request body/);
+    });
+
+    it("skips bodies containing Power Automate expressions and non-JSON bodies", () => {
+      expect(placeholderService.validateFilledAction(withBody("{\"Id\": @{outputs('Get_user')?['body/Id']}}"))).toBeNull();
+      expect(placeholderService.validateFilledAction(withBody("plain text body"))).toBeNull();
+    });
+  });
+
+  describe("substitutePlaceholders", () => {
+    const buildAction = (parameters: Record<string, unknown>, description?: string) => JSON.stringify({
+      operationName: "test",
+      operationDefinition: { type: "OpenApiConnection", inputs: { parameters }, description },
+    });
+    const bodyOf = (actionJson: string) => JSON.parse(actionJson).operationDefinition.inputs.parameters["parameters/body"];
+
+    it("JSON-escapes values inserted into a string literal of a JSON body", () => {
+      const action = buildAction({ "parameters/body": '{"parameters":{"RenderOptions":2,"ViewXml":"{{VIEW_XML}}"}}' });
+      const viewXml = '<View><Query><Where><Eq><FieldRef Name="Title"/><Value Type="Text">A</Value></Eq></Where></Query></View>';
+
+      const result = placeholderService.substitutePlaceholders(action, { VIEW_XML: viewXml });
+
+      expect(JSON.parse(bodyOf(result)).parameters.ViewXml).toBe(viewXml);
+    });
+
+    it("inserts structured values in a value position of a JSON body as-is", () => {
+      const action = buildAction({ "parameters/body": '{"formValues":{{FORM_VALUES}},"bNewDocumentUpdate":false}' });
+      const formValues = '[{"FieldName":"Title","FieldValue":"Example"}]';
+
+      const result = placeholderService.substitutePlaceholders(action, { FORM_VALUES: formValues });
+
+      expect(JSON.parse(bodyOf(result)).formValues).toEqual([{ FieldName: "Title", FieldValue: "Example" }]);
+    });
+
+    it("substitutes a whole-body object placeholder but leaves the description untouched", () => {
+      const action = buildAction({ "parameters/body": "{{LIST_BODY}}" }, "Provide {{LIST_BODY}} as a JSON object");
+      const listBody = '{"__metadata":{"type":"SP.List"},"BaseTemplate":100,"Title":"Projects"}';
+
+      const result = placeholderService.substitutePlaceholders(action, { LIST_BODY: listBody });
+
+      expect(JSON.parse(bodyOf(result)).Title).toBe("Projects");
+      expect(JSON.parse(result).operationDefinition.description).toBe("Provide {{LIST_BODY}} as a JSON object");
+    });
+
+    it("produces a valid boolean body for the default IS_EXTERNAL value", () => {
+      const action = buildAction({ "parameters/body": '{"Title": "{{TITLE}}", "Url": "{{URL}}", "IsExternal": {{IS_EXTERNAL}}}' });
+      const values = { ...placeholderService.getDefaultValues(["IS_EXTERNAL"], {}), TITLE: "Home", URL: "/sites/demo" };
+
+      const result = placeholderService.substitutePlaceholders(action, values);
+
+      expect(JSON.parse(bodyOf(result))).toEqual({ Title: "Home", Url: "/sites/demo", IsExternal: false });
+    });
+
+    it("keeps unknown placeholders and substitutes plain (non-JSON) strings", () => {
+      const action = buildAction({ dataset: "{{SITE_URL}}", "parameters/uri": "_api/web/lists/getByTitle('{{LIST_TITLE}}')" });
+
+      const result = JSON.parse(placeholderService.substitutePlaceholders(action, { SITE_URL: "https://contoso.sharepoint.com" }));
+
+      expect(result.operationDefinition.inputs.parameters.dataset).toBe("https://contoso.sharepoint.com");
+      expect(result.operationDefinition.inputs.parameters["parameters/uri"]).toBe("_api/web/lists/getByTitle('{{LIST_TITLE}}')");
+    });
   });
 
   describe("getPlaceholderOptions", () => {

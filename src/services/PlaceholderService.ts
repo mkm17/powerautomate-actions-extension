@@ -86,7 +86,100 @@ export class PlaceholderService {
     }
 
     substitutePlaceholders(actionJson: string, values: Record<string, string>): string {
-        return actionJson.replace(new RegExp(PLACEHOLDER_REGEX.source, 'g'), (_, key) => values[key] ?? `{{${key}}}`);
+        let parsed: unknown;
+        try {
+            parsed = JSON.parse(actionJson);
+        } catch {
+            return this.substituteInString(actionJson, values);
+        }
+        return JSON.stringify(this.substituteDeep(parsed, values), null, 2);
+    }
+
+    validateFilledAction(actionJson: string): string | null {
+        let parsed: unknown;
+        try {
+            parsed = JSON.parse(actionJson);
+        } catch {
+            return 'The filled action is not valid JSON. Check the values you entered.';
+        }
+        for (const body of this.collectRequestBodies(parsed)) {
+            // Bodies with Power Automate expressions are resolved at run time and need not be JSON yet.
+            if (!/^\s*[[{]/.test(body) || body.includes('@')) { continue; }
+            try {
+                JSON.parse(body);
+            } catch {
+                return 'The request body is not valid JSON. Check values that should be JSON objects or arrays.';
+            }
+        }
+        return null;
+    }
+
+    private collectRequestBodies(node: unknown): string[] {
+        if (Array.isArray(node)) {
+            return node.flatMap(item => this.collectRequestBodies(item));
+        }
+        if (node && typeof node === 'object') {
+            return Object.entries(node).flatMap(([key, value]) =>
+                key === 'parameters/body' && typeof value === 'string' ? [value] : this.collectRequestBodies(value));
+        }
+        return [];
+    }
+
+    private substituteDeep(node: unknown, values: Record<string, string>): unknown {
+        if (typeof node === 'string') {
+            return this.substituteInString(node, values);
+        }
+        if (Array.isArray(node)) {
+            return node.map(item => this.substituteDeep(item, values));
+        }
+        if (node && typeof node === 'object') {
+            const result: Record<string, unknown> = {};
+            for (const [key, value] of Object.entries(node)) {
+                // Descriptions are documentation, and Power Automate rejects ones longer than 256 characters.
+                result[key] = key === 'description' ? value : this.substituteDeep(value, values);
+            }
+            return result;
+        }
+        return node;
+    }
+
+    // Strings such as a request body are JSON templates themselves: a placeholder inside one
+    // of their string literals needs JSON escaping (e.g. CAML with quotes), while one in a
+    // value position (e.g. "formValues": {{FORM_VALUES}}) is a structured value inserted as-is.
+    private substituteInString(text: string, values: Record<string, string>): string {
+        const isJsonTemplate = /^\s*[[{]/.test(text);
+        const placeholderAt = new RegExp(PLACEHOLDER_REGEX.source, 'y');
+        let result = '';
+        let inString = false;
+        let i = 0;
+        while (i < text.length) {
+            placeholderAt.lastIndex = i;
+            const match = placeholderAt.exec(text);
+            if (match) {
+                const value = values[match[1]];
+                if (value === undefined) {
+                    result += match[0];
+                } else {
+                    result += isJsonTemplate && inString ? JSON.stringify(value).slice(1, -1) : value;
+                }
+                i += match[0].length;
+                continue;
+            }
+            const char = text[i];
+            if (isJsonTemplate) {
+                if (inString && char === '\\') {
+                    result += text.slice(i, i + 2);
+                    i += 2;
+                    continue;
+                }
+                if (char === '"') {
+                    inString = !inString;
+                }
+            }
+            result += char;
+            i++;
+        }
+        return result;
     }
 
     extractExpressions(actionJson: string): string[] {
@@ -250,9 +343,17 @@ export class PlaceholderService {
     getDefaultValues(keys: string[], globalPlaceholders: GlobalPlaceholders): Record<string, string> {
         const result: Record<string, string> = {};
         for (const key of keys) {
-            result[key] = globalPlaceholders[key]?.[0] ?? '';
+            result[key] = globalPlaceholders[key]?.[0] ?? this.getBuiltInDefault(key);
         }
         return result;
+    }
+
+    // An empty value would leave bare placeholders such as "Options": {{ADD_TO_DEFAULT_VIEW}} as invalid JSON.
+    private getBuiltInDefault(key: string): string {
+        if (this.isKnownBooleanPlaceholder(key)) {
+            return 'false';
+        }
+        return KNOWN_PLACEHOLDER_OPTIONS[key]?.[0]?.value ?? '';
     }
 
     tokenize(text: string): Segment[] {
