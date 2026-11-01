@@ -369,6 +369,14 @@ describe("PlaceholderService", () => {
       expect(placeholderService.validateFilledAction(scope)).toMatch(/request body/);
     });
 
+    it("still validates bodies whose only @ is plain text such as an email address", () => {
+      expect(placeholderService.validateFilledAction(withBody('{"formValues":[{FieldName:"Email",FieldValue:"user@contoso.com"}]}'))).toMatch(/request body/);
+    });
+
+    it("skips bodies containing a bare Power Automate function expression", () => {
+      expect(placeholderService.validateFilledAction(withBody("{\"Id\": @outputs('Get_user')?['body/Id']}"))).toBeNull();
+    });
+
     it("skips bodies containing Power Automate expressions and non-JSON bodies", () => {
       expect(placeholderService.validateFilledAction(withBody("{\"Id\": @{outputs('Get_user')?['body/Id']}}"))).toBeNull();
       expect(placeholderService.validateFilledAction(withBody("plain text body"))).toBeNull();
@@ -408,6 +416,25 @@ describe("PlaceholderService", () => {
 
       expect(JSON.parse(bodyOf(result)).Title).toBe("Projects");
       expect(JSON.parse(result).operationDefinition.description).toBe("Provide {{LIST_BODY}} as a JSON object");
+    });
+
+    it("substitutes placeholders used as JSON object keys", () => {
+      const action = buildAction({ "parameters/headers": { "{{HEADER_NAME}}": "{{HEADER_VALUE}}" } });
+
+      const result = JSON.parse(placeholderService.substitutePlaceholders(action, { HEADER_NAME: "X-Custom", HEADER_VALUE: "1" }));
+
+      expect(result.operationDefinition.inputs.parameters["parameters/headers"]).toEqual({ "X-Custom": "1" });
+    });
+
+    it("substitutes payload fields named description while keeping the action description", () => {
+      const action = JSON.stringify({
+        operationDefinition: { type: "Compose", inputs: { description: "{{DESCRIPTION}}" }, runAfter: {}, description: "Uses {{DESCRIPTION}}" },
+      });
+
+      const result = JSON.parse(placeholderService.substitutePlaceholders(action, { DESCRIPTION: "Quarterly report" }));
+
+      expect(result.operationDefinition.inputs.description).toBe("Quarterly report");
+      expect(result.operationDefinition.description).toBe("Uses {{DESCRIPTION}}");
     });
 
     it("produces a valid boolean body for the default IS_EXTERNAL value", () => {

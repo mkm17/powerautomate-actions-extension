@@ -103,8 +103,9 @@ export class PlaceholderService {
             return 'The filled action is not valid JSON. Check the values you entered.';
         }
         for (const body of this.collectRequestBodies(parsed)) {
-            // Bodies with Power Automate expressions are resolved at run time and need not be JSON yet.
-            if (!/^\s*[[{]/.test(body) || body.includes('@')) { continue; }
+            // Bodies with Power Automate expressions (@{...} or @function(...)) are resolved at run time and need
+            // not be JSON yet; a plain @, as in an email address, does not exempt the body.
+            if (!/^\s*[[{]/.test(body) || /@\{|@[A-Za-z_]\w*\(/.test(body)) { continue; }
             try {
                 JSON.parse(body);
             } catch {
@@ -133,14 +134,22 @@ export class PlaceholderService {
             return node.map(item => this.substituteDeep(item, values));
         }
         if (node && typeof node === 'object') {
+            const isActionDefinition = this.isActionDefinition(node);
             const result: Record<string, unknown> = {};
             for (const [key, value] of Object.entries(node)) {
-                // Descriptions are documentation, and Power Automate rejects ones longer than 256 characters.
-                result[key] = key === 'description' ? value : this.substituteDeep(value, values);
+                // An action's own description is documentation, and Power Automate rejects ones longer than
+                // 256 characters. Payload fields that happen to be called "description" are still substituted.
+                const keepAsIs = isActionDefinition && key === 'description';
+                result[this.substituteInString(key, values)] = keepAsIs ? value : this.substituteDeep(value, values);
             }
             return result;
         }
         return node;
+    }
+
+    private isActionDefinition(node: object): boolean {
+        const candidate = node as Record<string, unknown>;
+        return typeof candidate.type === 'string' && ('inputs' in candidate || 'actions' in candidate || 'runAfter' in candidate);
     }
 
     // Strings such as a request body are JSON templates themselves: a placeholder inside one
