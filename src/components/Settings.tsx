@@ -208,8 +208,12 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
       }
 
       const existingFavorites = await storageService.getFavoriteActions();
-      const existingIds = new Set(existingFavorites.map(a => a.id));
-      const newActions = importedActions.filter(a => !existingIds.has(a.id));
+      const seenIds = new Set(existingFavorites.map(a => a.id));
+      const newActions = importedActions.filter(a => {
+        if (seenIds.has(a.id)) return false;
+        seenIds.add(a.id);
+        return true;
+      });
       await storageService.setFavoriteActions([...existingFavorites, ...newActions]);
       setMessage({ text: `Successfully imported ${newActions.length} new favorite action(s) (${importedActions.length - newActions.length} duplicate(s) skipped)`, type: MessageBarType.success });
       
@@ -363,6 +367,7 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
           </TooltipHost>
         </Stack>
         <Toggle
+          ariaLabel="Show Action Search Bar"
           checked={settings.showActionSearchBar ?? true}
           onChange={handleShowActionSearchBarChange}
         />
@@ -397,6 +402,7 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
             </TooltipHost>
           </Stack>
           <Toggle
+            ariaLabel="Show Predefined Actions"
             checked={settings.showPredefinedActions ?? true}
             onChange={handleShowPredefinedActionsChange}
           />
@@ -421,6 +427,7 @@ const Settings: React.FC<SettingsProps> = ({ storageService, onSettingsChange, o
             </TooltipHost>
           </Stack>
           <Toggle
+            ariaLabel="Load Default Actions"
             checked={settings.loadDefaultPredefinedActions ?? true}
             onChange={handleLoadDefaultPredefinedActionsChange}
           />

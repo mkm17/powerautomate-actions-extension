@@ -1,4 +1,4 @@
-import { PredefinedActionsService } from '../../services';
+import { PredefinedActionsService, compareVersions } from '../../services';
 import { IActionModel } from '../../models';
 
 describe('PredefinedActionsService', () => {
@@ -125,6 +125,39 @@ describe('PredefinedActionsService', () => {
 
       const result = await predefinedActionsService.fetchPredefinedActions('https://example.com/actions.json');
       expect(Array.isArray(result)).toBe(true);
+    });
+  });
+
+  describe('minExtensionVersion', () => {
+    const action = (id: string, minExtensionVersion?: string): IActionModel => ({
+      id, title: id, url: '', method: 'GET', icon: '', actionJson: '{}', minExtensionVersion,
+    });
+
+    beforeEach(() => {
+      global.fetch = jest.fn(() => Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve([action('any'), action('older', '1.0.9'), action('same', '1.0.20'), action('newer', '1.0.21')]),
+      } as Response));
+    });
+
+    it('hides actions that need a newer extension version', async () => {
+      (global as any).chrome.runtime = { getManifest: () => ({ version: '1.0.20' }) };
+
+      const result = await predefinedActionsService.fetchPredefinedActions('https://example.com/actions.json');
+
+      expect(result.map(a => a.id)).toEqual(['any', 'older', 'same']);
+    });
+
+    it('shows all actions when the extension version is unknown', async () => {
+      const result = await predefinedActionsService.fetchPredefinedActions('https://example.com/actions.json');
+
+      expect(result.map(a => a.id)).toEqual(['any', 'older', 'same', 'newer']);
+    });
+
+    it('compares versions numerically per segment', () => {
+      expect(compareVersions('1.0.10', '1.0.9')).toBeGreaterThan(0);
+      expect(compareVersions('1.0.20', '1.0.20')).toBe(0);
+      expect(compareVersions('1.0', '1.0.1')).toBeLessThan(0);
     });
   });
 

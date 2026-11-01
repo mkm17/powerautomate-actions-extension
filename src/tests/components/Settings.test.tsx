@@ -62,9 +62,9 @@ describe('Settings component', () => {
   test('renders all settings sections', () => {
     render(<Settings storageService={mockStorageService} />);
     
-    expect(screen.getByText('🎯 Page Detection')).toBeInTheDocument();
-    expect(screen.getByText('⏱️ Recording Controls')).toBeInTheDocument();
-    expect(screen.getByText('🎨 Interface Customization')).toBeInTheDocument();
+    expect(screen.getByText('Favorite Actions Management')).toBeInTheDocument();
+    expect(screen.getByText('Page Detection Mode')).toBeInTheDocument();
+    expect(screen.getByText('Predefined Actions')).toBeInTheDocument();
   });
 
   test('renders Page Detection Mode setting', () => {
@@ -101,7 +101,7 @@ describe('Settings component', () => {
   test('renders action search bar setting', () => {
     render(<Settings storageService={mockStorageService} />);
     
-    const searchBarToggle = screen.getByRole('switch');
+    const searchBarToggle = screen.getByRole('switch', { name: 'Show Action Search Bar' });
     expect(searchBarToggle).toBeInTheDocument();
     expect(searchBarToggle).toHaveAttribute('aria-checked', 'true');
   });
@@ -223,7 +223,11 @@ describe('Settings component', () => {
     (mockStorageService.updateSettings as jest.Mock).mockResolvedValue(updatedSettings);
     
     render(<Settings storageService={mockStorageService} />);
-    
+
+    await waitFor(() => {
+      expect(screen.getByRole('radio', { name: 'Recording Page Override' })).toBeChecked();
+    });
+
     const automaticOption = screen.getByRole('radio', { name: 'Automatic Detection' });
     fireEvent.click(automaticOption);
     
@@ -256,7 +260,7 @@ describe('Settings component', () => {
     
     render(<Settings storageService={mockStorageService} />);
     
-    const toggle = screen.getByRole('switch');
+    const toggle = screen.getByRole('switch', { name: 'Show Action Search Bar' });
     fireEvent.click(toggle);
     
     await waitFor(() => {
@@ -305,6 +309,10 @@ describe('Settings component', () => {
   });
 });
 describe('Settings handleFileChange (favorites import)', () => {
+  beforeEach(() => {
+    (mockStorageService.getSettings as jest.Mock).mockResolvedValue(defaultSettings);
+  });
+
   const getHiddenFileInput = (container: HTMLElement) => {
     const input = container.querySelector('input[type="file"]') as HTMLInputElement | null;
     expect(input).toBeInTheDocument();
@@ -354,7 +362,7 @@ describe('Settings handleFileChange (favorites import)', () => {
     ]);
 
     expect(
-      screen.getByText('Successfully imported 2 new favorite action(s) (2 duplicate(s) skipped)')
+      await screen.findByText('Successfully imported 2 new favorite action(s) (2 duplicate(s) skipped)')
     ).toBeInTheDocument();
 
     expect(onFavoritesImported).toHaveBeenCalledTimes(1);
@@ -370,7 +378,7 @@ describe('Settings handleFileChange (favorites import)', () => {
 
     fireEvent.change(fileInput, { target: { files: [file] } });
 
-    expect(screen.getByText('Please select a valid JSON file')).toBeInTheDocument();
+    expect(await screen.findByText('Please select a valid JSON file')).toBeInTheDocument();
     expect(mockStorageService.getFavoriteActions).not.toHaveBeenCalled();
     expect(mockStorageService.setFavoriteActions).not.toHaveBeenCalled();
   });
