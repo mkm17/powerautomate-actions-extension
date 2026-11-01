@@ -34,9 +34,12 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Keeps the build/ folder inside the zip, matching the ApplicationBuild.zip layout used so far.
+      # Keeps the build/ folder inside the zip, matching the ApplicationBuild.zip layout used so far. The
+      # committed archive is removed first, since zip -r would update it and keep stale files.
       - name: Package
-        run: zip -r ApplicationBuild.zip build
+        run: |
+          rm -f ApplicationBuild.zip
+          zip -r ApplicationBuild.zip build
 
       - uses: softprops/action-gh-release@v2
         with:
