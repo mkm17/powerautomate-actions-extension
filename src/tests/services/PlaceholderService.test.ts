@@ -345,6 +345,44 @@ describe("PlaceholderService", () => {
     });
   });
 
+  describe("validateFilledAction", () => {
+    const withBody = (body: string) => JSON.stringify({
+      operationDefinition: { inputs: { parameters: { "parameters/body": body } } },
+    });
+
+    it("accepts a valid action with a valid JSON body", () => {
+      expect(placeholderService.validateFilledAction(withBody('{"formValues":[{"FieldName":"Title"}]}'))).toBeNull();
+    });
+
+    it("rejects an action that is not valid JSON", () => {
+      expect(placeholderService.validateFilledAction('{"operationDefinition":')).toMatch(/not valid JSON/);
+    });
+
+    it("rejects a JSON body made invalid by an entered value", () => {
+      expect(placeholderService.validateFilledAction(withBody('{"formValues":[{FieldName:Title}]}'))).toMatch(/request body/);
+    });
+
+    it("checks bodies of nested Scope actions", () => {
+      const scope = JSON.stringify({
+        operationDefinition: { type: "Scope", actions: { Step: { inputs: { parameters: { "parameters/body": '{"IsExternal": }' } } } } },
+      });
+      expect(placeholderService.validateFilledAction(scope)).toMatch(/request body/);
+    });
+
+    it("still validates bodies whose only @ is plain text such as an email address", () => {
+      expect(placeholderService.validateFilledAction(withBody('{"formValues":[{FieldName:"Email",FieldValue:"user@contoso.com"}]}'))).toMatch(/request body/);
+    });
+
+    it("skips bodies containing a bare Power Automate function expression", () => {
+      expect(placeholderService.validateFilledAction(withBody("{\"Id\": @outputs('Get_user')?['body/Id']}"))).toBeNull();
+    });
+
+    it("skips bodies containing Power Automate expressions and non-JSON bodies", () => {
+      expect(placeholderService.validateFilledAction(withBody("{\"Id\": @{outputs('Get_user')?['body/Id']}}"))).toBeNull();
+      expect(placeholderService.validateFilledAction(withBody("plain text body"))).toBeNull();
+    });
+  });
+
   describe("substitutePlaceholders", () => {
     const buildAction = (parameters: Record<string, unknown>, description?: string) => JSON.stringify({
       operationName: "test",
@@ -370,14 +408,33 @@ describe("PlaceholderService", () => {
       expect(JSON.parse(bodyOf(result)).formValues).toEqual([{ FieldName: "Title", FieldValue: "Example" }]);
     });
 
-    it("substitutes a whole-body object placeholder and its description mention", () => {
+    it("substitutes a whole-body object placeholder but leaves the description untouched", () => {
       const action = buildAction({ "parameters/body": "{{LIST_BODY}}" }, "Provide {{LIST_BODY}} as a JSON object");
       const listBody = '{"__metadata":{"type":"SP.List"},"BaseTemplate":100,"Title":"Projects"}';
 
       const result = placeholderService.substitutePlaceholders(action, { LIST_BODY: listBody });
 
       expect(JSON.parse(bodyOf(result)).Title).toBe("Projects");
-      expect(JSON.parse(result).operationDefinition.description).toBe(`Provide ${listBody} as a JSON object`);
+      expect(JSON.parse(result).operationDefinition.description).toBe("Provide {{LIST_BODY}} as a JSON object");
+    });
+
+    it("substitutes placeholders used as JSON object keys", () => {
+      const action = buildAction({ "parameters/headers": { "{{HEADER_NAME}}": "{{HEADER_VALUE}}" } });
+
+      const result = JSON.parse(placeholderService.substitutePlaceholders(action, { HEADER_NAME: "X-Custom", HEADER_VALUE: "1" }));
+
+      expect(result.operationDefinition.inputs.parameters["parameters/headers"]).toEqual({ "X-Custom": "1" });
+    });
+
+    it("substitutes payload fields named description while keeping the action description", () => {
+      const action = JSON.stringify({
+        operationDefinition: { type: "Compose", inputs: { description: "{{DESCRIPTION}}" }, runAfter: {}, description: "Uses {{DESCRIPTION}}" },
+      });
+
+      const result = JSON.parse(placeholderService.substitutePlaceholders(action, { DESCRIPTION: "Quarterly report" }));
+
+      expect(result.operationDefinition.inputs.description).toBe("Quarterly report");
+      expect(result.operationDefinition.description).toBe("Uses {{DESCRIPTION}}");
     });
 
     it("produces a valid boolean body for the default IS_EXTERNAL value", () => {

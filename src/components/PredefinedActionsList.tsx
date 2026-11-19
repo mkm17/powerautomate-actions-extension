@@ -16,6 +16,29 @@ export interface IPredefinedActionsListProps {
     onSearchChange: (searchTerm: string) => void;
 }
 
+const getDescriptions = (actionJson: string): string[] => {
+    const descriptions: string[] = [];
+    const collect = (node: unknown) => {
+        if (Array.isArray(node)) {
+            node.forEach(collect);
+        } else if (node && typeof node === 'object') {
+            for (const [key, value] of Object.entries(node)) {
+                if (key === 'description' && typeof value === 'string') {
+                    descriptions.push(value);
+                } else {
+                    collect(value);
+                }
+            }
+        }
+    };
+    try {
+        collect(JSON.parse(actionJson));
+    } catch {
+        // Unparseable actions are still searchable by title and URL.
+    }
+    return descriptions;
+};
+
 const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => {
     const [selectedActionForDetails, setSelectedActionForDetails] = useState<IActionModel | null>(null);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -197,16 +220,25 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
         );
     }, [props, showActionDetails]);
 
-    const filteredActions = useCallback(() => {
+    const searchTextById = useMemo(() => {
+        const result = new Map<string, string>();
+        for (const action of props.actions || []) {
+            result.set(action.id, [action.title, action.url, ...getDescriptions(action.actionJson)].join('\n').toLowerCase());
+        }
+        return result;
+    }, [props.actions]);
+
+    const filteredActions = useMemo(() => {
         let list = props.actions;
         if (selectedCategory && selectedCategory !== 'All') {
             list = list.filter(a => (a.category || 'Unknown') === selectedCategory);
         }
-        if (!props.searchTerm || props.searchTerm.trim() === '') {
+        const term = props.searchTerm?.trim().toLowerCase();
+        if (!term) {
             return list;
         }
-        return list.filter(action => action.title.toLowerCase().includes(props.searchTerm.toLowerCase()));
-    }, [props.actions, props.searchTerm, selectedCategory])();
+        return list.filter(action => (searchTextById.get(action.id) ?? action.title.toLowerCase()).includes(term));
+    }, [props.actions, props.searchTerm, selectedCategory, searchTextById]);
 
     const renderHeader = useCallback(() => {
         const headerClassName = `App-Action-Header ${props.toggleFavoriteFunc ? 'App-Action-Header--with-favorite' : 'App-Action-Header--without-favorite'}`;
@@ -223,13 +255,15 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
         );
     }, [props.toggleFavoriteFunc]);
 
+    const { searchTerm, onSearchChange, onRefresh } = props;
+
     const renderSearch = useCallback(() => {
         return (
             <div style={{ padding: '10px 20px', backgroundColor: '#f3f2f1', display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <TextField
-                    placeholder="Search actions by title..."
-                    value={props.searchTerm}
-                    onChange={(_event, newValue) => props.onSearchChange(newValue || '')}
+                    placeholder="Search actions by title, URL or description..."
+                    value={searchTerm}
+                    onChange={(_event, newValue) => onSearchChange(newValue || '')}
                     styles={{
                         root: { flex: 1 },
                         field: { fontSize: '14px' }
@@ -243,17 +277,17 @@ const PredefinedActionsList: React.FC<IPredefinedActionsListProps> = (props) => 
                     styles={{ dropdown: { width: 220 } }}
                     ariaLabel="Filter by category"
                 />
-                {props.onRefresh && (
+                {onRefresh && (
                     <Icon
                         iconName="Refresh"
-                        onClick={props.onRefresh}
+                        onClick={onRefresh}
                         title="Refresh predefined actions"
                         style={{ cursor: 'pointer', fontSize: '16px', color: '#107c10' }}
                     />
                 )}
             </div>
         );
-    }, [props.searchTerm, props.onSearchChange, props.onRefresh, selectedCategory, categoryOptions]);
+    }, [searchTerm, onSearchChange, onRefresh, selectedCategory, categoryOptions]);
 
     if (props.isLoading) {
         return (
